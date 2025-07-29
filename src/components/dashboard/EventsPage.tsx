@@ -1,0 +1,325 @@
+import { useState } from 'react';
+import { Event } from '@/lib/types';
+import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Plus, Edit, Trash2, Clock, CalendarDays } from 'lucide-react';
+import { format, parseISO, isAfter, isBefore, isToday } from 'date-fns';
+
+interface EventsPageProps {
+  events: Event[];
+  onCreateEvent: (data: Omit<Event, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => void;
+  onUpdateEvent: (data: Partial<Event> & { id: string }) => void;
+  onDeleteEvent: (id: string) => void;
+}
+
+export const EventsPage = ({ 
+  events, 
+  onCreateEvent, 
+  onUpdateEvent, 
+  onDeleteEvent 
+}: EventsPageProps) => {
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    start_time: ''
+  });
+
+  const resetForm = () => {
+    setFormData({
+      title: '',
+      description: '',
+      start_time: ''
+    });
+    setEditingEvent(null);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const submissionData = {
+      ...formData,
+      start_time: new Date(formData.start_time).toISOString(),
+    };
+
+    if (editingEvent) {
+      onUpdateEvent({ id: editingEvent.id, ...submissionData });
+    } else {
+      onCreateEvent(submissionData);
+    }
+    
+    resetForm();
+    setIsCreateOpen(false);
+  };
+
+  const handleEdit = (event: Event) => {
+    setEditingEvent(event);
+    setFormData({
+      title: event.title,
+      description: event.description || '',
+      start_time: format(parseISO(event.start_time), "yyyy-MM-dd'T'HH:mm")
+    });
+    setIsCreateOpen(true);
+  };
+
+  const now = new Date();
+  const todayEvents = events.filter(event => isToday(parseISO(event.start_time)));
+  const upcomingEvents = events.filter(event => isAfter(parseISO(event.start_time), now) && !isToday(parseISO(event.start_time)));
+  const pastEvents = events.filter(event => isBefore(parseISO(event.start_time), now) && !isToday(parseISO(event.start_time)));
+
+  const getEventStatus = (event: Event) => {
+    const eventDate = parseISO(event.start_time);
+    if (isToday(eventDate)) return 'today';
+    if (isAfter(eventDate, now)) return 'upcoming';
+    return 'past';
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'today': return 'text-orange-600 dark:text-orange-400';
+      case 'upcoming': return 'text-blue-600 dark:text-blue-400';
+      default: return 'text-gray-600 dark:text-gray-400';
+    }
+  };
+
+  const getBorderColor = (status: string) => {
+    switch (status) {
+      case 'today': return 'border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-950/20';
+      case 'upcoming': return 'border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/20';
+      default: return 'border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/20';
+    }
+  };
+
+  return (
+    <div className="space-y-6 animate-fade-in">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-500 to-indigo-500 bg-clip-text text-transparent">
+          My Events
+        </h2>
+        <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+          <DialogTrigger asChild>
+            <Button 
+              onClick={resetForm}
+              className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600"
+            >
+              <Plus size={16} className="mr-2" />
+              Add Event
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>
+                {editingEvent ? 'Edit Event' : 'Create New Event'}
+              </DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <Input
+                placeholder="Event title"
+                value={formData.title}
+                onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                required
+              />
+              <Textarea
+                placeholder="Description (optional)"
+                value={formData.description}
+                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+              />
+              <Input
+                type="datetime-local"
+                placeholder="Start time"
+                value={formData.start_time}
+                onChange={(e) => setFormData(prev => ({ ...prev, start_time: e.target.value }))}
+                required
+              />
+              <div className="flex gap-2">
+                <Button type="submit" className="flex-1">
+                  {editingEvent ? 'Update' : 'Create'}
+                </Button>
+                <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)}>
+                  Cancel
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      {/* Event Statistics */}
+      <div className="grid grid-cols-3 gap-4">
+        <Card className="text-center">
+          <CardContent className="pt-6">
+            <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">{todayEvents.length}</div>
+            <div className="text-sm text-muted-foreground">Today</div>
+          </CardContent>
+        </Card>
+        <Card className="text-center">
+          <CardContent className="pt-6">
+            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{upcomingEvents.length}</div>
+            <div className="text-sm text-muted-foreground">Upcoming</div>
+          </CardContent>
+        </Card>
+        <Card className="text-center">
+          <CardContent className="pt-6">
+            <div className="text-2xl font-bold text-gray-600 dark:text-gray-400">{pastEvents.length}</div>
+            <div className="text-sm text-muted-foreground">Past</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Today's Events */}
+      {todayEvents.length > 0 && (
+        <div>
+          <h3 className="text-lg font-semibold text-orange-600 dark:text-orange-400 mb-3 flex items-center gap-2">
+            <CalendarDays size={16} />
+            Today's Events ({todayEvents.length})
+          </h3>
+          <div className="space-y-3">
+            {todayEvents.map((event) => {
+              const status = getEventStatus(event);
+              return (
+                <Card key={event.id} className={getBorderColor(status)}>
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-lg">{event.title}</h4>
+                        {event.description && (
+                          <p className="text-sm text-muted-foreground mt-1">{event.description}</p>
+                        )}
+                        <div className={`flex items-center gap-1 text-sm mt-2 ${getStatusColor(status)}`}>
+                          <Clock size={12} />
+                          {format(parseISO(event.start_time), 'HH:mm')} - Today
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge className="text-xs bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300">
+                          Today
+                        </Badge>
+                        <Button size="sm" variant="outline" onClick={() => handleEdit(event)}>
+                          <Edit size={12} />
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          onClick={() => onDeleteEvent(event.id)}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 size={12} />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Upcoming Events */}
+      <div>
+        <h3 className="text-lg font-semibold text-blue-600 dark:text-blue-400 mb-3">
+          Upcoming Events ({upcomingEvents.length})
+        </h3>
+        <div className="grid gap-4 md:grid-cols-2">
+          {upcomingEvents.map((event) => {
+            const status = getEventStatus(event);
+            return (
+              <Card key={event.id} className={getBorderColor(status)}>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg">{event.title}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {event.description && (
+                    <p className="text-sm text-muted-foreground">{event.description}</p>
+                  )}
+                  <div className={`flex items-center gap-1 text-sm ${getStatusColor(status)}`}>
+                    <Clock size={12} />
+                    {format(parseISO(event.start_time), 'MMM dd, yyyy HH:mm')}
+                  </div>
+                  <div className="flex items-center gap-2 pt-2">
+                    <Button size="sm" variant="outline" onClick={() => handleEdit(event)}>
+                      <Edit size={12} />
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      onClick={() => onDeleteEvent(event.id)}
+                      className="text-destructive hover:text-destructive"
+                    >
+                      <Trash2 size={12} />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Past Events */}
+      {pastEvents.length > 0 && (
+        <div>
+          <h3 className="text-lg font-semibold text-gray-600 dark:text-gray-400 mb-3">
+            Past Events ({pastEvents.length})
+          </h3>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {pastEvents.slice(0, 6).map((event) => {
+              const status = getEventStatus(event);
+              return (
+                <Card key={event.id} className={getBorderColor(status)}>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base text-muted-foreground">{event.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {event.description && (
+                      <p className="text-sm text-muted-foreground">{event.description}</p>
+                    )}
+                    <div className={`flex items-center gap-1 text-sm ${getStatusColor(status)}`}>
+                      <Clock size={12} />
+                      {format(parseISO(event.start_time), 'MMM dd, yyyy HH:mm')}
+                    </div>
+                    <div className="flex items-center gap-2 pt-2">
+                      <Button size="sm" variant="outline" onClick={() => handleEdit(event)}>
+                        <Edit size={12} />
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        onClick={() => onDeleteEvent(event.id)}
+                        className="text-destructive hover:text-destructive"
+                      >
+                        <Trash2 size={12} />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+          {pastEvents.length > 6 && (
+            <p className="text-sm text-muted-foreground text-center mt-4">
+              And {pastEvents.length - 6} more past events...
+            </p>
+          )}
+        </div>
+      )}
+
+      {events.length === 0 && (
+        <Card className="text-center py-12">
+          <CardContent>
+            <p className="text-muted-foreground mb-4">No events yet! Add your first event to get started.</p>
+            <Button onClick={() => setIsCreateOpen(true)}>
+              <Plus size={16} className="mr-2" />
+              Add Your First Event
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+};
