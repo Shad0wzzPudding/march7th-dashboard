@@ -16,13 +16,18 @@ export const useDashboardData = () => {
   } = useQuery({
     queryKey: ['interests'],
     queryFn: async (): Promise<Interest[]> => {
+      console.log('Fetching interests...');
       const { data, error } = await supabase
         .from('interests')
         .select('*')
         .eq('user_id', DEMO_USER_ID)
         .order('sort_order', { ascending: true });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Interests query error:', error);
+        throw error;
+      }
+      console.log('Interests data:', data);
       return data || [];
     }
   });
@@ -35,13 +40,18 @@ export const useDashboardData = () => {
   } = useQuery({
     queryKey: ['tasks'],
     queryFn: async (): Promise<Task[]> => {
+      console.log('Fetching tasks...');
       const { data, error } = await supabase
         .from('tasks')
         .select('*')
         .eq('user_id', DEMO_USER_ID)
         .order('deadline', { ascending: true });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Tasks query error:', error);
+        throw error;
+      }
+      console.log('Tasks data:', data);
       return data || [];
     }
   });
@@ -54,13 +64,18 @@ export const useDashboardData = () => {
   } = useQuery({
     queryKey: ['events'],
     queryFn: async (): Promise<Event[]> => {
+      console.log('Fetching events...');
       const { data, error } = await supabase
         .from('events')
         .select('*')
         .eq('user_id', DEMO_USER_ID)
         .order('start_time', { ascending: true });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Events query error:', error);
+        throw error;
+      }
+      console.log('Events data:', data);
       return data || [];
     }
   });
@@ -73,6 +88,7 @@ export const useDashboardData = () => {
   } = useQuery({
     queryKey: ['activity_log'],
     queryFn: async (): Promise<ActivityLog[]> => {
+      console.log('Fetching activity log...');
       const { data, error } = await supabase
         .from('activity_log')
         .select('*')
@@ -80,7 +96,11 @@ export const useDashboardData = () => {
         .order('created_at', { ascending: false })
         .limit(10);
       
-      if (error) throw error;
+      if (error) {
+        console.error('Activity log query error:', error);
+        throw error;
+      }
+      console.log('Activity log data:', data);
       return (data || []) as ActivityLog[];
     }
   });
