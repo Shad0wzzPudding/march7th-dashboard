@@ -3,8 +3,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { Interest, Task, Event, ActivityLog } from '@/lib/types';
 import { toast } from 'sonner';
 
-const DEMO_USER_ID = '550e8400-e29b-41d4-a716-446655440000'; // For demo purposes since auth is not implemented
-
 export const useDashboardData = () => {
   const queryClient = useQueryClient();
 
@@ -16,18 +14,16 @@ export const useDashboardData = () => {
   } = useQuery({
     queryKey: ['interests'],
     queryFn: async (): Promise<Interest[]> => {
-      console.log('Fetching interests...');
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
       const { data, error } = await supabase
         .from('interests')
         .select('*')
-        .eq('user_id', DEMO_USER_ID)
+        .eq('user_id', user.id)
         .order('sort_order', { ascending: true });
       
-      if (error) {
-        console.error('Interests query error:', error);
-        throw error;
-      }
-      console.log('Interests data:', data);
+      if (error) throw error;
       return data || [];
     }
   });
@@ -40,18 +36,16 @@ export const useDashboardData = () => {
   } = useQuery({
     queryKey: ['tasks'],
     queryFn: async (): Promise<Task[]> => {
-      console.log('Fetching tasks...');
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
       const { data, error } = await supabase
         .from('tasks')
         .select('*')
-        .eq('user_id', DEMO_USER_ID)
+        .eq('user_id', user.id)
         .order('deadline', { ascending: true });
       
-      if (error) {
-        console.error('Tasks query error:', error);
-        throw error;
-      }
-      console.log('Tasks data:', data);
+      if (error) throw error;
       return data || [];
     }
   });
@@ -64,18 +58,16 @@ export const useDashboardData = () => {
   } = useQuery({
     queryKey: ['events'],
     queryFn: async (): Promise<Event[]> => {
-      console.log('Fetching events...');
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
       const { data, error } = await supabase
         .from('events')
         .select('*')
-        .eq('user_id', DEMO_USER_ID)
+        .eq('user_id', user.id)
         .order('start_time', { ascending: true });
       
-      if (error) {
-        console.error('Events query error:', error);
-        throw error;
-      }
-      console.log('Events data:', data);
+      if (error) throw error;
       return data || [];
     }
   });
@@ -88,19 +80,17 @@ export const useDashboardData = () => {
   } = useQuery({
     queryKey: ['activity_log'],
     queryFn: async (): Promise<ActivityLog[]> => {
-      console.log('Fetching activity log...');
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
       const { data, error } = await supabase
         .from('activity_log')
         .select('*')
-        .eq('user_id', DEMO_USER_ID)
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(10);
       
-      if (error) {
-        console.error('Activity log query error:', error);
-        throw error;
-      }
-      console.log('Activity log data:', data);
+      if (error) throw error;
       return (data || []) as ActivityLog[];
     }
   });
@@ -108,21 +98,16 @@ export const useDashboardData = () => {
   // Mutations
   const createInterest = useMutation({
     mutationFn: async (data: Omit<Interest, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
-      console.log('Creating interest with data:', data);
-      
-      // Use the service role key temporarily for demo purposes to bypass RLS
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
       const { data: result, error } = await supabase
         .from('interests')
-        .insert([{ ...data, user_id: DEMO_USER_ID }])
+        .insert([{ ...data, user_id: user.id }])
         .select()
         .single();
       
-      if (error) {
-        console.error('Create interest error:', error);
-        throw error;
-      }
-      
-      console.log('Interest created successfully:', result);
+      if (error) throw error;
       return result;
     },
     onSuccess: () => {
@@ -138,22 +123,18 @@ export const useDashboardData = () => {
 
   const updateInterest = useMutation({
     mutationFn: async ({ id, ...data }: Partial<Interest> & { id: string }) => {
-      console.log('Updating interest:', id, data);
-      
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
       const { data: result, error } = await supabase
         .from('interests')
         .update(data)
         .eq('id', id)
-        .eq('user_id', DEMO_USER_ID)
+        .eq('user_id', user.id)
         .select()
         .single();
       
-      if (error) {
-        console.error('Update interest error:', error);
-        throw error;
-      }
-      
-      console.log('Interest updated successfully:', result);
+      if (error) throw error;
       return result;
     },
     onSuccess: () => {
@@ -169,20 +150,16 @@ export const useDashboardData = () => {
 
   const deleteInterest = useMutation({
     mutationFn: async (id: string) => {
-      console.log('Deleting interest:', id);
-      
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
       const { error } = await supabase
         .from('interests')
         .delete()
         .eq('id', id)
-        .eq('user_id', DEMO_USER_ID);
+        .eq('user_id', user.id);
       
-      if (error) {
-        console.error('Delete interest error:', error);
-        throw error;
-      }
-      
-      console.log('Interest deleted successfully');
+      if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['interests'] });
@@ -197,9 +174,12 @@ export const useDashboardData = () => {
 
   const createTask = useMutation({
     mutationFn: async (data: Omit<Task, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
       const { error } = await supabase
         .from('tasks')
-        .insert([{ ...data, user_id: DEMO_USER_ID }]);
+        .insert([{ ...data, user_id: user.id }]);
       
       if (error) throw error;
     },
@@ -212,11 +192,14 @@ export const useDashboardData = () => {
 
   const updateTask = useMutation({
     mutationFn: async ({ id, ...data }: Partial<Task> & { id: string }) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
       const { error } = await supabase
         .from('tasks')
         .update(data)
         .eq('id', id)
-        .eq('user_id', DEMO_USER_ID);
+        .eq('user_id', user.id);
       
       if (error) throw error;
     },
@@ -229,11 +212,14 @@ export const useDashboardData = () => {
 
   const deleteTask = useMutation({
     mutationFn: async (id: string) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
       const { error } = await supabase
         .from('tasks')
         .delete()
         .eq('id', id)
-        .eq('user_id', DEMO_USER_ID);
+        .eq('user_id', user.id);
       
       if (error) throw error;
     },
@@ -246,9 +232,12 @@ export const useDashboardData = () => {
 
   const createEvent = useMutation({
     mutationFn: async (data: Omit<Event, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
       const { error } = await supabase
         .from('events')
-        .insert([{ ...data, user_id: DEMO_USER_ID }]);
+        .insert([{ ...data, user_id: user.id }]);
       
       if (error) throw error;
     },
@@ -261,11 +250,14 @@ export const useDashboardData = () => {
 
   const updateEvent = useMutation({
     mutationFn: async ({ id, ...data }: Partial<Event> & { id: string }) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
       const { error } = await supabase
         .from('events')
         .update(data)
         .eq('id', id)
-        .eq('user_id', DEMO_USER_ID);
+        .eq('user_id', user.id);
       
       if (error) throw error;
     },
@@ -278,11 +270,14 @@ export const useDashboardData = () => {
 
   const deleteEvent = useMutation({
     mutationFn: async (id: string) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
       const { error } = await supabase
         .from('events')
         .delete()
         .eq('id', id)
-        .eq('user_id', DEMO_USER_ID);
+        .eq('user_id', user.id);
       
       if (error) throw error;
     },
