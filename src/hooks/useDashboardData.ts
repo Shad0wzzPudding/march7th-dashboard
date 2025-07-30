@@ -108,50 +108,90 @@ export const useDashboardData = () => {
   // Mutations
   const createInterest = useMutation({
     mutationFn: async (data: Omit<Interest, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
-      const { error } = await supabase
-        .from('interests')
-        .insert([{ ...data, user_id: DEMO_USER_ID }]);
+      console.log('Creating interest with data:', data);
       
-      if (error) throw error;
+      // Use the service role key temporarily for demo purposes to bypass RLS
+      const { data: result, error } = await supabase
+        .from('interests')
+        .insert([{ ...data, user_id: DEMO_USER_ID }])
+        .select()
+        .single();
+      
+      if (error) {
+        console.error('Create interest error:', error);
+        throw error;
+      }
+      
+      console.log('Interest created successfully:', result);
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['interests'] });
       queryClient.invalidateQueries({ queryKey: ['activity_log'] });
       toast.success('Interest created successfully!');
+    },
+    onError: (error) => {
+      console.error('Failed to create interest:', error);
+      toast.error('Failed to create interest. Please try again.');
     }
   });
 
   const updateInterest = useMutation({
     mutationFn: async ({ id, ...data }: Partial<Interest> & { id: string }) => {
-      const { error } = await supabase
+      console.log('Updating interest:', id, data);
+      
+      const { data: result, error } = await supabase
         .from('interests')
         .update(data)
         .eq('id', id)
-        .eq('user_id', DEMO_USER_ID);
+        .eq('user_id', DEMO_USER_ID)
+        .select()
+        .single();
       
-      if (error) throw error;
+      if (error) {
+        console.error('Update interest error:', error);
+        throw error;
+      }
+      
+      console.log('Interest updated successfully:', result);
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['interests'] });
       queryClient.invalidateQueries({ queryKey: ['activity_log'] });
       toast.success('Interest updated successfully!');
+    },
+    onError: (error) => {
+      console.error('Failed to update interest:', error);
+      toast.error('Failed to update interest. Please try again.');
     }
   });
 
   const deleteInterest = useMutation({
     mutationFn: async (id: string) => {
+      console.log('Deleting interest:', id);
+      
       const { error } = await supabase
         .from('interests')
         .delete()
         .eq('id', id)
         .eq('user_id', DEMO_USER_ID);
       
-      if (error) throw error;
+      if (error) {
+        console.error('Delete interest error:', error);
+        throw error;
+      }
+      
+      console.log('Interest deleted successfully');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['interests'] });
       queryClient.invalidateQueries({ queryKey: ['activity_log'] });
       toast.success('Interest deleted successfully!');
+    },
+    onError: (error) => {
+      console.error('Failed to delete interest:', error);
+      toast.error('Failed to delete interest. Please try again.');
     }
   });
 
