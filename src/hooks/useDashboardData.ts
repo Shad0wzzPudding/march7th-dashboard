@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Interest, Task, Event, ActivityLog } from '@/lib/types';
 import { toast } from 'sonner';
 
-const DEMO_USER_ID = 'demo-user-123'; // For demo purposes since auth is not implemented
+const DEMO_USER_ID = '550e8400-e29b-41d4-a716-446655440000'; // For demo purposes since auth is not implemented
 
 export const useDashboardData = () => {
   const queryClient = useQueryClient();
