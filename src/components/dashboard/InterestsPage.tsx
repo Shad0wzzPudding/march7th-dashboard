@@ -86,14 +86,14 @@ export const InterestsPage = ({
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent">
+        <h2 className="text-2xl font-bold text-main-focus">
           My Interests
         </h2>
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
             <Button 
               onClick={resetForm} 
-              className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600"
+              className="bg-main-focus hover:bg-main-focus/80 text-white"
             >
               <Plus size={16} className="mr-2" />
               Add Interest
@@ -149,18 +149,18 @@ export const InterestsPage = ({
       {/* Pinned Interests */}
       {pinnedInterests.length > 0 && (
         <div>
-          <h3 className="text-lg font-semibold text-pink-600 dark:text-pink-400 mb-3 flex items-center gap-2">
+          <h3 className="text-lg font-semibold text-main-focus mb-3 flex items-center gap-2">
             <Pin size={16} />
             Pinned
           </h3>
           <div className="grid gap-4 md:grid-cols-2">
             {pinnedInterests.map((interest) => (
-              <Card key={interest.id} className="border-pink-200 dark:border-pink-800 bg-gradient-to-br from-pink-50 to-purple-50 dark:from-pink-950/20 dark:to-purple-950/20">
+              <Card key={interest.id} className="bg-main-focus/20 border-main-focus/40">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
-                    <CardTitle className="text-lg text-pink-700 dark:text-pink-300">{interest.title}</CardTitle>
+                    <CardTitle className="text-lg text-main-focus">{interest.title}</CardTitle>
                     <div className="flex items-center gap-1">
-                      <Badge variant="secondary" className="bg-pink-100 dark:bg-pink-900 text-pink-700 dark:text-pink-300">
+                      <Badge variant="secondary" className="bg-main-focus/20 text-main-focus">
                         <Pin size={12} />
                       </Badge>
                     </div>

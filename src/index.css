@@ -2,12 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-/* March 7th Dashboard Design System - Soft, colorful, and aesthetic */
+/* March 7th Dashboard Design System - Honkai Star Rail Theme */
 
 @layer base {
   :root {
-    /* Soft pastel background */
-    --background: 320 100% 99%;
+    /* March 7th mint green background */
+    --background: 120 20% 97%;
     --foreground: 280 15% 15%;
 
     /* Card with subtle tint */
@@ -42,6 +42,14 @@
     --border: 300 20% 88%;
     --input: 300 20% 90%;
     --ring: 315 70% 70%;
+
+    /* March 7th Section Colors */
+    --welcome-primary: 295 45% 82%;
+    --welcome-secondary: 202 70% 72%;
+    --main-focus: 295 45% 82%;
+    --upcoming-events: 202 70% 72%;
+    --events-theme: 241 30% 60%;
+    --recent-changes: 231 30% 52%;
 
     --radius: 0.75rem;
 
@@ -117,7 +125,7 @@
 
   body {
     @apply bg-background text-foreground min-h-screen;
-    background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(320 100% 97%) 100%);
+    background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(120 25% 95%) 100%);
   }
 
   /* Custom scrollbar */

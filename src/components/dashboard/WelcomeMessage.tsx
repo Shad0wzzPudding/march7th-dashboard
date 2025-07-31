@@ -22,10 +22,10 @@ export const WelcomeMessage = () => {
 
   return (
     <div className="text-center py-8 px-4">
-      <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 bg-clip-text text-transparent mb-4 animate-fade-in">
+      <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-welcome-primary to-welcome-secondary bg-clip-text text-transparent mb-4 animate-fade-in">
         {greeting}
       </h1>
-      <div className="w-24 h-1 bg-gradient-to-r from-pink-400 to-purple-400 mx-auto rounded-full animate-scale-in" />
+      <div className="w-24 h-1 bg-gradient-to-r from-welcome-primary to-welcome-secondary mx-auto rounded-full animate-scale-in" />
     </div>
   );
 };

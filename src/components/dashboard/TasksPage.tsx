@@ -110,14 +110,14 @@ export const TasksPage = ({
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-cyan-500 bg-clip-text text-transparent">
+        <h2 className="text-2xl font-bold text-upcoming-events">
           My Tasks
         </h2>
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
             <Button 
               onClick={resetForm}
-              className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600"
+              className="bg-upcoming-events hover:bg-upcoming-events/80 text-white"
             >
               <Plus size={16} className="mr-2" />
               Add Task

@@ -23,9 +23,9 @@ export const HomePage = ({ interests, tasks, events, activityLog }: HomePageProp
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Pinned Interests */}
-      <Card className="bg-gradient-to-br from-pink-50 to-purple-50 dark:from-pink-950/20 dark:to-purple-950/20 border-pink-200 dark:border-pink-800">
+      <Card className="bg-main-focus/20 border-main-focus/40">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-pink-700 dark:text-pink-300">
+          <CardTitle className="flex items-center gap-2 text-main-focus">
             <Pin size={20} />
             <span className="font-bold">Main Focus</span>
           </CardTitle>
@@ -34,7 +34,7 @@ export const HomePage = ({ interests, tasks, events, activityLog }: HomePageProp
           {pinnedInterests.length > 0 ? (
             <div className="space-y-3">
               {pinnedInterests.map(interest => (
-                <div key={interest.id} className="p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg border border-pink-200 dark:border-pink-800">
+                <div key={interest.id} className="p-3 bg-card/80 rounded-lg border border-main-focus/30">
                   <h4 className="font-semibold text-gray-900 dark:text-gray-100">{interest.title}</h4>
                   {interest.description && (
                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{interest.description}</p>
@@ -55,9 +55,9 @@ export const HomePage = ({ interests, tasks, events, activityLog }: HomePageProp
       </Card>
 
       {/* Upcoming Events */}
-      <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 border-blue-200 dark:border-blue-800">
+      <Card className="bg-upcoming-events/20 border-upcoming-events/40">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
+          <CardTitle className="flex items-center gap-2 text-upcoming-events">
             <Clock size={20} />
             <span className="font-bold">Upcoming Events!</span>
           </CardTitle>
@@ -66,11 +66,11 @@ export const HomePage = ({ interests, tasks, events, activityLog }: HomePageProp
           <div className="grid gap-4 md:grid-cols-2">
             {/* From Tasks */}
             <div>
-              <h4 className="font-semibold text-sm text-blue-600 dark:text-blue-400 mb-2">From Tasks</h4>
+              <h4 className="font-semibold text-sm text-upcoming-events mb-2">From Tasks</h4>
               {upcomingTasks.length > 0 ? (
                 <div className="space-y-2">
                   {upcomingTasks.map(task => (
-                    <div key={task.id} className="p-2 bg-white/50 dark:bg-gray-800/50 rounded border border-blue-200 dark:border-blue-800">
+                    <div key={task.id} className="p-2 bg-card/80 rounded border border-upcoming-events/30">
                       <p className="font-medium text-sm">{task.title}</p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
                         Due: {format(parseISO(task.deadline), 'MMM dd, yyyy HH:mm')}
@@ -85,11 +85,11 @@ export const HomePage = ({ interests, tasks, events, activityLog }: HomePageProp
 
             {/* From Events */}
             <div>
-              <h4 className="font-semibold text-sm text-blue-600 dark:text-blue-400 mb-2">From Events</h4>
+              <h4 className="font-semibold text-sm text-upcoming-events mb-2">From Events</h4>
               {upcomingEvents.length > 0 ? (
                 <div className="space-y-2">
                   {upcomingEvents.map(event => (
-                    <div key={event.id} className="p-2 bg-white/50 dark:bg-gray-800/50 rounded border border-blue-200 dark:border-blue-800">
+                    <div key={event.id} className="p-2 bg-card/80 rounded border border-upcoming-events/30">
                       <p className="font-medium text-sm">{event.title}</p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
                         Starts: {format(parseISO(event.start_time), 'MMM dd, yyyy HH:mm')}
@@ -106,9 +106,9 @@ export const HomePage = ({ interests, tasks, events, activityLog }: HomePageProp
       </Card>
 
       {/* Recent Changes */}
-      <Card className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border-green-200 dark:border-green-800">
+      <Card className="bg-recent-changes/20 border-recent-changes/40">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-green-700 dark:text-green-300">
+          <CardTitle className="flex items-center gap-2 text-recent-changes">
             <Activity size={20} />
             <span className="font-bold">Recent Changes</span>
           </CardTitle>
@@ -117,7 +117,7 @@ export const HomePage = ({ interests, tasks, events, activityLog }: HomePageProp
           {activityLog.length > 0 ? (
             <div className="space-y-2">
               {activityLog.map(log => (
-                <div key={log.id} className="flex items-center justify-between p-2 bg-white/50 dark:bg-gray-800/50 rounded border border-green-200 dark:border-green-800">
+                <div key={log.id} className="flex items-center justify-between p-2 bg-card/80 rounded border border-recent-changes/30">
                   <div className="flex items-center gap-2">
                     <Badge 
                       variant={log.action_type === 'created' ? 'default' : log.action_type === 'updated' ? 'secondary' : 'destructive'}

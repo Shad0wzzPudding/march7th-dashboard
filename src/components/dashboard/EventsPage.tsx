@@ -98,14 +98,14 @@ export const EventsPage = ({
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-500 to-indigo-500 bg-clip-text text-transparent">
+        <h2 className="text-2xl font-bold text-events-theme">
           My Events
         </h2>
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
             <Button 
               onClick={resetForm}
-              className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600"
+              className="bg-events-theme hover:bg-events-theme/80 text-white"
             >
               <Plus size={16} className="mr-2" />
               Add Event

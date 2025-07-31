@@ -52,6 +52,12 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+				'welcome-primary': 'hsl(var(--welcome-primary))',
+				'welcome-secondary': 'hsl(var(--welcome-secondary))',
+				'main-focus': 'hsl(var(--main-focus))',
+				'upcoming-events': 'hsl(var(--upcoming-events))',
+				'events-theme': 'hsl(var(--events-theme))',
+				'recent-changes': 'hsl(var(--recent-changes))',
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
