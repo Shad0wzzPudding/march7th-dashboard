@@ -81,17 +81,17 @@ export const EventsPage = ({
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'today': return 'text-orange-600 dark:text-orange-400';
-      case 'upcoming': return 'text-blue-600 dark:text-blue-400';
-      default: return 'text-gray-600 dark:text-gray-400';
+      case 'today': return 'text-amber-400 dark:text-amber-300';
+      case 'upcoming': return 'text-sky-400 dark:text-sky-300';
+      default: return 'text-slate-400 dark:text-slate-300';
     }
   };
 
   const getBorderColor = (status: string) => {
     switch (status) {
-      case 'today': return 'border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-950/20';
-      case 'upcoming': return 'border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/20';
-      default: return 'border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/20';
+      case 'today': return 'border-amber-100 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/10';
+      case 'upcoming': return 'border-sky-100 dark:border-sky-800 bg-sky-50/50 dark:bg-sky-950/10';
+      default: return 'border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/10';
     }
   };
 
@@ -153,19 +153,19 @@ export const EventsPage = ({
       <div className="grid grid-cols-3 gap-4">
         <Card className="text-center">
           <CardContent className="pt-6">
-            <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">{todayEvents.length}</div>
+            <div className="text-2xl font-bold text-amber-400 dark:text-amber-300">{todayEvents.length}</div>
             <div className="text-sm text-muted-foreground">Today</div>
           </CardContent>
         </Card>
         <Card className="text-center">
           <CardContent className="pt-6">
-            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{upcomingEvents.length}</div>
+            <div className="text-2xl font-bold text-sky-400 dark:text-sky-300">{upcomingEvents.length}</div>
             <div className="text-sm text-muted-foreground">Upcoming</div>
           </CardContent>
         </Card>
         <Card className="text-center">
           <CardContent className="pt-6">
-            <div className="text-2xl font-bold text-gray-600 dark:text-gray-400">{pastEvents.length}</div>
+            <div className="text-2xl font-bold text-slate-400 dark:text-slate-300">{pastEvents.length}</div>
             <div className="text-sm text-muted-foreground">Past</div>
           </CardContent>
         </Card>
@@ -174,7 +174,7 @@ export const EventsPage = ({
       {/* Today's Events */}
       {todayEvents.length > 0 && (
         <div>
-          <h3 className="text-lg font-semibold text-orange-600 dark:text-orange-400 mb-3 flex items-center gap-2">
+          <h3 className="text-lg font-semibold text-amber-400 dark:text-amber-300 mb-3 flex items-center gap-2">
             <CalendarDays size={16} />
             Today's Events ({todayEvents.length})
           </h3>
@@ -196,7 +196,7 @@ export const EventsPage = ({
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Badge className="text-xs bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300">
+                        <Badge className="text-xs bg-amber-100 dark:bg-amber-900 text-amber-600 dark:text-amber-300">
                           Today
                         </Badge>
                         <Button size="sm" variant="outline" onClick={() => handleEdit(event)}>
@@ -222,7 +222,7 @@ export const EventsPage = ({
 
       {/* Upcoming Events */}
       <div>
-        <h3 className="text-lg font-semibold text-blue-600 dark:text-blue-400 mb-3">
+        <h3 className="text-lg font-semibold text-sky-400 dark:text-sky-300 mb-3">
           Upcoming Events ({upcomingEvents.length})
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
@@ -264,7 +264,7 @@ export const EventsPage = ({
       {/* Past Events */}
       {pastEvents.length > 0 && (
         <div>
-          <h3 className="text-lg font-semibold text-gray-600 dark:text-gray-400 mb-3">
+          <h3 className="text-lg font-semibold text-slate-400 dark:text-slate-300 mb-3">
             Past Events ({pastEvents.length})
           </h3>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

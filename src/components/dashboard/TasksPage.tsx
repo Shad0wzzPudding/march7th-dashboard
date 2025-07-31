@@ -93,17 +93,17 @@ export const TasksPage = ({
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed': return 'text-green-600 dark:text-green-400';
-      case 'overdue': return 'text-red-600 dark:text-red-400';
-      default: return 'text-blue-600 dark:text-blue-400';
+      case 'completed': return 'text-emerald-400 dark:text-emerald-300';
+      case 'overdue': return 'text-rose-400 dark:text-rose-300';
+      default: return 'text-sky-400 dark:text-sky-300';
     }
   };
 
   const getBorderColor = (status: string) => {
     switch (status) {
-      case 'completed': return 'border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950/20';
-      case 'overdue': return 'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/20';
-      default: return 'border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/20';
+      case 'completed': return 'border-emerald-100 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-950/10';
+      case 'overdue': return 'border-rose-100 dark:border-rose-800 bg-rose-50/50 dark:bg-rose-950/10';
+      default: return 'border-sky-100 dark:border-sky-800 bg-sky-50/50 dark:bg-sky-950/10';
     }
   };
 
@@ -173,19 +173,19 @@ export const TasksPage = ({
       <div className="grid grid-cols-3 gap-4">
         <Card className="text-center">
           <CardContent className="pt-6">
-            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{upcomingTasks.length}</div>
+            <div className="text-2xl font-bold text-sky-400 dark:text-sky-300">{upcomingTasks.length}</div>
             <div className="text-sm text-muted-foreground">Upcoming</div>
           </CardContent>
         </Card>
         <Card className="text-center">
           <CardContent className="pt-6">
-            <div className="text-2xl font-bold text-red-600 dark:text-red-400">{overdueTasks.length}</div>
+            <div className="text-2xl font-bold text-rose-400 dark:text-rose-300">{overdueTasks.length}</div>
             <div className="text-sm text-muted-foreground">Overdue</div>
           </CardContent>
         </Card>
         <Card className="text-center">
           <CardContent className="pt-6">
-            <div className="text-2xl font-bold text-green-600 dark:text-green-400">{completedTasks.length}</div>
+            <div className="text-2xl font-bold text-emerald-400 dark:text-emerald-300">{completedTasks.length}</div>
             <div className="text-sm text-muted-foreground">Completed</div>
           </CardContent>
         </Card>
@@ -194,7 +194,7 @@ export const TasksPage = ({
       {/* Overdue Tasks */}
       {overdueTasks.length > 0 && (
         <div>
-          <h3 className="text-lg font-semibold text-red-600 dark:text-red-400 mb-3">
+          <h3 className="text-lg font-semibold text-rose-400 dark:text-rose-300 mb-3">
             Overdue Tasks ({overdueTasks.length})
           </h3>
           <div className="space-y-3">
@@ -211,10 +211,10 @@ export const TasksPage = ({
                           onClick={() => handleToggleComplete(task)}
                           className="mt-1 p-0 h-6 w-6"
                         >
-                          {task.is_completed ? 
-                            <CheckCircle2 size={20} className="text-green-600" /> : 
-                            <Circle size={20} className="text-gray-400" />
-                          }
+                           {task.is_completed ? 
+                             <CheckCircle2 size={20} className="text-emerald-400" /> : 
+                             <Circle size={20} className="text-gray-400" />
+                           }
                         </Button>
                         <div className="flex-1">
                           <h4 className={`font-semibold ${task.is_completed ? 'line-through text-muted-foreground' : ''}`}>
@@ -254,7 +254,7 @@ export const TasksPage = ({
 
       {/* Upcoming Tasks */}
       <div>
-        <h3 className="text-lg font-semibold text-blue-600 dark:text-blue-400 mb-3">
+        <h3 className="text-lg font-semibold text-sky-400 dark:text-sky-300 mb-3">
           Upcoming Tasks ({upcomingTasks.length})
         </h3>
         <div className="space-y-3">
@@ -271,10 +271,10 @@ export const TasksPage = ({
                         onClick={() => handleToggleComplete(task)}
                         className="mt-1 p-0 h-6 w-6"
                       >
-                        {task.is_completed ? 
-                          <CheckCircle2 size={20} className="text-green-600" /> : 
-                          <Circle size={20} className="text-gray-400" />
-                        }
+                         {task.is_completed ? 
+                           <CheckCircle2 size={20} className="text-emerald-400" /> : 
+                           <Circle size={20} className="text-gray-400" />
+                         }
                       </Button>
                       <div className="flex-1">
                         <h4 className={`font-semibold ${task.is_completed ? 'line-through text-muted-foreground' : ''}`}>
@@ -313,7 +313,7 @@ export const TasksPage = ({
       {/* Completed Tasks */}
       {completedTasks.length > 0 && (
         <div>
-          <h3 className="text-lg font-semibold text-green-600 dark:text-green-400 mb-3">
+          <h3 className="text-lg font-semibold text-emerald-400 dark:text-emerald-300 mb-3">
             Completed Tasks ({completedTasks.length})
           </h3>
           <div className="space-y-3">
@@ -330,7 +330,7 @@ export const TasksPage = ({
                           onClick={() => handleToggleComplete(task)}
                           className="mt-1 p-0 h-6 w-6"
                         >
-                          <CheckCircle2 size={20} className="text-green-600" />
+                           <CheckCircle2 size={20} className="text-emerald-400" />
                         </Button>
                         <div className="flex-1">
                           <h4 className="font-semibold line-through text-muted-foreground">
@@ -346,7 +346,7 @@ export const TasksPage = ({
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Badge className="text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300">
+                        <Badge className="text-xs bg-emerald-100 dark:bg-emerald-900 text-emerald-600 dark:text-emerald-300">
                           Completed
                         </Badge>
                         <Button size="sm" variant="outline" onClick={() => handleEdit(task)}>
