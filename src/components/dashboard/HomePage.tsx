@@ -2,7 +2,7 @@ import { Interest, Task, Event, ActivityLog } from '@/lib/types';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Clock, Pin, Activity } from 'lucide-react';
-import { format, isAfter, parseISO } from 'date-fns';
+import { format, isAfter, parseISO, isToday } from 'date-fns';
 
 interface HomePageProps {
   interests: Interest[];
@@ -13,11 +13,21 @@ interface HomePageProps {
 
 export const HomePage = ({ interests, tasks, events, activityLog }: HomePageProps) => {
   const pinnedInterests = interests.filter(interest => interest.is_pinned);
+  
+  // Today's events and tasks
+  const todayTasks = tasks
+    .filter(task => !task.is_completed && isToday(parseISO(task.deadline)))
+    .slice(0, 3);
+  const todayEvents = events
+    .filter(event => isToday(parseISO(event.start_time)))
+    .slice(0, 3);
+  
+  // Upcoming events and tasks (excluding today)
   const upcomingTasks = tasks
-    .filter(task => !task.is_completed && isAfter(parseISO(task.deadline), new Date()))
+    .filter(task => !task.is_completed && isAfter(parseISO(task.deadline), new Date()) && !isToday(parseISO(task.deadline)))
     .slice(0, 3);
   const upcomingEvents = events
-    .filter(event => isAfter(parseISO(event.start_time), new Date()))
+    .filter(event => isAfter(parseISO(event.start_time), new Date()) && !isToday(parseISO(event.start_time)))
     .slice(0, 3);
 
   return (
@@ -53,6 +63,65 @@ export const HomePage = ({ interests, tasks, events, activityLog }: HomePageProp
           )}
         </CardContent>
       </Card>
+
+      {/* Today Events */}
+      {(todayTasks.length > 0 || todayEvents.length > 0) && (
+        <Card className="bg-upcoming-events/30 border-upcoming-events/50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-upcoming-events">
+              <Clock size={20} />
+              <span className="font-bold">Today Events</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4 md:grid-cols-2">
+              {/* Today's Tasks */}
+              <div>
+                <h4 className="font-semibold text-sm text-upcoming-events mb-2">Today's Tasks</h4>
+                {todayTasks.length > 0 ? (
+                  <div className="space-y-2">
+                    {todayTasks.map(task => (
+                      <div key={task.id} className="p-3 bg-card/90 rounded border border-upcoming-events/40">
+                        <p className="font-medium text-sm">{task.title}</p>
+                        {task.description && (
+                          <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">{task.description}</p>
+                        )}
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          Due: {format(parseISO(task.deadline), 'HH:mm')}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-gray-500 dark:text-gray-400">No tasks today</p>
+                )}
+              </div>
+
+              {/* Today's Events */}
+              <div>
+                <h4 className="font-semibold text-sm text-upcoming-events mb-2">Today's Events</h4>
+                {todayEvents.length > 0 ? (
+                  <div className="space-y-2">
+                    {todayEvents.map(event => (
+                      <div key={event.id} className="p-3 bg-card/90 rounded border border-upcoming-events/40">
+                        <p className="font-medium text-sm">{event.title}</p>
+                        {event.description && (
+                          <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">{event.description}</p>
+                        )}
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          Starts: {format(parseISO(event.start_time), 'HH:mm')}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-gray-500 dark:text-gray-400">No events today</p>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Upcoming Events */}
       <Card className="bg-upcoming-events/20 border-upcoming-events/40">
