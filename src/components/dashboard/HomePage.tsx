@@ -108,12 +108,9 @@ export const HomePage = ({ interests, tasks, events, activityLog }: HomePageProp
                         {event.description && (
                           <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">{event.description}</p>
                         )}
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 space-y-0.5">
-                          <p>Starts: {format(parseISO(event.start_time), 'HH:mm')}</p>
-                          {event.deadline && (
-                            <p>Deadline: {format(parseISO(event.deadline), 'HH:mm')}</p>
-                          )}
-                        </div>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          Starts: {format(parseISO(event.start_time), 'HH:mm')}
+                        </p>
                       </div>
                     ))}
                   </div>
@@ -163,12 +160,9 @@ export const HomePage = ({ interests, tasks, events, activityLog }: HomePageProp
                   {upcomingEvents.map(event => (
                     <div key={event.id} className="p-2 bg-card/80 rounded border border-upcoming-events/30">
                       <p className="font-medium text-sm">{event.title}</p>
-                      <div className="text-xs text-gray-500 dark:text-gray-400 space-y-0.5">
-                        <p>Starts: {format(parseISO(event.start_time), 'MMM dd, yyyy HH:mm')}</p>
-                        {event.deadline && (
-                          <p>Deadline: {format(parseISO(event.deadline), 'MMM dd, yyyy HH:mm')}</p>
-                        )}
-                      </div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        Starts: {format(parseISO(event.start_time), 'MMM dd, yyyy HH:mm')}
+                      </p>
                     </div>
                   ))}
                 </div>
