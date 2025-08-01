@@ -182,12 +182,12 @@ export const EventsPage = ({
       </div>
 
       {/* Today's Events */}
-      <div>
-        <h3 className="text-lg font-semibold text-amber-400 dark:text-amber-300 mb-3 flex items-center gap-2">
-          <CalendarDays size={16} />
-          Today's Events ({todayEvents.length})
-        </h3>
-        {todayEvents.length > 0 ? (
+      {todayEvents.length > 0 && (
+        <div>
+          <h3 className="text-lg font-semibold text-amber-400 dark:text-amber-300 mb-3 flex items-center gap-2">
+            <CalendarDays size={16} />
+            Today's Events ({todayEvents.length})
+          </h3>
           <div className="space-y-3">
             {todayEvents.map((event) => {
               const status = getEventStatus(event);
@@ -232,14 +232,8 @@ export const EventsPage = ({
               );
             })}
           </div>
-        ) : (
-          <Card className="text-center py-8">
-            <CardContent>
-              <p className="text-muted-foreground">No events scheduled for today</p>
-            </CardContent>
-          </Card>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Upcoming Events */}
       <div>
