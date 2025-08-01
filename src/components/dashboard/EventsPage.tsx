@@ -27,14 +27,16 @@ export const EventsPage = ({
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    start_time: ''
+    start_time: '',
+    deadline: ''
   });
 
   const resetForm = () => {
     setFormData({
       title: '',
       description: '',
-      start_time: ''
+      start_time: '',
+      deadline: ''
     });
     setEditingEvent(null);
   };
@@ -45,6 +47,7 @@ export const EventsPage = ({
     const submissionData = {
       ...formData,
       start_time: new Date(formData.start_time).toISOString(),
+      deadline: formData.deadline ? new Date(formData.deadline).toISOString() : undefined,
     };
 
     if (editingEvent) {
@@ -62,7 +65,8 @@ export const EventsPage = ({
     setFormData({
       title: event.title,
       description: event.description || '',
-      start_time: format(parseISO(event.start_time), "yyyy-MM-dd'T'HH:mm")
+      start_time: format(parseISO(event.start_time), "yyyy-MM-dd'T'HH:mm"),
+      deadline: event.deadline ? format(parseISO(event.deadline), "yyyy-MM-dd'T'HH:mm") : ''
     });
     setIsCreateOpen(true);
   };
@@ -136,6 +140,12 @@ export const EventsPage = ({
                 onChange={(e) => setFormData(prev => ({ ...prev, start_time: e.target.value }))}
                 required
               />
+              <Input
+                type="datetime-local"
+                placeholder="Deadline (optional)"
+                value={formData.deadline}
+                onChange={(e) => setFormData(prev => ({ ...prev, deadline: e.target.value }))}
+              />
               <div className="flex gap-2">
                 <Button type="submit" className="flex-1">
                   {editingEvent ? 'Update' : 'Create'}
@@ -193,6 +203,11 @@ export const EventsPage = ({
                         <div className={`flex items-center gap-1 text-sm mt-2 ${getStatusColor(status)}`}>
                           <Clock size={12} />
                           {format(parseISO(event.start_time), 'HH:mm')} - Today
+                          {event.deadline && (
+                            <span className="ml-2 text-xs text-muted-foreground">
+                              • Deadline: {format(parseISO(event.deadline), 'HH:mm')}
+                            </span>
+                          )}
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
@@ -240,6 +255,11 @@ export const EventsPage = ({
                   <div className={`flex items-center gap-1 text-sm ${getStatusColor(status)}`}>
                     <Clock size={12} />
                     {format(parseISO(event.start_time), 'MMM dd, yyyy HH:mm')}
+                    {event.deadline && (
+                      <span className="ml-2 text-xs text-muted-foreground">
+                        • Deadline: {format(parseISO(event.deadline), 'MMM dd, HH:mm')}
+                      </span>
+                    )}
                   </div>
                   <div className="flex items-center gap-2 pt-2">
                     <Button size="sm" variant="outline" onClick={() => handleEdit(event)}>
@@ -282,6 +302,11 @@ export const EventsPage = ({
                     <div className={`flex items-center gap-1 text-sm ${getStatusColor(status)}`}>
                       <Clock size={12} />
                       {format(parseISO(event.start_time), 'MMM dd, yyyy HH:mm')}
+                      {event.deadline && (
+                        <span className="ml-2 text-xs text-muted-foreground">
+                          • Deadline: {format(parseISO(event.deadline), 'MMM dd, HH:mm')}
+                        </span>
+                      )}
                     </div>
                     <div className="flex items-center gap-2 pt-2">
                       <Button size="sm" variant="outline" onClick={() => handleEdit(event)}>

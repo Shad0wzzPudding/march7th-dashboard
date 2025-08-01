@@ -27,6 +27,7 @@ export interface Event {
   title: string;
   description?: string;
   start_time: string;
+  deadline?: string;
   created_at: string;
   updated_at: string;
 }
