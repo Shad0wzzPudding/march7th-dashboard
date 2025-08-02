@@ -10,10 +10,10 @@ interface NavigationProps {
 
 const navigationItems = [
   { page: 'home' as const, icon: Home, label: 'Home' },
+  { page: 'daily-task' as const, icon: CalendarDays, label: 'Daily Task' },
   { page: 'interests' as const, icon: Heart, label: 'Interests' },
   { page: 'tasks' as const, icon: CheckSquare, label: 'Tasks' },
   { page: 'events' as const, icon: Calendar, label: 'Events' },
-  { page: 'daily-task' as const, icon: CalendarDays, label: 'Daily Task' },
 ];
 
 export const Navigation = ({ activePage, onPageChange }: NavigationProps) => {

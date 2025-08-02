@@ -146,7 +146,6 @@ const Index = () => {
         return (
           <DailyTaskPage 
             tasks={tasks}
-            events={events}
             onCreateTask={mutations.createTask.mutate}
             onUpdateTask={mutations.updateTask.mutate}
             onDeleteTask={mutations.deleteTask.mutate}
