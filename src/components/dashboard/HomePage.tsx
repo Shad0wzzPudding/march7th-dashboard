@@ -1,7 +1,7 @@
 import { Interest, Task, Event, ActivityLog } from '@/lib/types';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Pin, Activity } from 'lucide-react';
+import { Clock, Pin, Activity, AlertCircle } from 'lucide-react';
 import { format, isAfter, parseISO, isToday } from 'date-fns';
 
 interface HomePageProps {
@@ -68,7 +68,7 @@ export const HomePage = ({ interests, tasks, events, activityLog }: HomePageProp
       <Card className="bg-upcoming-events/30 border-upcoming-events/50">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-upcoming-events">
-            <Clock size={20} />
+            <AlertCircle size={20} />
             <span className="font-bold">Today Events</span>
           </CardTitle>
         </CardHeader>
