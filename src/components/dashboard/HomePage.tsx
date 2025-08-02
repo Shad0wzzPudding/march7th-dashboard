@@ -65,66 +65,64 @@ export const HomePage = ({ interests, tasks, events, activityLog }: HomePageProp
       </Card>
 
       {/* Today Events */}
-      {(todayTasks.length > 0 || todayEvents.length > 0) && (
-        <Card className="bg-upcoming-events/30 border-upcoming-events/50">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-upcoming-events">
-              <Clock size={20} />
-              <span className="font-bold">Today Events</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4 md:grid-cols-2">
-              {/* Today's Tasks */}
-              <div>
-                <h4 className="font-semibold text-sm text-upcoming-events mb-2">Today's Tasks</h4>
-                {todayTasks.length > 0 ? (
-                  <div className="space-y-2">
-                    {todayTasks.map(task => (
-                      <div key={task.id} className="p-3 bg-card/90 rounded border border-upcoming-events/40">
-                        <p className="font-medium text-sm">{task.title}</p>
-                        {task.description && (
-                          <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">{task.description}</p>
-                        )}
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                          Due: {format(parseISO(task.deadline), 'HH:mm')}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-xs text-gray-500 dark:text-gray-400">No tasks today</p>
-                )}
-              </div>
-
-              {/* Today's Events */}
-              <div>
-                <h4 className="font-semibold text-sm text-upcoming-events mb-2">Today's Events</h4>
-                {todayEvents.length > 0 ? (
-                  <div className="space-y-2">
-                    {todayEvents.map(event => (
-                      <div key={event.id} className="p-3 bg-card/90 rounded border border-upcoming-events/40">
-                        <p className="font-medium text-sm">{event.title}</p>
-                        {event.description && (
-                          <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">{event.description}</p>
-                        )}
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 space-y-0.5">
-                          <p>Starts: {format(parseISO(event.start_time), 'HH:mm')}</p>
-                          {event.deadline && (
-                            <p>Deadline: {format(parseISO(event.deadline), 'HH:mm')}</p>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-xs text-gray-500 dark:text-gray-400">No events today</p>
-                )}
-              </div>
+      <Card className="bg-upcoming-events/30 border-upcoming-events/50">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-upcoming-events">
+            <Clock size={20} />
+            <span className="font-bold">Today Events</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 md:grid-cols-2">
+            {/* Today's Tasks */}
+            <div>
+              <h4 className="font-semibold text-sm text-upcoming-events mb-2">Today's Tasks</h4>
+              {todayTasks.length > 0 ? (
+                <div className="space-y-2">
+                  {todayTasks.map(task => (
+                    <div key={task.id} className="p-3 bg-card/90 rounded border border-upcoming-events/40">
+                      <p className="font-medium text-sm">{task.title}</p>
+                      {task.description && (
+                        <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">{task.description}</p>
+                      )}
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        Due: {format(parseISO(task.deadline), 'HH:mm')}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-gray-500 dark:text-gray-400">No tasks today</p>
+              )}
             </div>
-          </CardContent>
-        </Card>
-      )}
+
+            {/* Today's Events */}
+            <div>
+              <h4 className="font-semibold text-sm text-upcoming-events mb-2">Today's Events</h4>
+              {todayEvents.length > 0 ? (
+                <div className="space-y-2">
+                  {todayEvents.map(event => (
+                    <div key={event.id} className="p-3 bg-card/90 rounded border border-upcoming-events/40">
+                      <p className="font-medium text-sm">{event.title}</p>
+                      {event.description && (
+                        <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">{event.description}</p>
+                      )}
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 space-y-0.5">
+                        <p>Starts: {format(parseISO(event.start_time), 'HH:mm')}</p>
+                        {event.deadline && (
+                          <p>Deadline: {format(parseISO(event.deadline), 'HH:mm')}</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-gray-500 dark:text-gray-400">No events today</p>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Upcoming Events */}
       <Card className="bg-upcoming-events/20 border-upcoming-events/40">
