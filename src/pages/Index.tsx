@@ -9,6 +9,7 @@ import { HomePage } from '@/components/dashboard/HomePage';
 import { InterestsPage } from '@/components/dashboard/InterestsPage';
 import { TasksPage } from '@/components/dashboard/TasksPage';
 import { EventsPage } from '@/components/dashboard/EventsPage';
+import { DailyTaskPage } from '@/components/dashboard/DailyTaskPage';
 import { Button } from '@/components/ui/button';
 import type { User, Session } from '@supabase/supabase-js';
 
@@ -139,6 +140,16 @@ const Index = () => {
             onCreateEvent={mutations.createEvent.mutate}
             onUpdateEvent={mutations.updateEvent.mutate}
             onDeleteEvent={mutations.deleteEvent.mutate}
+          />
+        );
+      case 'daily-task':
+        return (
+          <DailyTaskPage 
+            tasks={tasks}
+            events={events}
+            onCreateTask={mutations.createTask.mutate}
+            onUpdateTask={mutations.updateTask.mutate}
+            onDeleteTask={mutations.deleteTask.mutate}
           />
         );
       default:

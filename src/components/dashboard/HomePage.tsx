@@ -32,6 +32,37 @@ export const HomePage = ({ interests, tasks, events, activityLog }: HomePageProp
 
   return (
     <div className="space-y-6 animate-fade-in">
+      {/* Daily Overview */}
+      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border-blue-200 dark:border-blue-800">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
+            <AlertCircle size={20} />
+            <span className="font-bold">Today's Summary</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                {todayTasks.length}
+              </div>
+              <div className="text-sm text-blue-600 dark:text-blue-400">Today's Tasks</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                {tasks.filter(task => task.is_completed && isToday(parseISO(task.deadline))).length}
+              </div>
+              <div className="text-sm text-green-600 dark:text-green-400">Completed</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+                {todayEvents.length}
+              </div>
+              <div className="text-sm text-orange-600 dark:text-orange-400">Today's Events</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
       {/* Pinned Interests */}
       <Card className="bg-main-focus/20 border-main-focus/40">
         <CardHeader>
