@@ -30,7 +30,14 @@ export const DailyTaskPage = ({
   });
 
   // Filter today's tasks
-  const todayTasks = tasks.filter(task => isToday(parseISO(task.deadline)));
+  const todayTasks = tasks.filter(task => {
+    try {
+      return isToday(parseISO(task.deadline));
+    } catch (error) {
+      console.error('Error parsing task deadline:', task.deadline, error);
+      return false;
+    }
+  });
 
   const incompleteTasks = todayTasks.filter(task => !task.is_completed);
   const completedTasks = todayTasks.filter(task => task.is_completed);
