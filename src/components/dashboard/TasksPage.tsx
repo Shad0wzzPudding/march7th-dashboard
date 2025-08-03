@@ -50,8 +50,6 @@ export const TasksPage = ({
       deadline: new Date(formData.deadline).toISOString(),
     };
 
-    console.log('Tasks page creating task with deadline:', submissionData.deadline);
-
     if (editingTask) {
       onUpdateTask({ id: editingTask.id, ...submissionData });
     } else {

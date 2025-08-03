@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Interest, Task, Event, ActivityLog } from '@/lib/types';
+import { Interest, Task, Event, ActivityLog, DailyTask } from '@/lib/types';
 import { toast } from 'sonner';
 
 export const useDashboardData = () => {
@@ -41,6 +41,28 @@ export const useDashboardData = () => {
 
       const { data, error } = await supabase
         .from('tasks')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('deadline', { ascending: true });
+      
+      if (error) throw error;
+      return data || [];
+    }
+  });
+
+  // Daily Tasks
+  const {
+    data: dailyTasks = [],
+    isLoading: dailyTasksLoading,
+    error: dailyTasksError
+  } = useQuery({
+    queryKey: ['daily_tasks'],
+    queryFn: async (): Promise<DailyTask[]> => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      const { data, error } = await supabase
+        .from('daily_tasks')
         .select('*')
         .eq('user_id', user.id)
         .order('deadline', { ascending: true });
@@ -230,6 +252,65 @@ export const useDashboardData = () => {
     }
   });
 
+  // Daily Task mutations
+  const createDailyTask = useMutation({
+    mutationFn: async (data: Omit<DailyTask, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      const { error } = await supabase
+        .from('daily_tasks')
+        .insert([{ ...data, user_id: user.id }]);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['daily_tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['activity_log'] });
+      toast.success('Daily task created successfully!');
+    }
+  });
+
+  const updateDailyTask = useMutation({
+    mutationFn: async ({ id, ...data }: Partial<DailyTask> & { id: string }) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      const { error } = await supabase
+        .from('daily_tasks')
+        .update(data)
+        .eq('id', id)
+        .eq('user_id', user.id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['daily_tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['activity_log'] });
+      toast.success('Daily task updated successfully!');
+    }
+  });
+
+  const deleteDailyTask = useMutation({
+    mutationFn: async (id: string) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      const { error } = await supabase
+        .from('daily_tasks')
+        .delete()
+        .eq('id', id)
+        .eq('user_id', user.id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['daily_tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['activity_log'] });
+      toast.success('Daily task deleted successfully!');
+    }
+  });
+
   const createEvent = useMutation({
     mutationFn: async (data: Omit<Event, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -291,10 +372,11 @@ export const useDashboardData = () => {
   return {
     interests,
     tasks,
+    dailyTasks,
     events,
     activityLog,
-    isLoading: interestsLoading || tasksLoading || eventsLoading || activityLoading,
-    error: interestsError || tasksError || eventsError || activityError,
+    isLoading: interestsLoading || tasksLoading || dailyTasksLoading || eventsLoading || activityLoading,
+    error: interestsError || tasksError || dailyTasksError || eventsError || activityError,
     mutations: {
       createInterest,
       updateInterest,
@@ -302,6 +384,9 @@ export const useDashboardData = () => {
       createTask,
       updateTask,
       deleteTask,
+      createDailyTask,
+      updateDailyTask,
+      deleteDailyTask,
       createEvent,
       updateEvent,
       deleteEvent,

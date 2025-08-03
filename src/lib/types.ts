@@ -21,6 +21,17 @@ export interface Task {
   updated_at: string;
 }
 
+export interface DailyTask {
+  id: string;
+  user_id: string;
+  title: string;
+  description?: string;
+  deadline?: string; // TIME field for daily tasks
+  is_completed: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Event {
   id: string;
   user_id: string;

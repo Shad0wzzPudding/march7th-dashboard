@@ -1,25 +1,25 @@
 import { useState } from 'react';
-import { Task } from '@/lib/types';
+import { DailyTask } from '@/lib/types';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { CalendarDays, Plus, CheckCircle, Clock, X } from 'lucide-react';
-import { format, isToday, parseISO } from 'date-fns';
+import { format } from 'date-fns';
 
 interface DailyTaskPageProps {
-  tasks: Task[];
-  onCreateTask: (task: Omit<Task, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => void;
-  onUpdateTask: (data: { id: string } & Partial<Task>) => void;
-  onDeleteTask: (id: string) => void;
+  dailyTasks: DailyTask[];
+  onCreateDailyTask: (task: Omit<DailyTask, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => void;
+  onUpdateDailyTask: (data: { id: string } & Partial<DailyTask>) => void;
+  onDeleteDailyTask: (id: string) => void;
 }
 
 export const DailyTaskPage = ({ 
-  tasks, 
-  onCreateTask, 
-  onUpdateTask, 
-  onDeleteTask 
+  dailyTasks, 
+  onCreateDailyTask, 
+  onUpdateDailyTask, 
+  onDeleteDailyTask 
 }: DailyTaskPageProps) => {
   const [showCompleted, setShowCompleted] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -29,42 +29,20 @@ export const DailyTaskPage = ({
     deadline: ''
   });
 
-  // Filter today's tasks
-  const todayTasks = tasks.filter(task => {
-    try {
-      const taskDate = parseISO(task.deadline);
-      const isTaskToday = isToday(taskDate);
-      console.log('Task:', task.title, 'Deadline:', task.deadline, 'Is Today:', isTaskToday);
-      return isTaskToday;
-    } catch (error) {
-      console.error('Error parsing task deadline:', task.deadline, error);
-      return false;
-    }
-  });
-
-  console.log('Total tasks:', tasks.length, 'Today tasks:', todayTasks.length);
-
-  const incompleteTasks = todayTasks.filter(task => !task.is_completed);
-  const completedTasks = todayTasks.filter(task => task.is_completed);
+  const incompleteTasks = dailyTasks.filter(task => !task.is_completed);
+  const completedTasks = dailyTasks.filter(task => task.is_completed);
 
   const toggleTaskCompletion = (taskId: string, isCompleted: boolean) => {
-    onUpdateTask({ id: taskId, is_completed: !isCompleted });
+    onUpdateDailyTask({ id: taskId, is_completed: !isCompleted });
   };
 
   const handleAddTask = () => {
     if (!newTask.title.trim()) return;
 
-    const today = new Date();
-    const deadline = newTask.deadline 
-      ? `${format(today, 'yyyy-MM-dd')}T${newTask.deadline}:00`
-      : `${format(today, 'yyyy-MM-dd')}T23:59:00`;
-
-    console.log('Daily Task page creating task with deadline:', deadline);
-
-    onCreateTask({
+    onCreateDailyTask({
       title: newTask.title.trim(),
       description: newTask.description.trim() || undefined,
-      deadline,
+      deadline: newTask.deadline || undefined,
       is_completed: false
     });
 
@@ -89,7 +67,7 @@ export const DailyTaskPage = ({
         <Card className="bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800">
           <CardContent className="p-4 text-center">
             <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-              {todayTasks.length}
+              {dailyTasks.length}
             </div>
             <div className="text-sm text-blue-600 dark:text-blue-400">Total Tasks</div>
           </CardContent>
@@ -190,16 +168,18 @@ export const DailyTaskPage = ({
                     {task.description && (
                       <p className="text-sm text-gray-600 dark:text-gray-300">{task.description}</p>
                     )}
-                    <div className="flex items-center gap-1 mt-1 text-xs text-gray-500 dark:text-gray-400">
-                      <Clock size={12} />
-                      Due: {format(parseISO(task.deadline), 'HH:mm')}
-                    </div>
+                    {task.deadline && (
+                      <div className="flex items-center gap-1 mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        <Clock size={12} />
+                        Due: {task.deadline}
+                      </div>
+                    )}
                   </div>
                   
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => onDeleteTask(task.id)}
+                    onClick={() => onDeleteDailyTask(task.id)}
                     className="text-red-500 hover:text-red-700"
                   >
                     Delete
@@ -209,7 +189,7 @@ export const DailyTaskPage = ({
             </div>
           ) : (
             <p className="text-gray-500 dark:text-gray-400 text-center py-8">
-              All tasks completed for today! 🎉
+              No pending tasks! Add some tasks to get started.
             </p>
           )}
         </CardContent>
@@ -269,6 +249,18 @@ export const DailyTaskPage = ({
           </CardContent>
         )}
       </Card>
+
+      {dailyTasks.length === 0 && (
+        <Card className="text-center py-12">
+          <CardContent>
+            <p className="text-muted-foreground mb-4">No daily tasks yet! Add your first task to get started.</p>
+            <Button onClick={() => setShowAddForm(true)}>
+              <Plus size={16} className="mr-2" />
+              Add Your First Task
+            </Button>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

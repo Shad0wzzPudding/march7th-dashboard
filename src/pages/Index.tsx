@@ -51,6 +51,7 @@ const Index = () => {
   const { 
     interests, 
     tasks, 
+    dailyTasks,
     events, 
     activityLog, 
     isLoading: dataLoading, 
@@ -145,10 +146,10 @@ const Index = () => {
       case 'daily-task':
         return (
           <DailyTaskPage 
-            tasks={tasks}
-            onCreateTask={mutations.createTask.mutate}
-            onUpdateTask={mutations.updateTask.mutate}
-            onDeleteTask={mutations.deleteTask.mutate}
+            dailyTasks={dailyTasks}
+            onCreateDailyTask={mutations.createDailyTask.mutate}
+            onUpdateDailyTask={mutations.updateDailyTask.mutate}
+            onDeleteDailyTask={mutations.deleteDailyTask.mutate}
           />
         );
       default:
