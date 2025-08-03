@@ -32,12 +32,17 @@ export const DailyTaskPage = ({
   // Filter today's tasks
   const todayTasks = tasks.filter(task => {
     try {
-      return isToday(parseISO(task.deadline));
+      const taskDate = parseISO(task.deadline);
+      const isTaskToday = isToday(taskDate);
+      console.log('Task:', task.title, 'Deadline:', task.deadline, 'Is Today:', isTaskToday);
+      return isTaskToday;
     } catch (error) {
       console.error('Error parsing task deadline:', task.deadline, error);
       return false;
     }
   });
+
+  console.log('Total tasks:', tasks.length, 'Today tasks:', todayTasks.length);
 
   const incompleteTasks = todayTasks.filter(task => !task.is_completed);
   const completedTasks = todayTasks.filter(task => task.is_completed);
@@ -53,6 +58,8 @@ export const DailyTaskPage = ({
     const deadline = newTask.deadline 
       ? `${format(today, 'yyyy-MM-dd')}T${newTask.deadline}:00`
       : `${format(today, 'yyyy-MM-dd')}T23:59:00`;
+
+    console.log('Daily Task page creating task with deadline:', deadline);
 
     onCreateTask({
       title: newTask.title.trim(),
