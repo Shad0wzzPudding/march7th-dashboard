@@ -1,4 +1,4 @@
-import { Interest, Task, Event, ActivityLog } from '@/lib/types';
+import { Interest, Task, Event, ActivityLog, DailyTask } from '@/lib/types';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Clock, Pin, Activity, AlertCircle } from 'lucide-react';
@@ -9,9 +9,10 @@ interface HomePageProps {
   tasks: Task[];
   events: Event[];
   activityLog: ActivityLog[];
+  dailyTasks: DailyTask[];
 }
 
-export const HomePage = ({ interests, tasks, events, activityLog }: HomePageProps) => {
+export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: HomePageProps) => {
   const pinnedInterests = interests.filter(interest => interest.is_pinned);
   
   // Today's events and tasks
@@ -41,7 +42,7 @@ export const HomePage = ({ interests, tasks, events, activityLog }: HomePageProp
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center">
               <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                 {todayTasks.length}
@@ -49,8 +50,14 @@ export const HomePage = ({ interests, tasks, events, activityLog }: HomePageProp
               <div className="text-sm text-blue-600 dark:text-blue-400">Today's Tasks</div>
             </div>
             <div className="text-center">
+              <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                {dailyTasks.filter(task => !task.is_completed).length}
+              </div>
+              <div className="text-sm text-purple-600 dark:text-purple-400">Daily Tasks</div>
+            </div>
+            <div className="text-center">
               <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                {tasks.filter(task => task.is_completed && isToday(parseISO(task.deadline))).length}
+                {tasks.filter(task => task.is_completed && isToday(parseISO(task.deadline))).length + dailyTasks.filter(task => task.is_completed).length}
               </div>
               <div className="text-sm text-green-600 dark:text-green-400">Completed</div>
             </div>

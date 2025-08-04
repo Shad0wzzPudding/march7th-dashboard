@@ -114,6 +114,7 @@ const Index = () => {
             tasks={tasks}
             events={events}
             activityLog={activityLog}
+            dailyTasks={dailyTasks}
           />
         );
       case 'interests':
