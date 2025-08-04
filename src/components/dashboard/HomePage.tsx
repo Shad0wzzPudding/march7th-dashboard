@@ -31,6 +31,23 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
     .filter(event => isAfter(parseISO(event.start_time), new Date()) && !isToday(parseISO(event.start_time)))
     .slice(0, 3);
 
+  // Daily tasks stats
+  const completedDailyTasks = dailyTasks.filter(task => task.is_completed).length;
+  const totalDailyTasks = dailyTasks.length;
+  const unfinishedDailyTasks = totalDailyTasks - completedDailyTasks;
+  
+  // Random motivational messages for unfinished tasks
+  const getRandomMessage = () => {
+    const messages = [
+      `${unfinishedDailyTasks}/${totalDailyTasks} tasks left undone!`,
+      `${unfinishedDailyTasks} daily tasks still waiting!`,
+      `You have ${unfinishedDailyTasks} tasks remaining today!`,
+      `${unfinishedDailyTasks} more tasks to complete!`,
+      `${unfinishedDailyTasks} tasks need your attention!`
+    ];
+    return messages[Math.floor(Math.random() * messages.length)];
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Daily Overview */}
@@ -70,6 +87,27 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
           </div>
         </CardContent>
       </Card>
+      
+      {/* Daily Tasks for Today */}
+      <Card className="bg-purple-50 dark:bg-purple-950/20 border-purple-200 dark:border-purple-800">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-purple-700 dark:text-purple-300">
+            <AlertCircle size={20} />
+            <span className="font-bold">Daily task for today!</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center space-y-2">
+            <div className="text-6xl font-bold text-purple-600 dark:text-purple-400">
+              {completedDailyTasks}/{totalDailyTasks}
+            </div>
+            <div className="text-base text-purple-600 dark:text-purple-400">
+              {unfinishedDailyTasks > 0 ? getRandomMessage() : "All daily tasks completed! Great job!"}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Pinned Interests */}
       <Card className="bg-main-focus/20 border-main-focus/40">
         <CardHeader>
