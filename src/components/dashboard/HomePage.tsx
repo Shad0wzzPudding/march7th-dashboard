@@ -139,38 +139,6 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
         </CardContent>
       </Card>
 
-      {/* Pinned Interests */}
-      <Card className="bg-main-focus/20 border-main-focus/40">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-main-focus">
-            <Pin size={20} />
-            <span className="font-bold">Main Focus</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {pinnedInterests.length > 0 ? (
-            <div className="space-y-3">
-              {pinnedInterests.map(interest => (
-                <div key={interest.id} className="p-3 bg-card/80 rounded-lg border border-main-focus/30">
-                  <h4 className="font-semibold text-gray-900 dark:text-gray-100">{interest.title}</h4>
-                  {interest.description && (
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{interest.description}</p>
-                  )}
-                  {interest.deadline && (
-                    <div className="flex items-center gap-1 mt-2 text-xs text-gray-500 dark:text-gray-400">
-                      <Clock size={12} />
-                      {format(parseISO(interest.deadline), 'MMM dd, yyyy')}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-gray-500 dark:text-gray-400 text-sm">No pinned interests yet! Pin some from the Interests page to see them here.</p>
-          )}
-        </CardContent>
-      </Card>
-
       {/* Today Events */}
       <Card className="bg-upcoming-events/30 border-upcoming-events/50">
         <CardHeader>
@@ -228,6 +196,38 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
               )}
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Pinned Interests */}
+      <Card className="bg-main-focus/20 border-main-focus/40">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-main-focus">
+            <Pin size={20} />
+            <span className="font-bold">Main Focus</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {pinnedInterests.length > 0 ? (
+            <div className="space-y-3">
+              {pinnedInterests.map(interest => (
+                <div key={interest.id} className="p-3 bg-card/80 rounded-lg border border-main-focus/30">
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100">{interest.title}</h4>
+                  {interest.description && (
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{interest.description}</p>
+                  )}
+                  {interest.deadline && (
+                    <div className="flex items-center gap-1 mt-2 text-xs text-gray-500 dark:text-gray-400">
+                      <Clock size={12} />
+                      {format(parseISO(interest.deadline), 'MMM dd, yyyy')}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-500 dark:text-gray-400 text-sm">No pinned interests yet! Pin some from the Interests page to see them here.</p>
+          )}
         </CardContent>
       </Card>
 
