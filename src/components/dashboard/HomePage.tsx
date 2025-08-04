@@ -1,8 +1,10 @@
 import { Interest, Task, Event, ActivityLog, DailyTask } from '@/lib/types';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Pin, Activity, AlertCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Clock, Pin, Activity, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import { format, isAfter, parseISO, isToday } from 'date-fns';
+import { useState } from 'react';
 
 interface HomePageProps {
   interests: Interest[];
@@ -13,6 +15,7 @@ interface HomePageProps {
 }
 
 export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: HomePageProps) => {
+  const [showRemainingTasks, setShowRemainingTasks] = useState(false);
   const pinnedInterests = interests.filter(interest => interest.is_pinned);
   
   // Today's events and tasks
@@ -35,6 +38,7 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
   const completedDailyTasks = dailyTasks.filter(task => task.is_completed).length;
   const totalDailyTasks = dailyTasks.length;
   const unfinishedDailyTasks = totalDailyTasks - completedDailyTasks;
+  const remainingDailyTasks = dailyTasks.filter(task => !task.is_completed);
   
   // Random motivational messages for unfinished tasks
   const getRandomMessage = () => {
@@ -91,13 +95,46 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-center space-y-2">
+          <div className="text-center space-y-4">
             <div className="text-6xl font-bold text-purple-600 dark:text-purple-400">
               {completedDailyTasks}/{totalDailyTasks}
             </div>
             <div className="text-base text-purple-600 dark:text-purple-400">
               {unfinishedDailyTasks > 0 ? getRandomMessage() : "All daily tasks completed! Great job!"}
             </div>
+            {unfinishedDailyTasks > 0 && (
+              <div className="space-y-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowRemainingTasks(!showRemainingTasks)}
+                  className="border-purple-300 text-purple-700 hover:bg-purple-50 dark:border-purple-700 dark:text-purple-300 dark:hover:bg-purple-950/30"
+                >
+                  {showRemainingTasks ? (
+                    <>Hide Remaining Tasks <ChevronUp size={16} className="ml-1" /></>
+                  ) : (
+                    <>Show Remaining Tasks <ChevronDown size={16} className="ml-1" /></>
+                  )}
+                </Button>
+                {showRemainingTasks && (
+                  <div className="space-y-2 max-w-md mx-auto">
+                    {remainingDailyTasks.map(task => (
+                      <div key={task.id} className="p-3 bg-purple-50 dark:bg-purple-950/30 rounded-lg border border-purple-200 dark:border-purple-800 text-left">
+                        <h5 className="font-medium text-purple-900 dark:text-purple-100">{task.title}</h5>
+                        {task.description && (
+                          <p className="text-sm text-purple-700 dark:text-purple-300 mt-1">{task.description}</p>
+                        )}
+                        {task.deadline && (
+                          <div className="flex items-center gap-1 mt-2 text-xs text-purple-600 dark:text-purple-400">
+                            <Clock size={12} />
+                            Due: {task.deadline}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
