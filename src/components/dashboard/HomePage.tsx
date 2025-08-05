@@ -140,9 +140,9 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
       </Card>
 
       {/* Today Events */}
-      <Card className="bg-upcoming-events/30 border-upcoming-events/50">
+      <Card className="bg-purple-50 dark:bg-purple-950/20 border-purple-200 dark:border-purple-800">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-upcoming-events">
+          <CardTitle className="flex items-center gap-2 text-purple-700 dark:text-purple-300">
             <AlertCircle size={20} />
             <span className="font-bold">Today Events</span>
           </CardTitle>
