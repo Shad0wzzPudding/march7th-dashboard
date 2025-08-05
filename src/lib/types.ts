@@ -28,6 +28,7 @@ export interface DailyTask {
   description?: string;
   deadline?: string; // TIME field for daily tasks
   is_completed: boolean;
+  task_date: string; // DATE field to track which day the task belongs to
   created_at: string;
   updated_at: string;
 }

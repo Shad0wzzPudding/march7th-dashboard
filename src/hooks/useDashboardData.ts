@@ -61,10 +61,13 @@ export const useDashboardData = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
+      const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+      
       const { data, error } = await supabase
         .from('daily_tasks')
         .select('*')
         .eq('user_id', user.id)
+        .eq('task_date', today) // Only fetch today's daily tasks
         .order('deadline', { ascending: true });
       
       if (error) throw error;
@@ -254,13 +257,15 @@ export const useDashboardData = () => {
 
   // Daily Task mutations
   const createDailyTask = useMutation({
-    mutationFn: async (data: Omit<DailyTask, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+    mutationFn: async (data: Omit<DailyTask, 'id' | 'user_id' | 'created_at' | 'updated_at' | 'task_date'>) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
+      const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+
       const { error } = await supabase
         .from('daily_tasks')
-        .insert([{ ...data, user_id: user.id }]);
+        .insert([{ ...data, user_id: user.id, task_date: today }]);
       
       if (error) throw error;
     },

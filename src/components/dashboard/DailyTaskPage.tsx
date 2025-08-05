@@ -10,7 +10,7 @@ import { format } from 'date-fns';
 
 interface DailyTaskPageProps {
   dailyTasks: DailyTask[];
-  onCreateDailyTask: (task: Omit<DailyTask, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => void;
+  onCreateDailyTask: (task: Omit<DailyTask, 'id' | 'user_id' | 'created_at' | 'updated_at' | 'task_date'>) => void;
   onUpdateDailyTask: (data: { id: string } & Partial<DailyTask>) => void;
   onDeleteDailyTask: (id: string) => void;
 }
