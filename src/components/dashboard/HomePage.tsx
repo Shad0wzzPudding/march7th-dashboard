@@ -87,19 +87,19 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
       </Card>
       
       {/* Daily Tasks for Today */}
-      <Card className="bg-purple-50 dark:bg-purple-950/20 border-purple-200 dark:border-purple-800">
+      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border-blue-200 dark:border-blue-800">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-purple-700 dark:text-purple-300">
+          <CardTitle className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
             <AlertCircle size={20} />
             <span className="font-bold">Daily task for today!</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="text-center space-y-4">
-            <div className="text-6xl font-bold text-purple-600 dark:text-purple-400">
+            <div className="text-6xl font-bold text-blue-600 dark:text-blue-400">
               {completedDailyTasks}/{totalDailyTasks}
             </div>
-            <div className="text-base text-purple-600 dark:text-purple-400">
+            <div className="text-base text-blue-600 dark:text-blue-400">
               {unfinishedDailyTasks > 0 ? getRandomMessage() : "All daily tasks completed! Great job!"}
             </div>
             {unfinishedDailyTasks > 0 && (
@@ -107,7 +107,7 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
                 <Button
                   variant="outline"
                   onClick={() => setShowRemainingTasks(!showRemainingTasks)}
-                  className="border-purple-300 text-purple-700 hover:bg-purple-50 dark:border-purple-700 dark:text-purple-300 dark:hover:bg-purple-950/30"
+                  className="border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-300 dark:hover:bg-blue-950/30"
                 >
                   {showRemainingTasks ? (
                     <>Hide Remaining Tasks <ChevronUp size={16} className="ml-1" /></>
@@ -118,13 +118,13 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
                 {showRemainingTasks && (
                   <div className="space-y-2 max-w-md mx-auto">
                     {remainingDailyTasks.map(task => (
-                      <div key={task.id} className="p-3 bg-purple-50 dark:bg-purple-950/30 rounded-lg border border-purple-200 dark:border-purple-800 text-left">
-                        <h5 className="font-medium text-purple-900 dark:text-purple-100">{task.title}</h5>
+                      <div key={task.id} className="p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800 text-left">
+                        <h5 className="font-medium text-blue-900 dark:text-blue-100">{task.title}</h5>
                         {task.description && (
-                          <p className="text-sm text-purple-700 dark:text-purple-300 mt-1">{task.description}</p>
+                          <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">{task.description}</p>
                         )}
                         {task.deadline && (
-                          <div className="flex items-center gap-1 mt-2 text-xs text-purple-600 dark:text-purple-400">
+                          <div className="flex items-center gap-1 mt-2 text-xs text-blue-600 dark:text-blue-400">
                             <Clock size={12} />
                             Due: {task.deadline}
                           </div>
@@ -140,9 +140,9 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
       </Card>
 
       {/* Today Events */}
-      <Card className="bg-purple-50 dark:bg-purple-950/20 border-purple-200 dark:border-purple-800">
+      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border-blue-200 dark:border-blue-800">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-purple-700 dark:text-purple-300">
+          <CardTitle className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
             <AlertCircle size={20} />
             <span className="font-bold">Today Events</span>
           </CardTitle>
@@ -151,11 +151,11 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
           <div className="grid gap-4 md:grid-cols-2">
             {/* Today's Tasks */}
             <div>
-              <h4 className="font-semibold text-sm text-upcoming-events mb-2">Today's Tasks</h4>
+              <h4 className="font-semibold text-sm text-blue-700 dark:text-blue-300 mb-2">Today's Tasks</h4>
               {todayTasks.length > 0 ? (
                 <div className="space-y-2">
                   {todayTasks.map(task => (
-                    <div key={task.id} className="p-3 bg-card/90 rounded border border-upcoming-events/40">
+                    <div key={task.id} className="p-3 bg-card/90 rounded border border-blue-200/40 dark:border-blue-800/40">
                       <p className="font-medium text-sm">{task.title}</p>
                       {task.description && (
                         <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">{task.description}</p>
@@ -173,11 +173,11 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
 
             {/* Today's Events */}
             <div>
-              <h4 className="font-semibold text-sm text-upcoming-events mb-2">Today's Events</h4>
+              <h4 className="font-semibold text-sm text-blue-700 dark:text-blue-300 mb-2">Today's Events</h4>
               {todayEvents.length > 0 ? (
                 <div className="space-y-2">
                   {todayEvents.map(event => (
-                    <div key={event.id} className="p-3 bg-card/90 rounded border border-upcoming-events/40">
+                    <div key={event.id} className="p-3 bg-card/90 rounded border border-blue-200/40 dark:border-blue-800/40">
                       <p className="font-medium text-sm">{event.title}</p>
                       {event.description && (
                         <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">{event.description}</p>
