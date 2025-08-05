@@ -297,7 +297,7 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
           {activityLog.length > 0 ? (
             <div className="space-y-2">
               {activityLog.map(log => (
-                <div key={log.id} className="flex items-center justify-between p-2 bg-card/80 rounded border border-recent-changes/30">
+                <div key={log.id} className="flex items-center justify-between p-2 bg-gray-800 dark:bg-gray-900 rounded border border-gray-700 dark:border-gray-600">
                   <div className="flex items-center gap-2">
                     <Badge 
                       variant={log.action_type === 'created' ? 'default' : log.action_type === 'updated' ? 'secondary' : 'destructive'}
