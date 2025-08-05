@@ -247,7 +247,7 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
               {upcomingTasks.length > 0 ? (
                 <div className="space-y-2">
                   {upcomingTasks.map(task => (
-                    <div key={task.id} className="p-2 bg-card/80 rounded border border-upcoming-events/30">
+                    <div key={task.id} className="p-2 bg-blue-50 dark:bg-blue-950/20 rounded border border-blue-200 dark:border-blue-800">
                       <p className="font-medium text-sm">{task.title}</p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
                         Due: {format(parseISO(task.deadline), 'MMM dd, yyyy HH:mm')}
@@ -266,7 +266,7 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
               {upcomingEvents.length > 0 ? (
                 <div className="space-y-2">
                   {upcomingEvents.map(event => (
-                    <div key={event.id} className="p-2 bg-card/80 rounded border border-upcoming-events/30">
+                    <div key={event.id} className="p-2 bg-blue-50 dark:bg-blue-950/20 rounded border border-blue-200 dark:border-blue-800">
                       <p className="font-medium text-sm">{event.title}</p>
                       <div className="text-xs text-gray-500 dark:text-gray-400 space-y-0.5">
                         <p>Starts: {format(parseISO(event.start_time), 'MMM dd, yyyy HH:mm')}</p>
