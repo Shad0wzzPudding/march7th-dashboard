@@ -61,6 +61,15 @@ export const useDashboardData = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
+      // First, ensure daily tasks exist for today (copies from previous day and resets completion)
+      const { error: ensureError } = await supabase.rpc('ensure_daily_tasks_for_today', {
+        p_user_id: user.id
+      });
+      
+      if (ensureError) {
+        console.error('Error ensuring daily tasks for today:', ensureError);
+      }
+
       const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
       
       const { data, error } = await supabase
