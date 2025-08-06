@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Edit, Trash2, Clock, CheckCircle2, Circle } from 'lucide-react';
+import { Plus, Edit, Trash2, Clock, CheckCircle2, Circle, Calendar, CalendarClock } from 'lucide-react';
 import { format, parseISO, isAfter, isBefore } from 'date-fns';
 
 interface TasksPageProps {
@@ -28,6 +28,7 @@ export const TasksPage = ({
   const [formData, setFormData] = useState({
     title: '',
     description: '',
+    start_date: '',
     deadline: '',
     is_completed: false
   });
@@ -36,6 +37,7 @@ export const TasksPage = ({
     setFormData({
       title: '',
       description: '',
+      start_date: '',
       deadline: '',
       is_completed: false
     });
@@ -47,6 +49,7 @@ export const TasksPage = ({
     
     const submissionData = {
       ...formData,
+      start_date: new Date(formData.start_date).toISOString(),
       deadline: new Date(formData.deadline).toISOString(),
     };
 
@@ -65,6 +68,7 @@ export const TasksPage = ({
     setFormData({
       title: task.title,
       description: task.description || '',
+      start_date: format(parseISO(task.start_date), "yyyy-MM-dd'T'HH:mm"),
       deadline: format(parseISO(task.deadline), "yyyy-MM-dd'T'HH:mm"),
       is_completed: task.is_completed
     });
@@ -141,13 +145,26 @@ export const TasksPage = ({
                 value={formData.description}
                 onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
               />
-              <Input
-                type="datetime-local"
-                placeholder="Deadline"
-                value={formData.deadline}
-                onChange={(e) => setFormData(prev => ({ ...prev, deadline: e.target.value }))}
-                required
-              />
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Start Date</label>
+                <Input
+                  type="datetime-local"
+                  placeholder="When task becomes active"
+                  value={formData.start_date}
+                  onChange={(e) => setFormData(prev => ({ ...prev, start_date: e.target.value }))}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Deadline</label>
+                <Input
+                  type="datetime-local"
+                  placeholder="When task is due"
+                  value={formData.deadline}
+                  onChange={(e) => setFormData(prev => ({ ...prev, deadline: e.target.value }))}
+                  required
+                />
+              </div>
               <div className="flex items-center gap-2">
                 <Checkbox
                   id="is_completed"
@@ -223,10 +240,16 @@ export const TasksPage = ({
                           {task.description && (
                             <p className="text-sm text-muted-foreground mt-1">{task.description}</p>
                           )}
-                          <div className={`flex items-center gap-1 text-sm mt-2 ${getStatusColor(status)}`}>
-                            <Clock size={12} />
-                            {format(parseISO(task.deadline), 'MMM dd, yyyy HH:mm')}
-                          </div>
+                           <div className="space-y-1 mt-2">
+                             <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                               <Calendar size={12} />
+                               <span>Start: {format(parseISO(task.start_date), 'MMM dd, yyyy HH:mm')}</span>
+                             </div>
+                             <div className={`flex items-center gap-1 text-sm ${getStatusColor(status)}`}>
+                               <CalendarClock size={12} />
+                               <span>Due: {format(parseISO(task.deadline), 'MMM dd, yyyy HH:mm')}</span>
+                             </div>
+                           </div>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
@@ -283,10 +306,16 @@ export const TasksPage = ({
                         {task.description && (
                           <p className="text-sm text-muted-foreground mt-1">{task.description}</p>
                         )}
-                        <div className={`flex items-center gap-1 text-sm mt-2 ${getStatusColor(status)}`}>
-                          <Clock size={12} />
-                          {format(parseISO(task.deadline), 'MMM dd, yyyy HH:mm')}
-                        </div>
+                         <div className="space-y-1 mt-2">
+                           <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                             <Calendar size={12} />
+                             <span>Start: {format(parseISO(task.start_date), 'MMM dd, yyyy HH:mm')}</span>
+                           </div>
+                           <div className={`flex items-center gap-1 text-sm ${getStatusColor(status)}`}>
+                             <CalendarClock size={12} />
+                             <span>Due: {format(parseISO(task.deadline), 'MMM dd, yyyy HH:mm')}</span>
+                           </div>
+                         </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -339,10 +368,16 @@ export const TasksPage = ({
                           {task.description && (
                             <p className="text-sm text-muted-foreground mt-1">{task.description}</p>
                           )}
-                          <div className={`flex items-center gap-1 text-sm mt-2 ${getStatusColor(status)}`}>
-                            <Clock size={12} />
-                            {format(parseISO(task.deadline), 'MMM dd, yyyy HH:mm')}
-                          </div>
+                           <div className="space-y-1 mt-2">
+                             <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                               <Calendar size={12} />
+                               <span>Start: {format(parseISO(task.start_date), 'MMM dd, yyyy HH:mm')}</span>
+                             </div>
+                             <div className={`flex items-center gap-1 text-sm ${getStatusColor(status)}`}>
+                               <CalendarClock size={12} />
+                               <span>Due: {format(parseISO(task.deadline), 'MMM dd, yyyy HH:mm')}</span>
+                             </div>
+                           </div>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">

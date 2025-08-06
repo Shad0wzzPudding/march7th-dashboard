@@ -15,6 +15,7 @@ export interface Task {
   user_id: string;
   title: string;
   description?: string;
+  start_date: string;
   deadline: string;
   is_completed: boolean;
   created_at: string;

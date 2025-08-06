@@ -153,6 +153,7 @@ export type Database = {
           description: string | null
           id: string
           is_completed: boolean
+          start_date: string | null
           title: string
           updated_at: string
           user_id: string
@@ -163,6 +164,7 @@ export type Database = {
           description?: string | null
           id?: string
           is_completed?: boolean
+          start_date?: string | null
           title: string
           updated_at?: string
           user_id: string
@@ -173,6 +175,7 @@ export type Database = {
           description?: string | null
           id?: string
           is_completed?: boolean
+          start_date?: string | null
           title?: string
           updated_at?: string
           user_id?: string
