@@ -2,8 +2,9 @@ import { Interest, Task, Event, ActivityLog, DailyTask } from '@/lib/types';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Clock, Pin, Activity, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
-import { format, isAfter, parseISO, isToday } from 'date-fns';
+import { Calendar } from '@/components/ui/calendar';
+import { Clock, Pin, Activity, AlertCircle, ChevronDown, ChevronUp, CalendarDays } from 'lucide-react';
+import { format, isAfter, parseISO, isToday, parseISO as parseDate, isSameDay } from 'date-fns';
 import { useState } from 'react';
 
 interface HomePageProps {
@@ -17,6 +18,35 @@ interface HomePageProps {
 export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: HomePageProps) => {
   const [showRemainingTasks, setShowRemainingTasks] = useState(false);
   const pinnedInterests = interests.filter(interest => interest.is_pinned);
+  
+  // Get all dates with tasks or events for calendar highlighting
+  const getMarkedDates = () => {
+    const markedDates: Date[] = [];
+    
+    // Add task deadlines and start dates
+    tasks.forEach(task => {
+      if (task.deadline) {
+        markedDates.push(parseDate(task.deadline));
+      }
+      if (task.start_date) {
+        markedDates.push(parseDate(task.start_date));
+      }
+    });
+    
+    // Add event start times and deadlines
+    events.forEach(event => {
+      if (event.start_time) {
+        markedDates.push(parseDate(event.start_time));
+      }
+      if (event.deadline) {
+        markedDates.push(parseDate(event.deadline));
+      }
+    });
+    
+    return markedDates;
+  };
+  
+  const markedDates = getMarkedDates();
   
   // Today's events and tasks
   const todayTasks = tasks
@@ -195,6 +225,35 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
                 <p className="text-xs text-gray-500 dark:text-gray-400">No events today</p>
               )}
             </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Calendar with Event Markers */}
+      <Card className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 border-purple-200 dark:border-purple-800">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-purple-700 dark:text-purple-300">
+            <CalendarDays size={20} />
+            <span className="font-bold">Calendar Overview</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex justify-center">
+            <Calendar
+              mode="single"
+              className="rounded-md border border-purple-200 dark:border-purple-800 bg-white/50 dark:bg-purple-950/20"
+              modifiers={{
+                marked: markedDates
+              }}
+              modifiersClassNames={{
+                marked: "bg-gradient-to-br from-purple-200 to-pink-200 dark:from-purple-700/50 dark:to-pink-700/50 text-purple-900 dark:text-purple-100 font-semibold relative after:absolute after:inset-0 after:rounded-full after:bg-purple-300/30 dark:after:bg-purple-500/30"
+              }}
+            />
+          </div>
+          <div className="mt-4 text-center">
+            <p className="text-sm text-purple-600 dark:text-purple-400">
+              Highlighted dates show when you have tasks or events scheduled
+            </p>
           </div>
         </CardContent>
       </Card>
