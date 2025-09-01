@@ -324,36 +324,34 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex justify-center">
-            <Calendar
-              mode="single"
-              className="rounded-md border border-purple-200 dark:border-purple-800 bg-white/50 dark:bg-purple-950/20"
-              selected={selectedDate}
-              onSelect={setSelectedDate}
-              modifiers={{
-                marked: markedDates
-              }}
-              modifiersClassNames={{
-                marked: "bg-gradient-to-br from-purple-200 to-pink-200 dark:from-purple-700/50 dark:to-pink-700/50 text-purple-900 dark:text-purple-100 font-semibold relative after:absolute after:inset-0 after:rounded-full after:bg-purple-300/30 dark:after:bg-purple-500/30 cursor-pointer hover:scale-105 transition-transform"
-              }}
-            />
-          </div>
-          <div className="mt-4 text-center">
-            <p className="text-sm text-purple-600 dark:text-purple-400">
-              Click on highlighted dates to see your tasks and events
-            </p>
-          </div>
-          
-          {/* Date Details Popover */}
-          {selectedDate && (
-            <Popover open={!!selectedDate} onOpenChange={() => setSelectedDate(undefined)}>
-              <PopoverTrigger asChild>
-                <div className="hidden" />
-              </PopoverTrigger>
-              <PopoverContent className="w-80 p-4" align="center">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 pb-2 border-b">
-                    <CalendarIcon size={18} className="text-purple-600" />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Left side - Calendar */}
+            <div className="flex flex-col items-center">
+              <Calendar
+                mode="single"
+                className="rounded-md border border-purple-200 dark:border-purple-800 bg-white/50 dark:bg-purple-950/20"
+                selected={selectedDate}
+                onSelect={setSelectedDate}
+                modifiers={{
+                  marked: markedDates
+                }}
+                modifiersClassNames={{
+                  marked: "bg-gradient-to-br from-purple-200 to-pink-200 dark:from-purple-700/50 dark:to-pink-700/50 text-purple-900 dark:text-purple-100 font-semibold relative after:absolute after:inset-0 after:rounded-full after:bg-purple-300/30 dark:after:bg-purple-500/30 cursor-pointer hover:scale-105 transition-transform"
+                }}
+              />
+              <div className="mt-4 text-center">
+                <p className="text-sm text-purple-600 dark:text-purple-400">
+                  Click on highlighted dates to see details
+                </p>
+              </div>
+            </div>
+
+            {/* Right side - Day Information Panel */}
+            <div className="bg-white/70 dark:bg-purple-950/30 rounded-lg border border-purple-200 dark:border-purple-700 p-4">
+              {selectedDate ? (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 pb-3 border-b border-purple-200 dark:border-purple-700">
+                    <CalendarIcon size={18} className="text-purple-600 dark:text-purple-400" />
                     <h3 className="font-semibold text-purple-700 dark:text-purple-300">
                       {format(selectedDate, 'EEEE, MMMM d, yyyy')}
                     </h3>
@@ -364,14 +362,19 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
                     
                     if (dateItems.length === 0) {
                       return (
-                        <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
-                          No tasks or events scheduled for this date.
-                        </p>
+                        <div className="text-center py-8">
+                          <div className="text-gray-400 dark:text-gray-500 mb-2">
+                            <CalendarIcon size={48} className="mx-auto opacity-50" />
+                          </div>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                            No tasks or events scheduled for this date.
+                          </p>
+                        </div>
                       );
                     }
                     
                     return (
-                      <div className="space-y-3 max-h-64 overflow-y-auto">
+                      <div className="space-y-3 max-h-96 overflow-y-auto">
                         {dateItems.map((item) => (
                           <div 
                             key={`${item.type}-${item.id}-${item.dateType}`} 
@@ -398,7 +401,7 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
                             </div>
                             
                             {item.description && (
-                              <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
+                              <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
                                 {item.description}
                               </p>
                             )}
@@ -406,7 +409,7 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
                             {item.time && (
                               <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
                                 <Clock size={12} />
-                                <span>{item.time}</span>
+                                {item.time}
                               </div>
                             )}
                           </div>
@@ -415,9 +418,26 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
                     );
                   })()}
                 </div>
-              </PopoverContent>
-            </Popover>
-          )}
+              ) : (
+                <div className="text-center py-8">
+                  <div className="text-gray-400 dark:text-gray-500 mb-4">
+                    <CalendarIcon size={48} className="mx-auto opacity-50" />
+                  </div>
+                  <h3 className="font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Select a Date
+                  </h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Click on any date in the calendar to view your scheduled tasks and events.
+                  </p>
+                  <div className="mt-4 p-3 bg-purple-50 dark:bg-purple-950/50 rounded-lg border border-purple-200 dark:border-purple-700">
+                    <p className="text-xs text-purple-600 dark:text-purple-400">
+                      💡 Highlighted dates have scheduled activities
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </CardContent>
       </Card>
 
