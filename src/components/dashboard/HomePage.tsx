@@ -116,6 +116,9 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
   const todayTasks = tasks
     .filter(task => !task.is_completed && isToday(parseISO(task.deadline)))
     .slice(0, 3);
+  const todayStartingTasks = tasks
+    .filter(task => !task.is_completed && isToday(parseISO(task.start_date)))
+    .slice(0, 3);
   const todayEvents = events
     .filter(event => isToday(parseISO(event.start_time)))
     .slice(0, 3);
@@ -160,7 +163,7 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="text-center">
               <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                {todayTasks.length}
+                {todayTasks.length + todayStartingTasks.length}
               </div>
               <div className="text-sm text-blue-600 dark:text-blue-400">Today's Tasks</div>
             </div>
@@ -246,16 +249,35 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
             {/* Today's Tasks */}
             <div>
               <h4 className="font-semibold text-sm text-blue-700 dark:text-blue-300 mb-2">Today's Tasks</h4>
-              {todayTasks.length > 0 ? (
+              {(todayTasks.length > 0 || todayStartingTasks.length > 0) ? (
                 <div className="space-y-2">
+                  {/* Tasks with deadlines today */}
                   {todayTasks.map(task => (
-                    <div key={task.id} className="p-3 bg-card/90 rounded border border-blue-200/40 dark:border-blue-800/40">
-                      <p className="font-medium text-sm">{task.title}</p>
+                    <div key={`deadline-${task.id}`} className="p-3 bg-card/90 rounded border border-red-200/40 dark:border-red-800/40">
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="font-medium text-sm">{task.title}</p>
+                        <Badge variant="destructive" className="text-xs">Deadline</Badge>
+                      </div>
                       {task.description && (
                         <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">{task.description}</p>
                       )}
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                         Due: {format(parseISO(task.deadline), 'HH:mm')}
+                      </p>
+                    </div>
+                  ))}
+                  {/* Tasks starting today */}
+                  {todayStartingTasks.map(task => (
+                    <div key={`start-${task.id}`} className="p-3 bg-card/90 rounded border border-green-200/40 dark:border-green-800/40">
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="font-medium text-sm">{task.title}</p>
+                        <Badge variant="outline" className="text-xs border-green-500 text-green-700 dark:text-green-300">Starting</Badge>
+                      </div>
+                      {task.description && (
+                        <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">{task.description}</p>
+                      )}
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        Starts: {format(parseISO(task.start_date), 'HH:mm')}
                       </p>
                     </div>
                   ))}
