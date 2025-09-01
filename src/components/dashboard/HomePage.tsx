@@ -3,7 +3,8 @@ import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
-import { Clock, Pin, Activity, AlertCircle, ChevronDown, ChevronUp, CalendarDays } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Clock, Pin, Activity, AlertCircle, ChevronDown, ChevronUp, CalendarDays, Calendar as CalendarIcon } from 'lucide-react';
 import { format, isAfter, parseISO, isToday, parseISO as parseDate, isSameDay } from 'date-fns';
 import { useState } from 'react';
 
@@ -17,6 +18,7 @@ interface HomePageProps {
 
 export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: HomePageProps) => {
   const [showRemainingTasks, setShowRemainingTasks] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const pinnedInterests = interests.filter(interest => interest.is_pinned);
   
   // Get all dates with tasks or events for calendar highlighting
@@ -47,6 +49,68 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
   };
   
   const markedDates = getMarkedDates();
+  
+  // Get events and tasks for a specific date
+  const getDateDetails = (date: Date) => {
+    const dateItems: Array<{
+      id: string;
+      title: string;
+      type: 'task' | 'event';
+      dateType: 'start' | 'deadline';
+      time?: string;
+      description?: string;
+    }> = [];
+    
+    // Check tasks
+    tasks.forEach(task => {
+      if (task.deadline && isSameDay(parseDate(task.deadline), date)) {
+        dateItems.push({
+          id: task.id,
+          title: task.title,
+          type: 'task',
+          dateType: 'deadline',
+          time: format(parseDate(task.deadline), 'HH:mm'),
+          description: task.description
+        });
+      }
+      if (task.start_date && isSameDay(parseDate(task.start_date), date)) {
+        dateItems.push({
+          id: task.id,
+          title: task.title,
+          type: 'task',
+          dateType: 'start',
+          time: format(parseDate(task.start_date), 'HH:mm'),
+          description: task.description
+        });
+      }
+    });
+    
+    // Check events
+    events.forEach(event => {
+      if (event.start_time && isSameDay(parseDate(event.start_time), date)) {
+        dateItems.push({
+          id: event.id,
+          title: event.title,
+          type: 'event',
+          dateType: 'start',
+          time: format(parseDate(event.start_time), 'HH:mm'),
+          description: event.description
+        });
+      }
+      if (event.deadline && isSameDay(parseDate(event.deadline), date)) {
+        dateItems.push({
+          id: event.id,
+          title: event.title,
+          type: 'event',
+          dateType: 'deadline',
+          time: format(parseDate(event.deadline), 'HH:mm'),
+          description: event.description
+        });
+      }
+    });
+    
+    return dateItems;
+  };
   
   // Today's events and tasks
   const todayTasks = tasks
@@ -242,19 +306,96 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
             <Calendar
               mode="single"
               className="rounded-md border border-purple-200 dark:border-purple-800 bg-white/50 dark:bg-purple-950/20"
+              selected={selectedDate}
+              onSelect={setSelectedDate}
               modifiers={{
                 marked: markedDates
               }}
               modifiersClassNames={{
-                marked: "bg-gradient-to-br from-purple-200 to-pink-200 dark:from-purple-700/50 dark:to-pink-700/50 text-purple-900 dark:text-purple-100 font-semibold relative after:absolute after:inset-0 after:rounded-full after:bg-purple-300/30 dark:after:bg-purple-500/30"
+                marked: "bg-gradient-to-br from-purple-200 to-pink-200 dark:from-purple-700/50 dark:to-pink-700/50 text-purple-900 dark:text-purple-100 font-semibold relative after:absolute after:inset-0 after:rounded-full after:bg-purple-300/30 dark:after:bg-purple-500/30 cursor-pointer hover:scale-105 transition-transform"
               }}
             />
           </div>
           <div className="mt-4 text-center">
             <p className="text-sm text-purple-600 dark:text-purple-400">
-              Highlighted dates show when you have tasks or events scheduled
+              Click on highlighted dates to see your tasks and events
             </p>
           </div>
+          
+          {/* Date Details Popover */}
+          {selectedDate && (
+            <Popover open={!!selectedDate} onOpenChange={() => setSelectedDate(undefined)}>
+              <PopoverTrigger asChild>
+                <div className="hidden" />
+              </PopoverTrigger>
+              <PopoverContent className="w-80 p-4" align="center">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 pb-2 border-b">
+                    <CalendarIcon size={18} className="text-purple-600" />
+                    <h3 className="font-semibold text-purple-700 dark:text-purple-300">
+                      {format(selectedDate, 'EEEE, MMMM d, yyyy')}
+                    </h3>
+                  </div>
+                  
+                  {(() => {
+                    const dateItems = getDateDetails(selectedDate);
+                    
+                    if (dateItems.length === 0) {
+                      return (
+                        <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
+                          No tasks or events scheduled for this date.
+                        </p>
+                      );
+                    }
+                    
+                    return (
+                      <div className="space-y-3 max-h-64 overflow-y-auto">
+                        {dateItems.map((item) => (
+                          <div 
+                            key={`${item.type}-${item.id}-${item.dateType}`} 
+                            className="p-3 bg-white dark:bg-gray-800 rounded-lg border border-purple-200 dark:border-purple-700 shadow-sm"
+                          >
+                            <div className="flex items-start justify-between mb-2">
+                              <h4 className="font-medium text-gray-900 dark:text-gray-100 text-sm">
+                                {item.title}
+                              </h4>
+                              <div className="flex gap-1">
+                                <Badge 
+                                  variant={item.type === 'task' ? 'default' : 'secondary'}
+                                  className="text-xs"
+                                >
+                                  {item.type}
+                                </Badge>
+                                <Badge 
+                                  variant={item.dateType === 'deadline' ? 'destructive' : 'outline'}
+                                  className="text-xs"
+                                >
+                                  {item.dateType === 'deadline' ? 'Deadline' : 'Start Date'}
+                                </Badge>
+                              </div>
+                            </div>
+                            
+                            {item.description && (
+                              <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
+                                {item.description}
+                              </p>
+                            )}
+                            
+                            {item.time && (
+                              <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+                                <Clock size={12} />
+                                <span>{item.time}</span>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })()}
+                </div>
+              </PopoverContent>
+            </Popover>
+          )}
         </CardContent>
       </Card>
 
