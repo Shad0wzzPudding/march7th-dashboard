@@ -347,14 +347,22 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
             </div>
 
             {/* Right side - Day Information Panel */}
-            <div className="bg-white/70 dark:bg-purple-950/30 rounded-lg border border-purple-200 dark:border-purple-700 p-4">
+            <div className="bg-gradient-to-br from-white/90 to-purple-50/50 dark:from-gray-900/70 dark:to-purple-950/40 rounded-xl border-2 border-purple-300/40 dark:border-purple-600/30 shadow-lg backdrop-blur-sm p-5 min-h-[400px]">
               {selectedDate ? (
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 pb-3 border-b border-purple-200 dark:border-purple-700">
-                    <CalendarIcon size={18} className="text-purple-600 dark:text-purple-400" />
-                    <h3 className="font-semibold text-purple-700 dark:text-purple-300">
-                      {format(selectedDate, 'EEEE, MMMM d, yyyy')}
-                    </h3>
+                <div className="space-y-4 animate-fade-in">
+                  {/* Compact Header */}
+                  <div className="flex items-center gap-3 pb-3 border-b border-purple-200/60 dark:border-purple-700/50">
+                    <div className="p-1.5 bg-purple-100 dark:bg-purple-900/50 rounded-lg">
+                      <CalendarIcon size={16} className="text-purple-600 dark:text-purple-400" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-base text-purple-800 dark:text-purple-200">
+                        {format(selectedDate, 'EEE, MMM d')}
+                      </h3>
+                      <p className="text-xs text-purple-600 dark:text-purple-400">
+                        {format(selectedDate, 'yyyy')}
+                      </p>
+                    </div>
                   </div>
                   
                   {(() => {
@@ -362,56 +370,72 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
                     
                     if (dateItems.length === 0) {
                       return (
-                        <div className="text-center py-8">
-                          <div className="text-gray-400 dark:text-gray-500 mb-2">
-                            <CalendarIcon size={48} className="mx-auto opacity-50" />
+                        <div className="flex flex-col items-center justify-center py-8 space-y-3">
+                          <div className="p-3 bg-purple-100/50 dark:bg-purple-900/30 rounded-full">
+                            <CalendarIcon size={24} className="text-purple-400 dark:text-purple-500" />
                           </div>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">
-                            No tasks or events scheduled for this date.
-                          </p>
+                          <div className="text-center">
+                            <h4 className="font-medium text-sm text-purple-700 dark:text-purple-300 mb-1">
+                              Free Day
+                            </h4>
+                            <p className="text-xs text-purple-500 dark:text-purple-400">
+                              No scheduled items
+                            </p>
+                          </div>
                         </div>
                       );
                     }
                     
                     return (
-                      <div className="space-y-3 max-h-96 overflow-y-auto">
+                      <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
                         {dateItems.map((item) => (
                           <div 
                             key={`${item.type}-${item.id}-${item.dateType}`} 
-                            className="p-3 bg-white dark:bg-gray-800 rounded-lg border border-purple-200 dark:border-purple-700 shadow-sm"
+                            className="group relative bg-white/80 dark:bg-gray-800/60 rounded-lg border border-purple-200/60 dark:border-purple-700/40 p-3 shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.01] hover:border-purple-300 dark:hover:border-purple-600"
                           >
-                            <div className="flex items-start justify-between mb-2">
-                              <h4 className="font-medium text-gray-900 dark:text-gray-100 text-sm">
-                                {item.title}
-                              </h4>
-                              <div className="flex gap-1">
-                                <Badge 
-                                  variant={item.type === 'task' ? 'default' : 'secondary'}
-                                  className="text-xs"
-                                >
-                                  {item.type}
-                                </Badge>
-                                <Badge 
-                                  variant={item.dateType === 'deadline' ? 'destructive' : 'outline'}
-                                  className="text-xs"
-                                >
-                                  {item.dateType === 'deadline' ? 'Deadline' : 'Start Date'}
-                                </Badge>
+                            {/* Slim accent border */}
+                            <div className={`absolute left-0 top-0 w-0.5 h-full rounded-l-lg ${
+                              item.dateType === 'deadline' 
+                                ? 'bg-red-500' 
+                                : item.type === 'event'
+                                ? 'bg-blue-500'
+                                : 'bg-green-500'
+                            }`} />
+                            
+                            <div className="ml-2">
+                              <div className="flex items-start justify-between mb-1">
+                                <h4 className="font-semibold text-gray-900 dark:text-gray-100 text-sm leading-tight flex-1 mr-2">
+                                  {item.title}
+                                </h4>
+                                <div className="flex gap-1 flex-shrink-0">
+                                  <Badge 
+                                    variant={item.type === 'task' ? 'default' : 'secondary'}
+                                    className="text-xs px-1.5 py-0.5 h-5"
+                                  >
+                                    {item.type}
+                                  </Badge>
+                                  <Badge 
+                                    variant={item.dateType === 'deadline' ? 'destructive' : 'outline'}
+                                    className="text-xs px-1.5 py-0.5 h-5"
+                                  >
+                                    {item.dateType === 'deadline' ? 'Due' : 'Start'}
+                                  </Badge>
+                                </div>
                               </div>
+                              
+                              {item.description && (
+                                <p className="text-xs text-gray-600 dark:text-gray-300 mb-2 line-clamp-1">
+                                  {item.description}
+                                </p>
+                              )}
+                              
+                              {item.time && (
+                                <div className="flex items-center gap-1 text-xs font-medium text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 rounded px-1.5 py-0.5 w-fit">
+                                  <Clock size={10} />
+                                  {item.time}
+                                </div>
+                              )}
                             </div>
-                            
-                            {item.description && (
-                              <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
-                                {item.description}
-                              </p>
-                            )}
-                            
-                            {item.time && (
-                              <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-                                <Clock size={12} />
-                                {item.time}
-                              </div>
-                            )}
                           </div>
                         ))}
                       </div>
@@ -419,20 +443,22 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
                   })()}
                 </div>
               ) : (
-                <div className="text-center py-8">
-                  <div className="text-gray-400 dark:text-gray-500 mb-4">
-                    <CalendarIcon size={48} className="mx-auto opacity-50" />
+                <div className="flex flex-col items-center justify-center h-full py-12 space-y-4">
+                  <div className="p-4 bg-purple-100/60 dark:bg-purple-900/30 rounded-full">
+                    <CalendarIcon size={32} className="text-purple-400 dark:text-purple-500" />
                   </div>
-                  <h3 className="font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Select a Date
-                  </h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Click on any date in the calendar to view your scheduled tasks and events.
-                  </p>
-                  <div className="mt-4 p-3 bg-purple-50 dark:bg-purple-950/50 rounded-lg border border-purple-200 dark:border-purple-700">
-                    <p className="text-xs text-purple-600 dark:text-purple-400">
-                      💡 Highlighted dates have scheduled activities
+                  <div className="text-center space-y-1">
+                    <h3 className="font-bold text-lg text-purple-700 dark:text-purple-300">
+                      Select a Date
+                    </h3>
+                    <p className="text-sm text-purple-600 dark:text-purple-400 max-w-xs">
+                      Click on highlighted dates to see details
                     </p>
+                    <div className="mt-4 p-3 bg-purple-50 dark:bg-purple-950/50 rounded-lg border border-purple-200 dark:border-purple-700">
+                      <p className="text-xs text-purple-600 dark:text-purple-400">
+                        💡 Highlighted dates have scheduled activities
+                      </p>
+                    </div>
                   </div>
                 </div>
               )}
