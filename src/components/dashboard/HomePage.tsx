@@ -347,12 +347,12 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
             </div>
 
             {/* Right side - Day Information Panel */}
-            <div className="bg-white/70 dark:bg-purple-950/30 rounded-lg border border-purple-200 dark:border-purple-700 p-4">
+            <div className="bg-gradient-to-br from-white/80 to-purple-50/50 dark:from-purple-950/40 dark:to-purple-900/20 rounded-xl border border-purple-200/60 dark:border-purple-700/40 p-4 shadow-sm backdrop-blur-sm">
               {selectedDate ? (
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 pb-3 border-b border-purple-200 dark:border-purple-700">
-                    <CalendarIcon size={18} className="text-purple-600 dark:text-purple-400" />
-                    <h3 className="font-semibold text-purple-700 dark:text-purple-300">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 pb-2 border-b border-purple-200/50 dark:border-purple-700/50">
+                    <CalendarIcon size={16} className="text-purple-600 dark:text-purple-400" />
+                    <h3 className="font-medium text-purple-700 dark:text-purple-300 text-sm">
                       {format(selectedDate, 'EEEE, MMMM d, yyyy')}
                     </h3>
                   </div>
@@ -362,11 +362,11 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
                     
                     if (dateItems.length === 0) {
                       return (
-                        <div className="text-center py-8">
-                          <div className="text-gray-400 dark:text-gray-500 mb-2">
-                            <CalendarIcon size={48} className="mx-auto opacity-50" />
+                        <div className="text-center py-6">
+                          <div className="text-purple-300 dark:text-purple-600 mb-2">
+                            <CalendarIcon size={32} className="mx-auto opacity-40" />
                           </div>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                          <p className="text-xs text-purple-500 dark:text-purple-400">
                             No tasks or events scheduled for this date.
                           </p>
                         </div>
@@ -374,26 +374,26 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
                     }
                     
                     return (
-                      <div className="space-y-3 max-h-96 overflow-y-auto">
+                      <div className="space-y-2 max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-purple-200 dark:scrollbar-thumb-purple-700">
                         {dateItems.map((item) => (
                           <div 
                             key={`${item.type}-${item.id}-${item.dateType}`} 
-                            className="p-3 bg-white dark:bg-gray-800 rounded-lg border border-purple-200 dark:border-purple-700 shadow-sm"
+                            className="p-2.5 bg-white/60 dark:bg-purple-900/30 rounded-lg border border-purple-100/60 dark:border-purple-600/30 shadow-xs hover:shadow-sm transition-shadow"
                           >
-                            <div className="flex items-start justify-between mb-2">
-                              <h4 className="font-medium text-gray-900 dark:text-gray-100 text-sm">
+                            <div className="flex items-start justify-between mb-1.5">
+                              <h4 className="font-medium text-gray-900 dark:text-gray-100 text-xs leading-snug">
                                 {item.title}
                               </h4>
-                              <div className="flex gap-1">
+                              <div className="flex gap-1 flex-shrink-0">
                                 <Badge 
                                   variant={item.type === 'task' ? 'default' : 'secondary'}
-                                  className="text-xs"
+                                  className="text-[10px] h-4 px-1.5"
                                 >
                                   {item.type}
                                 </Badge>
                                 <Badge 
                                   variant={item.dateType === 'deadline' ? 'destructive' : 'outline'}
-                                  className="text-xs"
+                                  className="text-[10px] h-4 px-1.5"
                                 >
                                   {item.dateType === 'deadline' ? 'Deadline' : 'Start Date'}
                                 </Badge>
@@ -401,14 +401,14 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
                             </div>
                             
                             {item.description && (
-                              <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
+                              <p className="text-[10px] text-gray-600 dark:text-gray-400 mb-1.5 line-clamp-2">
                                 {item.description}
                               </p>
                             )}
                             
                             {item.time && (
-                              <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-                                <Clock size={12} />
+                              <div className="flex items-center gap-1 text-[10px] text-purple-600 dark:text-purple-400">
+                                <Clock size={10} />
                                 {item.time}
                               </div>
                             )}
@@ -419,19 +419,19 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
                   })()}
                 </div>
               ) : (
-                <div className="text-center py-8">
-                  <div className="text-gray-400 dark:text-gray-500 mb-4">
-                    <CalendarIcon size={48} className="mx-auto opacity-50" />
+                <div className="text-center py-6">
+                  <div className="text-purple-200 dark:text-purple-700 mb-3">
+                    <CalendarIcon size={40} className="mx-auto opacity-40" />
                   </div>
-                  <h3 className="font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <h3 className="font-medium text-purple-600 dark:text-purple-400 mb-1 text-sm">
                     Select a Date
                   </h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Click on any date in the calendar to view your scheduled tasks and events.
+                  <p className="text-xs text-purple-500 dark:text-purple-500">
+                    Choose a date to view details
                   </p>
-                  <div className="mt-4 p-3 bg-purple-50 dark:bg-purple-950/50 rounded-lg border border-purple-200 dark:border-purple-700">
-                    <p className="text-xs text-purple-600 dark:text-purple-400">
-                      💡 Highlighted dates have scheduled activities
+                  <div className="mt-3 p-2 bg-purple-50/60 dark:bg-purple-950/30 rounded-md border border-purple-200/40 dark:border-purple-700/40">
+                    <p className="text-[10px] text-purple-600 dark:text-purple-400">
+                      💡 Highlighted dates have activities
                     </p>
                   </div>
                 </div>
