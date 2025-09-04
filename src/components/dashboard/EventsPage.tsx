@@ -197,9 +197,9 @@ export const EventsPage = ({
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <h4 className="font-semibold text-lg">{event.title}</h4>
-                        {event.description && (
-                          <p className="text-sm text-muted-foreground mt-1">{event.description}</p>
-                        )}
+                         {event.description && (
+                           <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap">{event.description}</p>
+                         )}
                         <div className={`flex items-center gap-1 text-sm mt-2 ${getStatusColor(status)}`}>
                           <Clock size={12} />
                           {format(parseISO(event.start_time), 'HH:mm')} - Today
@@ -255,9 +255,9 @@ export const EventsPage = ({
                   <CardTitle className="text-lg">{event.title}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {event.description && (
-                    <p className="text-sm text-muted-foreground">{event.description}</p>
-                  )}
+                   {event.description && (
+                     <p className="text-sm text-muted-foreground whitespace-pre-wrap">{event.description}</p>
+                   )}
                   <div className={`flex items-center gap-1 text-sm ${getStatusColor(status)}`}>
                     <Clock size={12} />
                     {format(parseISO(event.start_time), 'MMM dd, yyyy HH:mm')}
@@ -302,9 +302,9 @@ export const EventsPage = ({
                     <CardTitle className="text-base text-muted-foreground">{event.title}</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    {event.description && (
-                      <p className="text-sm text-muted-foreground">{event.description}</p>
-                    )}
+                     {event.description && (
+                       <p className="text-sm text-muted-foreground whitespace-pre-wrap">{event.description}</p>
+                     )}
                     <div className={`flex items-center gap-1 text-sm ${getStatusColor(status)}`}>
                       <Clock size={12} />
                       {format(parseISO(event.start_time), 'MMM dd, yyyy HH:mm')}

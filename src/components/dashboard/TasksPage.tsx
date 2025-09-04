@@ -237,9 +237,9 @@ export const TasksPage = ({
                           <h4 className={`font-semibold ${task.is_completed ? 'line-through text-muted-foreground' : ''}`}>
                             {task.title}
                           </h4>
-                          {task.description && (
-                            <p className="text-sm text-muted-foreground mt-1">{task.description}</p>
-                          )}
+                           {task.description && (
+                             <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap">{task.description}</p>
+                           )}
                            <div className="space-y-1 mt-2">
                              <div className="flex items-center gap-1 text-sm text-muted-foreground">
                                <Calendar size={12} />
@@ -303,9 +303,9 @@ export const TasksPage = ({
                         <h4 className={`font-semibold ${task.is_completed ? 'line-through text-muted-foreground' : ''}`}>
                           {task.title}
                         </h4>
-                        {task.description && (
-                          <p className="text-sm text-muted-foreground mt-1">{task.description}</p>
-                        )}
+                         {task.description && (
+                           <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap">{task.description}</p>
+                         )}
                          <div className="space-y-1 mt-2">
                            <div className="flex items-center gap-1 text-sm text-muted-foreground">
                              <Calendar size={12} />
@@ -365,9 +365,9 @@ export const TasksPage = ({
                           <h4 className="font-semibold line-through text-muted-foreground">
                             {task.title}
                           </h4>
-                          {task.description && (
-                            <p className="text-sm text-muted-foreground mt-1">{task.description}</p>
-                          )}
+                           {task.description && (
+                             <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap">{task.description}</p>
+                           )}
                            <div className="space-y-1 mt-2">
                              <div className="flex items-center gap-1 text-sm text-muted-foreground">
                                <Calendar size={12} />

@@ -167,9 +167,9 @@ export const InterestsPage = ({
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {interest.description && (
-                    <p className="text-sm text-gray-600 dark:text-gray-300">{interest.description}</p>
-                  )}
+                   {interest.description && (
+                     <p className="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap">{interest.description}</p>
+                   )}
                   {interest.deadline && (
                     <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
                       <Clock size={12} />
@@ -214,9 +214,9 @@ export const InterestsPage = ({
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
-                {interest.description && (
-                  <p className="text-sm text-muted-foreground">{interest.description}</p>
-                )}
+                 {interest.description && (
+                   <p className="text-sm text-muted-foreground whitespace-pre-wrap">{interest.description}</p>
+                 )}
                 {interest.deadline && (
                   <div className="flex items-center gap-1 text-sm text-muted-foreground">
                     <Clock size={12} />

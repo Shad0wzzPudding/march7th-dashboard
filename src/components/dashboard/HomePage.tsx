@@ -217,9 +217,9 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
                     {remainingDailyTasks.map(task => (
                       <div key={task.id} className="p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800 text-left">
                         <h5 className="font-medium text-blue-900 dark:text-blue-100">{task.title}</h5>
-                        {task.description && (
-                          <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">{task.description}</p>
-                        )}
+                         {task.description && (
+                           <p className="text-sm text-blue-700 dark:text-blue-300 mt-1 whitespace-pre-wrap">{task.description}</p>
+                         )}
                         {task.deadline && (
                           <div className="flex items-center gap-1 mt-2 text-xs text-blue-600 dark:text-blue-400">
                             <Clock size={12} />
@@ -258,9 +258,9 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
                         <p className="font-medium text-sm">{task.title}</p>
                         <Badge variant="destructive" className="text-xs">Deadline</Badge>
                       </div>
-                      {task.description && (
-                        <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">{task.description}</p>
-                      )}
+                       {task.description && (
+                         <p className="text-xs text-gray-600 dark:text-gray-300 mt-1 whitespace-pre-wrap">{task.description}</p>
+                       )}
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                         Due: {format(parseISO(task.deadline), 'HH:mm')}
                       </p>
@@ -273,9 +273,9 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
                         <p className="font-medium text-sm">{task.title}</p>
                         <Badge variant="outline" className="text-xs border-green-500 text-green-700 dark:text-green-300">Starting</Badge>
                       </div>
-                      {task.description && (
-                        <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">{task.description}</p>
-                      )}
+                       {task.description && (
+                         <p className="text-xs text-gray-600 dark:text-gray-300 mt-1 whitespace-pre-wrap">{task.description}</p>
+                       )}
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                         Starts: {format(parseISO(task.start_date), 'HH:mm')}
                       </p>
@@ -295,9 +295,9 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
                   {todayEvents.map(event => (
                     <div key={event.id} className="p-3 bg-card/90 rounded border border-blue-200/40 dark:border-blue-800/40">
                       <p className="font-medium text-sm">{event.title}</p>
-                      {event.description && (
-                        <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">{event.description}</p>
-                      )}
+                       {event.description && (
+                         <p className="text-xs text-gray-600 dark:text-gray-300 mt-1 whitespace-pre-wrap">{event.description}</p>
+                       )}
                       <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 space-y-0.5">
                         <p>Starts: {format(parseISO(event.start_time), 'HH:mm')}</p>
                         {event.deadline && (
@@ -423,11 +423,11 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
                                 </div>
                               </div>
                               
-                              {item.description && (
-                                <p className="text-xs text-gray-600 dark:text-gray-300 mb-2 line-clamp-1">
-                                  {item.description}
-                                </p>
-                              )}
+                               {item.description && (
+                                 <p className="text-xs text-gray-600 dark:text-gray-300 mb-2 line-clamp-1 whitespace-pre-wrap">
+                                   {item.description}
+                                 </p>
+                               )}
                               
                               {item.time && (
                                 <div className="flex items-center gap-1 text-xs font-medium text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 rounded px-1.5 py-0.5 w-fit">
@@ -481,9 +481,9 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
               {pinnedInterests.map(interest => (
                 <div key={interest.id} className="p-3 bg-card/80 rounded-lg border border-main-focus/30">
                   <h4 className="font-semibold text-gray-900 dark:text-gray-100">{interest.title}</h4>
-                  {interest.description && (
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{interest.description}</p>
-                  )}
+                   {interest.description && (
+                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 whitespace-pre-wrap">{interest.description}</p>
+                   )}
                   {interest.deadline && (
                     <div className="flex items-center gap-1 mt-2 text-xs text-gray-500 dark:text-gray-400">
                       <Clock size={12} />
