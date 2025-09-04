@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Clock, Pin, Activity, AlertCircle, ChevronDown, ChevronUp, CalendarDays, Calendar as CalendarIcon } from 'lucide-react';
 import { format, isAfter, parseISO, isToday, parseISO as parseDate, isSameDay } from 'date-fns';
 import { useState } from 'react';
@@ -19,7 +20,20 @@ interface HomePageProps {
 export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: HomePageProps) => {
   const [showRemainingTasks, setShowRemainingTasks] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [collapsedInterests, setCollapsedInterests] = useState<Set<string>>(new Set());
   const pinnedInterests = interests.filter(interest => interest.is_pinned);
+  
+  const toggleInterestCollapse = (interestId: string) => {
+    setCollapsedInterests(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(interestId)) {
+        newSet.delete(interestId);
+      } else {
+        newSet.add(interestId);
+      }
+      return newSet;
+    });
+  };
   
   // Get all dates with tasks or events for calendar highlighting
   const getMarkedDates = () => {
@@ -480,10 +494,34 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
             <div className="space-y-3">
               {pinnedInterests.map(interest => (
                 <div key={interest.id} className="p-3 bg-card/80 rounded-lg border border-main-focus/30">
-                  <h4 className="font-semibold text-gray-900 dark:text-gray-100">{interest.title}</h4>
-                   {interest.description && (
-                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 whitespace-pre-wrap">{interest.description}</p>
-                   )}
+                  <div className="flex items-start justify-between">
+                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 flex-1">{interest.title}</h4>
+                    {interest.description && (
+                      <CollapsibleTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => toggleInterestCollapse(interest.id)}
+                          className="ml-2 h-6 w-6 p-0"
+                        >
+                          {collapsedInterests.has(interest.id) ? (
+                            <ChevronDown size={16} />
+                          ) : (
+                            <ChevronUp size={16} />
+                          )}
+                        </Button>
+                      </CollapsibleTrigger>
+                    )}
+                  </div>
+                  
+                  <Collapsible open={!collapsedInterests.has(interest.id)}>
+                    <CollapsibleContent>
+                      {interest.description && (
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 whitespace-pre-wrap">{interest.description}</p>
+                      )}
+                    </CollapsibleContent>
+                  </Collapsible>
+                  
                   {interest.deadline && (
                     <div className="flex items-center gap-1 mt-2 text-xs text-gray-500 dark:text-gray-400">
                       <Clock size={12} />
