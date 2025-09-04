@@ -493,42 +493,42 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
           {pinnedInterests.length > 0 ? (
             <div className="space-y-3">
               {pinnedInterests.map(interest => (
-                <div key={interest.id} className="p-3 bg-card/80 rounded-lg border border-main-focus/30">
-                  <div className="flex items-start justify-between">
-                    <h4 className="font-semibold text-gray-900 dark:text-gray-100 flex-1">{interest.title}</h4>
-                    {interest.description && (
-                      <CollapsibleTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => toggleInterestCollapse(interest.id)}
-                          className="ml-2 h-6 w-6 p-0"
-                        >
-                          {collapsedInterests.has(interest.id) ? (
-                            <ChevronDown size={16} />
-                          ) : (
-                            <ChevronUp size={16} />
-                          )}
-                        </Button>
-                      </CollapsibleTrigger>
-                    )}
-                  </div>
-                  
-                  <Collapsible open={!collapsedInterests.has(interest.id)}>
+                <Collapsible key={interest.id} open={!collapsedInterests.has(interest.id)}>
+                  <div className="p-3 bg-card/80 rounded-lg border border-main-focus/30">
+                    <div className="flex items-start justify-between">
+                      <h4 className="font-semibold text-gray-900 dark:text-gray-100 flex-1">{interest.title}</h4>
+                      {interest.description && (
+                        <CollapsibleTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => toggleInterestCollapse(interest.id)}
+                            className="ml-2 h-6 w-6 p-0"
+                          >
+                            {collapsedInterests.has(interest.id) ? (
+                              <ChevronDown size={16} />
+                            ) : (
+                              <ChevronUp size={16} />
+                            )}
+                          </Button>
+                        </CollapsibleTrigger>
+                      )}
+                    </div>
+                    
                     <CollapsibleContent>
                       {interest.description && (
                         <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 whitespace-pre-wrap">{interest.description}</p>
                       )}
                     </CollapsibleContent>
-                  </Collapsible>
-                  
-                  {interest.deadline && (
-                    <div className="flex items-center gap-1 mt-2 text-xs text-gray-500 dark:text-gray-400">
-                      <Clock size={12} />
-                      {format(parseISO(interest.deadline), 'MMM dd, yyyy')}
-                    </div>
-                  )}
-                </div>
+                    
+                    {interest.deadline && (
+                      <div className="flex items-center gap-1 mt-2 text-xs text-gray-500 dark:text-gray-400">
+                        <Clock size={12} />
+                        {format(parseISO(interest.deadline), 'MMM dd, yyyy')}
+                      </div>
+                    )}
+                  </div>
+                </Collapsible>
               ))}
             </div>
           ) : (
