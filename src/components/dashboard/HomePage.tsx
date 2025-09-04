@@ -20,7 +20,17 @@ interface HomePageProps {
 export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: HomePageProps) => {
   const [showRemainingTasks, setShowRemainingTasks] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
-  const [collapsedInterests, setCollapsedInterests] = useState<Set<string>>(new Set());
+  
+  // Initialize collapsed interests from localStorage
+  const [collapsedInterests, setCollapsedInterests] = useState<Set<string>>(() => {
+    try {
+      const saved = localStorage.getItem('collapsedInterests');
+      return saved ? new Set(JSON.parse(saved)) : new Set();
+    } catch {
+      return new Set();
+    }
+  });
+  
   const pinnedInterests = interests.filter(interest => interest.is_pinned);
   
   const toggleInterestCollapse = (interestId: string) => {
@@ -31,6 +41,14 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
       } else {
         newSet.add(interestId);
       }
+      
+      // Save to localStorage
+      try {
+        localStorage.setItem('collapsedInterests', JSON.stringify(Array.from(newSet)));
+      } catch (error) {
+        console.error('Failed to save collapsed state:', error);
+      }
+      
       return newSet;
     });
   };
