@@ -1,13 +1,14 @@
-import { Interest, Task, Event, ActivityLog, DailyTask } from '@/lib/types';
-import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Clock, Pin, Activity, AlertCircle, ChevronDown, ChevronUp, CalendarDays, Calendar as CalendarIcon } from 'lucide-react';
-import { format, isAfter, parseISO, isToday, parseISO as parseDate, isSameDay } from 'date-fns';
-import { useState } from 'react';
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Badge } from "@/components/ui/badge";
+import { Clock, Star, Calendar as CalendarIcon, CheckCircle2, Circle, ChevronDown, ChevronRight, Pin, Activity, AlertCircle, ChevronUp, CalendarDays } from "lucide-react";
+import { format, isToday, startOfDay, endOfDay, isSameDay, isAfter, parseISO, parseISO as parseDate } from "date-fns";
+import { Interest, Task, Event, ActivityLog, DailyTask } from "@/lib/types";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { useNotifications } from "@/hooks/useNotifications";
+import { NotificationSettings } from "./NotificationSettings";
 
 interface HomePageProps {
   interests: Interest[];
@@ -20,6 +21,7 @@ interface HomePageProps {
 export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: HomePageProps) => {
   const [showRemainingTasks, setShowRemainingTasks] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const { scheduleNotificationCheck } = useNotifications();
   
   // Initialize collapsed interests from localStorage
   const [collapsedInterests, setCollapsedInterests] = useState<Set<string>>(() => {
@@ -32,6 +34,13 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
   });
   
   const pinnedInterests = interests.filter(interest => interest.is_pinned);
+
+  // Schedule notification checks when data changes
+  useEffect(() => {
+    if (tasks.length > 0 || events.length > 0 || dailyTasks.length > 0) {
+      scheduleNotificationCheck(tasks, events, dailyTasks);
+    }
+  }, [tasks, events, dailyTasks, scheduleNotificationCheck]);
   
   const toggleInterestCollapse = (interestId: string) => {
     setCollapsedInterests(prev => {
@@ -182,7 +191,14 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
+      {/* Notification Settings */}
+      <NotificationSettings />
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Main Focus Section */}
+      </div>
+      
       {/* Daily Overview */}
       <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border-blue-200 dark:border-blue-800">
         <CardHeader>
