@@ -1,0 +1,45 @@
+{
+  "name": "March 7th Dashboard",
+  "short_name": "Dashboard",
+  "description": "Personal productivity dashboard with tasks, events, and interests",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "16x16 32x32 48x48",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icon-512.png", 
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "categories": ["productivity", "utilities"],
+  "shortcuts": [
+    {
+      "name": "Add Task",
+      "short_name": "Task",
+      "description": "Create a new task",
+      "url": "/?action=add-task",
+      "icons": [
+        {
+          "src": "/favicon.ico",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ]
+}
