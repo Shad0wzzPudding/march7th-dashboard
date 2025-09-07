@@ -7,7 +7,17 @@ export const useNotifications = () => {
 
   useEffect(() => {
     // Check if notifications are supported
-    if ('Notification' in window && 'serviceWorker' in navigator) {
+    const isSupported = 'Notification' in window && 'serviceWorker' in navigator;
+    
+    // Special handling for iOS Safari
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                        (window.navigator as any).standalone === true;
+    
+    // On iOS, notifications only work when installed as PWA
+    if (isIOS && !isStandalone) {
+      setIsSupported(false);
+    } else if (isSupported) {
       setIsSupported(true);
       setPermission(Notification.permission);
     }
