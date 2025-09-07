@@ -50,6 +50,10 @@ export const NotificationSettings = () => {
   }
 
   if (!isSupported) {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                        (window.navigator as any).standalone === true;
+                        
     return (
       <Card>
         <CardHeader>
@@ -58,7 +62,10 @@ export const NotificationSettings = () => {
             Notifications Not Available
           </CardTitle>
           <CardDescription>
-            Your browser doesn't support push notifications.
+            {isIOS && !isStandalone
+              ? 'On iOS, notifications only work when the app is added to your home screen. Use Safari to add this app to your home screen first.'
+              : 'Your browser doesn\'t support push notifications.'
+            }
           </CardDescription>
         </CardHeader>
       </Card>
