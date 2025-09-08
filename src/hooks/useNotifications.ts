@@ -6,24 +6,57 @@ export const useNotifications = () => {
   const [permission, setPermission] = useState<NotificationPermission>('default');
 
   useEffect(() => {
-    // Check if notifications are supported
-    const basicSupport = 'Notification' in window && 'serviceWorker' in navigator;
-    
-    // Special handling for iOS Safari
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
-                        (window.navigator as any).standalone === true;
-    
-    console.log('Notification detection:', { basicSupport, isIOS, isStandalone, userAgent: navigator.userAgent });
-    
-    // On iOS Safari (not standalone), notifications are not supported
-    // Only iOS PWAs (standalone) support notifications
-    if (isIOS && !isStandalone) {
-      setIsSupported(false);
-    } else if (basicSupport) {
-      setIsSupported(true);
-      setPermission(Notification.permission);
-    } else {
+    try {
+      // Check each condition individually for better debugging
+      const hasNotification = 'Notification' in window;
+      const hasServiceWorker = 'serviceWorker' in navigator;
+      const basicSupport = hasNotification && hasServiceWorker;
+      
+      // Special handling for iOS Safari
+      const userAgent = navigator.userAgent;
+      const isIOS = /iPad|iPhone|iPod/.test(userAgent);
+      const standaloneCheck1 = window.matchMedia('(display-mode: standalone)').matches;
+      const standaloneCheck2 = (window.navigator as any).standalone === true;
+      const isStandalone = standaloneCheck1 || standaloneCheck2;
+      
+      // Individual logging for Safari debugging
+      console.log('=== NOTIFICATION DEBUG START ===');
+      console.log('hasNotification:', hasNotification);
+      console.log('hasServiceWorker:', hasServiceWorker);
+      console.log('basicSupport:', basicSupport);
+      console.log('userAgent:', userAgent);
+      console.log('isIOS:', isIOS);
+      console.log('standaloneCheck1:', standaloneCheck1);
+      console.log('standaloneCheck2:', standaloneCheck2);
+      console.log('isStandalone:', isStandalone);
+      console.log('=== NOTIFICATION DEBUG END ===');
+      
+      // Alert fallback for Safari console issues
+      alert(`Debug Info:
+hasNotification: ${hasNotification}
+hasServiceWorker: ${hasServiceWorker}
+isIOS: ${isIOS}
+isStandalone: ${isStandalone}
+basicSupport: ${basicSupport}`);
+      
+      // On iOS Safari (not standalone), notifications are not supported
+      // Only iOS PWAs (standalone) support notifications
+      if (isIOS && !isStandalone) {
+        console.log('Setting isSupported to false: iOS not standalone');
+        setIsSupported(false);
+      } else if (basicSupport) {
+        console.log('Setting isSupported to true: basic support available');
+        setIsSupported(true);
+        const currentPermission = Notification.permission;
+        console.log('Current permission:', currentPermission);
+        setPermission(currentPermission);
+      } else {
+        console.log('Setting isSupported to false: no basic support');
+        setIsSupported(false);
+      }
+    } catch (error) {
+      console.error('Error in notification detection:', error);
+      alert('Error in notification detection: ' + error.message);
       setIsSupported(false);
     }
   }, []);
