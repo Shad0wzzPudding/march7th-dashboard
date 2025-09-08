@@ -50,10 +50,6 @@ export const NotificationSettings = () => {
   }
 
   if (!isSupported) {
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
-                        (window.navigator as any).standalone === true;
-                        
     return (
       <Card>
         <CardHeader>
@@ -62,12 +58,26 @@ export const NotificationSettings = () => {
             Notifications Not Available
           </CardTitle>
           <CardDescription>
-            {isIOS && !isStandalone
-              ? 'On iOS, notifications only work when the app is added to your home screen. Use Safari to add this app to your home screen first.'
+            {isIOS 
+              ? 'On iOS, notifications only work when the app is added to your home screen. Use Safari\'s share menu to "Add to Home Screen" first, then open the app from your home screen to enable notifications.'
               : 'Your browser doesn\'t support push notifications.'
             }
           </CardDescription>
         </CardHeader>
+        {isIOS && (
+          <CardContent>
+            <div className="space-y-2">
+              <p className="text-sm font-medium">To enable notifications on iOS:</p>
+              <ol className="text-xs text-muted-foreground space-y-1 list-decimal list-inside">
+                <li>Open this page in Safari (required for iOS)</li>
+                <li>Tap the share button (box with arrow)</li>
+                <li>Select "Add to Home Screen"</li>
+                <li>Open the app from your home screen</li>
+                <li>Allow notifications when prompted</li>
+              </ol>
+            </div>
+          </CardContent>
+        )}
       </Card>
     );
   }
