@@ -8,8 +8,11 @@ export const NotificationSettings = () => {
   const { isSupported, permission, requestPermission } = useNotifications();
   const { canInstall, isInstalled, isStandalone, isIOS, installApp } = usePWA();
 
+  // For iOS Safari (not standalone), always show install prompt even if canInstall is false
+  const shouldShowInstallPrompt = (canInstall && !isInstalled) || (isIOS && !isStandalone);
+
   // Show install prompt for mobile devices or browsers that support installation
-  if (canInstall && !isInstalled) {
+  if (shouldShowInstallPrompt) {
     return (
       <Card>
         <CardHeader>
