@@ -12,14 +12,18 @@ export const useNotifications = () => {
       const hasServiceWorker = 'serviceWorker' in navigator;
       const basicSupport = hasNotification && hasServiceWorker;
       
-      // Special handling for iOS Safari
+      // Enhanced iOS detection for all iOS devices and Safari
       const userAgent = navigator.userAgent;
-      const isIOS = /iPad|iPhone|iPod/.test(userAgent);
+      const isIOS = /iPad|iPhone|iPod/.test(userAgent) || 
+                   /Safari/.test(userAgent) && /Mobile/.test(userAgent) ||
+                   /iPhone OS|iOS/.test(userAgent) ||
+                   /Macintosh/.test(userAgent) && 'ontouchend' in document;
+      
       const standaloneCheck1 = window.matchMedia('(display-mode: standalone)').matches;
       const standaloneCheck2 = (window.navigator as any).standalone === true;
       const isStandalone = standaloneCheck1 || standaloneCheck2;
       
-      // Individual logging for Safari debugging
+      // Individual logging for debugging (keeping for now)
       console.log('=== NOTIFICATION DEBUG START ===');
       console.log('hasNotification:', hasNotification);
       console.log('hasServiceWorker:', hasServiceWorker);
@@ -31,19 +35,20 @@ export const useNotifications = () => {
       console.log('isStandalone:', isStandalone);
       console.log('=== NOTIFICATION DEBUG END ===');
       
-      // Alert fallback for Safari console issues
-      alert(`Debug Info:
-hasNotification: ${hasNotification}
-hasServiceWorker: ${hasServiceWorker}
-isIOS: ${isIOS}
-isStandalone: ${isStandalone}
-basicSupport: ${basicSupport}`);
-      
-      // On iOS Safari (not standalone), notifications are not supported
-      // Only iOS PWAs (standalone) support notifications
-      if (isIOS && !isStandalone) {
-        console.log('Setting isSupported to false: iOS not standalone');
-        setIsSupported(false);
+      // Safari on iOS has very limited notification support
+      // Notifications only work when:
+      // 1. App is installed as PWA (added to home screen)
+      // 2. Running in standalone mode
+      // 3. User has granted permission
+      if (isIOS) {
+        if (isStandalone && hasNotification) {
+          console.log('iOS PWA with notification support');
+          setIsSupported(true);
+          setPermission(Notification.permission);
+        } else {
+          console.log('iOS Safari - notifications not supported unless installed as PWA');
+          setIsSupported(false);
+        }
       } else if (basicSupport) {
         console.log('Setting isSupported to true: basic support available');
         setIsSupported(true);
@@ -56,7 +61,6 @@ basicSupport: ${basicSupport}`);
       }
     } catch (error) {
       console.error('Error in notification detection:', error);
-      alert('Error in notification detection: ' + error.message);
       setIsSupported(false);
     }
   }, []);
