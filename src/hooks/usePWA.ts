@@ -26,10 +26,13 @@ export const usePWA = () => {
       setIsInstalled(isStandaloneMode);
     };
 
-    // Check if iOS device
+    // Check if iOS device - using same logic as useNotifications hook
     const checkIOS = () => {
-      const userAgent = window.navigator.userAgent.toLowerCase();
-      const isIOSDevice = /iphone|ipad|ipod/.test(userAgent) && !(window as any).MSStream;
+      const userAgent = window.navigator.userAgent;
+      const isIOSDevice = /iPad|iPhone|iPod/.test(userAgent) || 
+                         /Safari/.test(userAgent) && /Mobile/.test(userAgent) ||
+                         /iPhone OS|iOS/.test(userAgent) ||
+                         /Macintosh/.test(userAgent) && 'ontouchend' in document;
       setIsIOS(isIOSDevice);
     };
 
