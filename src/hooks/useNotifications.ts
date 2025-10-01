@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 export const useNotifications = () => {
   const [isSupported, setIsSupported] = useState(false);
@@ -65,6 +66,50 @@ export const useNotifications = () => {
     }
   }, []);
 
+  const subscribeToPushNotifications = async () => {
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      
+      // Check if already subscribed
+      const existingSubscription = await registration.pushManager.getSubscription();
+      if (existingSubscription) {
+        console.log('Already subscribed to push notifications');
+        return existingSubscription;
+      }
+      
+      // VAPID public key (you'll need to generate this)
+      const vapidPublicKey = 'BK8jxXCgZvjF4EqP3dK3M1ZnRh2xL9Yt6wKpN7Qr5sT8uV';
+      
+      const subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(vapidPublicKey)
+      });
+      
+      // Store subscription in database
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { error } = await supabase
+          .from('push_subscriptions')
+          .upsert([{
+            user_id: user.id,
+            subscription: subscription.toJSON() as any
+          }], {
+            onConflict: 'user_id'
+          });
+        
+        if (error) {
+          console.error('Error storing push subscription:', error);
+        }
+      }
+      
+      console.log('Push notification subscription created:', subscription);
+      return subscription;
+    } catch (error) {
+      console.error('Error subscribing to push notifications:', error);
+      throw error;
+    }
+  };
+
   const requestPermission = async () => {
     if (!isSupported) {
       toast({
@@ -80,9 +125,12 @@ export const useNotifications = () => {
       setPermission(permission);
       
       if (permission === 'granted') {
+        // Subscribe to push notifications
+        await subscribeToPushNotifications();
+        
         toast({
           title: "Notifications enabled",
-          description: "You'll now receive reminders about your tasks and events."
+          description: "You'll receive daily reminders about your tasks and events."
         });
         return true;
       } else {
@@ -145,3 +193,19 @@ export const useNotifications = () => {
     showImmediateNotification
   };
 };
+
+// Helper function to convert VAPID key
+function urlBase64ToUint8Array(base64String: string) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding)
+    .replace(/\-/g, '+')
+    .replace(/_/g, '/');
+
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+}

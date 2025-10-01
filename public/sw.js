@@ -1,4 +1,4 @@
-// Service Worker for background notifications
+// Service Worker for background notifications and push notifications
 self.addEventListener('install', (event) => {
   console.log('Service Worker installed');
   self.skipWaiting();
@@ -7,6 +7,29 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   console.log('Service Worker activated');
   event.waitUntil(self.clients.claim());
+});
+
+// Handle push notifications
+self.addEventListener('push', (event) => {
+  console.log('Push notification received:', event);
+  
+  const data = event.data ? event.data.json() : {
+    title: 'New Notification',
+    body: 'You have updates',
+    icon: '/icon-512.png'
+  };
+  
+  const options = {
+    body: data.body,
+    icon: data.icon || '/icon-512.png',
+    badge: data.badge || '/icon-512.png',
+    tag: data.tag || 'notification',
+    data: data.data || {}
+  };
+  
+  event.waitUntil(
+    self.registration.showNotification(data.title, options)
+  );
 });
 
 // Handle background sync
