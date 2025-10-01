@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { NavigationPage } from '@/lib/types';
 import { useDashboardData } from '@/hooks/useDashboardData';
+import { useNotifications } from '@/hooks/useNotifications';
 import { WelcomeMessage } from '@/components/dashboard/WelcomeMessage';
 import { Navigation } from '@/components/dashboard/Navigation';
 import { HomePage } from '@/components/dashboard/HomePage';
@@ -58,6 +59,50 @@ const Index = () => {
     error, 
     mutations 
   } = useDashboardData();
+
+  const { scheduleNotificationCheck, permission, showImmediateNotification } = useNotifications();
+
+  // Schedule notification checks whenever data changes and permission is granted
+  useEffect(() => {
+    if (permission === 'granted' && tasks && events && dailyTasks) {
+      console.log('Scheduling notification check with data:', { 
+        tasks: tasks.length, 
+        events: events.length, 
+        dailyTasks: dailyTasks.length 
+      });
+      scheduleNotificationCheck(tasks, events, dailyTasks);
+      
+      // Also check immediately for today's tasks
+      const today = new Date().toISOString().split('T')[0];
+      
+      const todayTasks = tasks.filter(task => 
+        !task.is_completed && 
+        new Date(task.deadline).toISOString().split('T')[0] === today
+      );
+      
+      const todayEvents = events.filter(event => 
+        new Date(event.start_time).toISOString().split('T')[0] === today
+      );
+      
+      const todayDailyTasks = dailyTasks.filter(task => 
+        !task.is_completed && 
+        task.task_date === today
+      );
+      
+      // Show notifications if there are tasks today
+      if (todayTasks.length > 0) {
+        showImmediateNotification('Tasks Due Today', `You have ${todayTasks.length} task(s) due today`);
+      }
+      
+      if (todayEvents.length > 0) {
+        showImmediateNotification('Events Today', `You have ${todayEvents.length} event(s) scheduled today`);
+      }
+      
+      if (todayDailyTasks.length > 0) {
+        showImmediateNotification('Daily Tasks', `You have ${todayDailyTasks.length} daily task(s) pending`);
+      }
+    }
+  }, [tasks, events, dailyTasks, permission, scheduleNotificationCheck, showImmediateNotification]);
 
   const handleSignOut = async () => {
     try {
