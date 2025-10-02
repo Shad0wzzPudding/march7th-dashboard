@@ -77,12 +77,22 @@ export const useNotifications = () => {
         return existingSubscription;
       }
       
-      // VAPID public key (you'll need to generate this)
-      const vapidPublicKey = 'BK8jxXCgZvjF4EqP3dK3M1ZnRh2xL9Yt6wKpN7Qr5sT8uV';
+      // Fetch VAPID public key from edge function
+      const { data: vapidData, error: vapidError } = await supabase.functions.invoke('get-vapid-key');
+      
+      if (vapidError || !vapidData?.publicKey) {
+        console.error('Error fetching VAPID key:', vapidError);
+        toast({
+          title: "Configuration Error",
+          description: "Unable to set up push notifications. Please contact support.",
+          variant: "destructive"
+        });
+        throw new Error('Failed to fetch VAPID key');
+      }
       
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(vapidPublicKey)
+        applicationServerKey: urlBase64ToUint8Array(vapidData.publicKey)
       });
       
       // Store subscription in database
@@ -99,6 +109,11 @@ export const useNotifications = () => {
         
         if (error) {
           console.error('Error storing push subscription:', error);
+        } else {
+          toast({
+            title: "Success",
+            description: "Push notifications enabled! You'll receive daily reminders at 8:00 AM.",
+          });
         }
       }
       
