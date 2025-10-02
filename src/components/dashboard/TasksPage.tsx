@@ -7,8 +7,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Edit, Trash2, Clock, CheckCircle2, Circle, Calendar, CalendarClock } from 'lucide-react';
+import { Plus, Edit, Trash2, Clock, CheckCircle2, Circle, Calendar, CalendarClock, Copy } from 'lucide-react';
 import { format, parseISO, isAfter, isBefore } from 'date-fns';
+import { useToast } from '@/hooks/use-toast';
 
 interface TasksPageProps {
   tasks: Task[];
@@ -23,6 +24,7 @@ export const TasksPage = ({
   onUpdateTask, 
   onDeleteTask 
 }: TasksPageProps) => {
+  const { toast } = useToast();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [formData, setFormData] = useState({
@@ -79,6 +81,15 @@ export const TasksPage = ({
     onUpdateTask({
       id: task.id,
       is_completed: !task.is_completed
+    });
+  };
+
+  const handleCopy = (task: Task) => {
+    const text = `${task.title}${task.description ? `\n\n${task.description}` : ''}\n\nStart: ${format(parseISO(task.start_date), 'MMM dd, yyyy HH:mm')}\nDeadline: ${format(parseISO(task.deadline), 'MMM dd, yyyy HH:mm')}\nStatus: ${task.is_completed ? 'Completed' : 'Pending'}`;
+    navigator.clipboard.writeText(text);
+    toast({
+      title: "Copied to clipboard",
+      description: "Task details copied successfully",
     });
   };
 
@@ -254,6 +265,9 @@ export const TasksPage = ({
                       </div>
                       <div className="flex items-center gap-2">
                         <Badge variant="destructive" className="text-xs">Overdue</Badge>
+                        <Button size="sm" variant="outline" onClick={() => handleCopy(task)}>
+                          <Copy size={12} />
+                        </Button>
                         <Button size="sm" variant="outline" onClick={() => handleEdit(task)}>
                           <Edit size={12} />
                         </Button>
@@ -319,6 +333,9 @@ export const TasksPage = ({
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
+                      <Button size="sm" variant="outline" onClick={() => handleCopy(task)}>
+                        <Copy size={12} />
+                      </Button>
                       <Button size="sm" variant="outline" onClick={() => handleEdit(task)}>
                         <Edit size={12} />
                       </Button>
@@ -384,6 +401,9 @@ export const TasksPage = ({
                         <Badge className="text-xs bg-emerald-100 dark:bg-emerald-900 text-emerald-600 dark:text-emerald-300">
                           Completed
                         </Badge>
+                        <Button size="sm" variant="outline" onClick={() => handleCopy(task)}>
+                          <Copy size={12} />
+                        </Button>
                         <Button size="sm" variant="outline" onClick={() => handleEdit(task)}>
                           <Edit size={12} />
                         </Button>

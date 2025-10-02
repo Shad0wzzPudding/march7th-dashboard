@@ -6,8 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Edit, Trash2, Pin, PinOff, Clock, GripVertical } from 'lucide-react';
+import { Plus, Edit, Trash2, Pin, PinOff, Clock, GripVertical, Copy } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
+import { useToast } from '@/hooks/use-toast';
 
 interface InterestsPageProps {
   interests: Interest[];
@@ -22,6 +23,7 @@ export const InterestsPage = ({
   onUpdateInterest, 
   onDeleteInterest 
 }: InterestsPageProps) => {
+  const { toast } = useToast();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingInterest, setEditingInterest] = useState<Interest | null>(null);
   const [formData, setFormData] = useState({
@@ -77,6 +79,15 @@ export const InterestsPage = ({
     onUpdateInterest({
       id: interest.id,
       is_pinned: !interest.is_pinned
+    });
+  };
+
+  const handleCopy = (interest: Interest) => {
+    const text = `${interest.title}${interest.description ? `\n\n${interest.description}` : ''}${interest.deadline ? `\n\nDeadline: ${format(parseISO(interest.deadline), 'MMM dd, yyyy HH:mm')}` : ''}`;
+    navigator.clipboard.writeText(text);
+    toast({
+      title: "Copied to clipboard",
+      description: "Interest details copied successfully",
     });
   };
 
@@ -180,6 +191,9 @@ export const InterestsPage = ({
                     <Button size="sm" variant="outline" onClick={() => handlePin(interest)}>
                       <PinOff size={12} />
                     </Button>
+                    <Button size="sm" variant="outline" onClick={() => handleCopy(interest)}>
+                      <Copy size={12} />
+                    </Button>
                     <Button size="sm" variant="outline" onClick={() => handleEdit(interest)}>
                       <Edit size={12} />
                     </Button>
@@ -226,6 +240,9 @@ export const InterestsPage = ({
                 <div className="flex items-center gap-2 pt-2">
                   <Button size="sm" variant="outline" onClick={() => handlePin(interest)}>
                     <Pin size={12} />
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => handleCopy(interest)}>
+                    <Copy size={12} />
                   </Button>
                   <Button size="sm" variant="outline" onClick={() => handleEdit(interest)}>
                     <Edit size={12} />

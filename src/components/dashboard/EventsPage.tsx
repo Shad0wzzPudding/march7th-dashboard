@@ -6,8 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Edit, Trash2, Clock, CalendarDays } from 'lucide-react';
+import { Plus, Edit, Trash2, Clock, CalendarDays, Copy } from 'lucide-react';
 import { format, parseISO, isAfter, isBefore, isToday } from 'date-fns';
+import { useToast } from '@/hooks/use-toast';
 
 interface EventsPageProps {
   events: Event[];
@@ -22,6 +23,7 @@ export const EventsPage = ({
   onUpdateEvent, 
   onDeleteEvent 
 }: EventsPageProps) => {
+  const { toast } = useToast();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [formData, setFormData] = useState({
@@ -69,6 +71,15 @@ export const EventsPage = ({
       deadline: event.deadline ? format(parseISO(event.deadline), "yyyy-MM-dd'T'HH:mm") : ''
     });
     setIsCreateOpen(true);
+  };
+
+  const handleCopy = (event: Event) => {
+    const text = `${event.title}${event.description ? `\n\n${event.description}` : ''}\n\nStart: ${format(parseISO(event.start_time), 'MMM dd, yyyy HH:mm')}${event.deadline ? `\nDeadline: ${format(parseISO(event.deadline), 'MMM dd, yyyy HH:mm')}` : ''}`;
+    navigator.clipboard.writeText(text);
+    toast({
+      title: "Copied to clipboard",
+      description: "Event details copied successfully",
+    });
   };
 
   const now = new Date();
@@ -214,6 +225,9 @@ export const EventsPage = ({
                         <Badge className="text-xs bg-amber-100 dark:bg-amber-900 text-amber-600 dark:text-amber-300">
                           Today
                         </Badge>
+                        <Button size="sm" variant="outline" onClick={() => handleCopy(event)}>
+                          <Copy size={12} />
+                        </Button>
                         <Button size="sm" variant="outline" onClick={() => handleEdit(event)}>
                           <Edit size={12} />
                         </Button>
@@ -268,6 +282,9 @@ export const EventsPage = ({
                     )}
                   </div>
                   <div className="flex items-center gap-2 pt-2">
+                    <Button size="sm" variant="outline" onClick={() => handleCopy(event)}>
+                      <Copy size={12} />
+                    </Button>
                     <Button size="sm" variant="outline" onClick={() => handleEdit(event)}>
                       <Edit size={12} />
                     </Button>
@@ -315,6 +332,9 @@ export const EventsPage = ({
                       )}
                     </div>
                     <div className="flex items-center gap-2 pt-2">
+                      <Button size="sm" variant="outline" onClick={() => handleCopy(event)}>
+                        <Copy size={12} />
+                      </Button>
                       <Button size="sm" variant="outline" onClick={() => handleEdit(event)}>
                         <Edit size={12} />
                       </Button>

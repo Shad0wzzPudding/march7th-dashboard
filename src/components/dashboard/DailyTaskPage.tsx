@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { CalendarDays, Plus, CheckCircle, Clock, X } from 'lucide-react';
+import { CalendarDays, Plus, CheckCircle, Clock, X, Copy } from 'lucide-react';
 import { format } from 'date-fns';
+import { useToast } from '@/hooks/use-toast';
 
 interface DailyTaskPageProps {
   dailyTasks: DailyTask[];
@@ -21,6 +22,7 @@ export const DailyTaskPage = ({
   onUpdateDailyTask, 
   onDeleteDailyTask 
 }: DailyTaskPageProps) => {
+  const { toast } = useToast();
   const [showCompleted, setShowCompleted] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [newTask, setNewTask] = useState({
@@ -48,6 +50,15 @@ export const DailyTaskPage = ({
 
     setNewTask({ title: '', description: '', deadline: '' });
     setShowAddForm(false);
+  };
+
+  const handleCopy = (task: DailyTask) => {
+    const text = `${task.title}${task.description ? `\n\n${task.description}` : ''}${task.deadline ? `\n\nTime: ${task.deadline}` : ''}\nStatus: ${task.is_completed ? 'Completed' : 'Pending'}`;
+    navigator.clipboard.writeText(text);
+    toast({
+      title: "Copied to clipboard",
+      description: "Daily task details copied successfully",
+    });
   };
 
   return (
@@ -176,6 +187,13 @@ export const DailyTaskPage = ({
                     )}
                   </div>
                   
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleCopy(task)}
+                  >
+                    <Copy size={12} />
+                  </Button>
                   <Button
                     variant="outline"
                     size="sm"
