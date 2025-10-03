@@ -74,7 +74,7 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md relative z-20">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">Welcome</CardTitle>
           <CardDescription>
@@ -112,7 +112,7 @@ const Auth = () => {
                     required
                   />
                 </div>
-                <Button type="submit" className="w-full relative z-10" disabled={loading}>
+                <Button type="submit" className="w-full relative z-30 pointer-events-auto" disabled={loading}>
                   {loading ? 'Signing in...' : 'Sign In'}
                 </Button>
               </form>
@@ -143,7 +143,7 @@ const Auth = () => {
                     minLength={6}
                   />
                 </div>
-                <Button type="submit" className="w-full relative z-10" disabled={loading}>
+                <Button type="submit" className="w-full relative z-30 pointer-events-auto" disabled={loading}>
                   {loading ? 'Creating account...' : 'Sign Up'}
                 </Button>
               </form>
