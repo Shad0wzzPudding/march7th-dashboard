@@ -65,41 +65,51 @@ const Index = () => {
   // Schedule notification checks whenever data changes and permission is granted
   useEffect(() => {
     if (permission === 'granted' && tasks && events && dailyTasks) {
-      console.log('Scheduling notification check with data:', { 
-        tasks: tasks.length, 
-        events: events.length, 
-        dailyTasks: dailyTasks.length 
-      });
-      scheduleNotificationCheck(tasks, events, dailyTasks);
-      
-      // Also check immediately for today's tasks
       const today = new Date().toISOString().split('T')[0];
-      
-      const todayTasks = tasks.filter(task => 
-        !task.is_completed && 
-        new Date(task.deadline).toISOString().split('T')[0] === today
+
+      // Schedule background check only once per day
+      const scheduleKey = `notif_scheduled_${today}`;
+      if (!localStorage.getItem(scheduleKey)) {
+        console.log('Scheduling notification check with data:', {
+          tasks: tasks.length,
+          events: events.length,
+          dailyTasks: dailyTasks.length,
+        });
+        scheduleNotificationCheck(tasks, events, dailyTasks);
+        localStorage.setItem(scheduleKey, '1');
+      }
+
+      // Filter today's items
+      const todayTasks = tasks.filter(
+        (task) => !task.is_completed && new Date(task.deadline).toISOString().split('T')[0] === today
       );
-      
-      const todayEvents = events.filter(event => 
-        new Date(event.start_time).toISOString().split('T')[0] === today
+
+      const todayEvents = events.filter(
+        (event) => new Date(event.start_time).toISOString().split('T')[0] === today
       );
-      
-      const todayDailyTasks = dailyTasks.filter(task => 
-        !task.is_completed && 
-        task.task_date === today
+
+      const todayDailyTasks = dailyTasks.filter(
+        (task) => !task.is_completed && task.task_date === today
       );
-      
-      // Show notifications if there are tasks today
-      if (todayTasks.length > 0) {
+
+      // De-dupe: only show once per type per day
+      const notifiedTasksKey = `notified_${today}_tasks`;
+      const notifiedEventsKey = `notified_${today}_events`;
+      const notifiedDailyKey = `notified_${today}_daily`;
+
+      if (todayTasks.length > 0 && !localStorage.getItem(notifiedTasksKey)) {
         showImmediateNotification('Tasks Due Today', `You have ${todayTasks.length} task(s) due today`);
+        localStorage.setItem(notifiedTasksKey, '1');
       }
-      
-      if (todayEvents.length > 0) {
+
+      if (todayEvents.length > 0 && !localStorage.getItem(notifiedEventsKey)) {
         showImmediateNotification('Events Today', `You have ${todayEvents.length} event(s) scheduled today`);
+        localStorage.setItem(notifiedEventsKey, '1');
       }
-      
-      if (todayDailyTasks.length > 0) {
+
+      if (todayDailyTasks.length > 0 && !localStorage.getItem(notifiedDailyKey)) {
         showImmediateNotification('Daily Tasks', `You have ${todayDailyTasks.length} daily task(s) pending`);
+        localStorage.setItem(notifiedDailyKey, '1');
       }
     }
   }, [tasks, events, dailyTasks, permission, scheduleNotificationCheck, showImmediateNotification]);
