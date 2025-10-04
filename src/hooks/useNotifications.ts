@@ -66,6 +66,22 @@ export const useNotifications = () => {
     }
   }, []);
 
+  // Ensure push subscription exists when permission is already granted
+  useEffect(() => {
+    try {
+      if (!isSupported) return;
+      if (Notification.permission === 'granted') {
+        // This is idempotent: it won't duplicate browser subscriptions
+        // and will upsert the record in the database.
+        subscribeToPushNotifications().catch((err) => {
+          console.error('Auto-subscribe failed:', err);
+        });
+      }
+    } catch (e) {
+      console.error('Error ensuring push subscription:', e);
+    }
+  }, [isSupported]);
+
   const subscribeToPushNotifications = async () => {
     try {
       const registration = await navigator.serviceWorker.ready;
