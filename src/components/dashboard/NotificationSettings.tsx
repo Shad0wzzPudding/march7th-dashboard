@@ -2,11 +2,45 @@ import { useNotifications } from '@/hooks/useNotifications';
 import { usePWA } from '@/hooks/usePWA';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Bell, BellOff, Download, Smartphone } from 'lucide-react';
+import { Bell, BellOff, Download, Smartphone, Send } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
+import { useState } from 'react';
 
 export const NotificationSettings = () => {
   const { isSupported, permission, requestPermission } = useNotifications();
   const { canInstall, isInstalled, isStandalone, isIOS, installApp } = usePWA();
+  const [isSendingTest, setIsSendingTest] = useState(false);
+
+  const sendTestNotification = async () => {
+    setIsSendingTest(true);
+    try {
+      const { error } = await supabase.functions.invoke('send-daily-notifications');
+      
+      if (error) {
+        console.error('Error sending test notification:', error);
+        toast({
+          title: "Test failed",
+          description: "Failed to trigger notification. Check console for details.",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Test notification sent!",
+          description: "Close this website completely. You should receive a notification shortly if you have tasks/events today.",
+        });
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to send test notification.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSendingTest(false);
+    }
+  };
 
   // Debug logging to see PWA hook values
   console.log('PWA Hook values:', { canInstall, isInstalled, isStandalone, isIOS });
@@ -152,6 +186,25 @@ export const NotificationSettings = () => {
                 </Button>
               )}
             </div>
+            
+            {/* Test Notification Button */}
+            {permission === 'granted' && (
+              <div className="pt-4 border-t">
+                <Button 
+                  onClick={sendTestNotification} 
+                  size="sm" 
+                  variant="outline"
+                  disabled={isSendingTest}
+                  className="w-full"
+                >
+                  <Send className="h-4 w-4 mr-2" />
+                  {isSendingTest ? 'Sending...' : 'Send Test Notification'}
+                </Button>
+                <p className="text-xs text-muted-foreground mt-2">
+                  This simulates tomorrow's 8:00 AM notification. Close the website after clicking to test.
+                </p>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
