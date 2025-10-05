@@ -60,7 +60,7 @@ const Index = () => {
     mutations 
   } = useDashboardData();
 
-  const { scheduleNotificationCheck, permission, showImmediateNotification } = useNotifications();
+  const { scheduleNotificationCheck, permission } = useNotifications();
 
   // Schedule notification checks whenever data changes and permission is granted
   useEffect(() => {
@@ -78,41 +78,8 @@ const Index = () => {
         scheduleNotificationCheck(tasks, events, dailyTasks);
         localStorage.setItem(scheduleKey, '1');
       }
-
-      // Filter today's items
-      const todayTasks = tasks.filter(
-        (task) => !task.is_completed && new Date(task.deadline).toISOString().split('T')[0] === today
-      );
-
-      const todayEvents = events.filter(
-        (event) => new Date(event.start_time).toISOString().split('T')[0] === today
-      );
-
-      const todayDailyTasks = dailyTasks.filter(
-        (task) => !task.is_completed && task.task_date === today
-      );
-
-      // De-dupe: only show once per type per day
-      const notifiedTasksKey = `notified_${today}_tasks`;
-      const notifiedEventsKey = `notified_${today}_events`;
-      const notifiedDailyKey = `notified_${today}_daily`;
-
-      if (todayTasks.length > 0 && !localStorage.getItem(notifiedTasksKey)) {
-        showImmediateNotification('Tasks Due Today', `You have ${todayTasks.length} task(s) due today`);
-        localStorage.setItem(notifiedTasksKey, '1');
-      }
-
-      if (todayEvents.length > 0 && !localStorage.getItem(notifiedEventsKey)) {
-        showImmediateNotification('Events Today', `You have ${todayEvents.length} event(s) scheduled today`);
-        localStorage.setItem(notifiedEventsKey, '1');
-      }
-
-      if (todayDailyTasks.length > 0 && !localStorage.getItem(notifiedDailyKey)) {
-        showImmediateNotification('Daily Tasks', `You have ${todayDailyTasks.length} daily task(s) pending`);
-        localStorage.setItem(notifiedDailyKey, '1');
-      }
     }
-  }, [tasks, events, dailyTasks, permission, scheduleNotificationCheck, showImmediateNotification]);
+  }, [tasks, events, dailyTasks, permission, scheduleNotificationCheck]);
 
   const handleSignOut = async () => {
     try {

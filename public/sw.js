@@ -24,6 +24,7 @@ self.addEventListener('push', (event) => {
     icon: data.icon || '/icon-512.png',
     badge: data.badge || '/icon-512.png',
     tag: data.tag || 'notification',
+    renotify: false,
     data: data.data || {}
   };
   
@@ -50,61 +51,86 @@ self.addEventListener('notificationclick', (event) => {
 
 async function checkTodaysTasks() {
   try {
+    // Prevent multiple runs in the same day
+    const todayLocal = new Date();
+    const todayKey = `${todayLocal.getFullYear()}-${String(todayLocal.getMonth() + 1).padStart(2, '0')}-${String(todayLocal.getDate()).padStart(2, '0')}`;
+    const dailyRunKey = `notification_run_${todayKey}`;
+    const alreadyRun = await getFlag(dailyRunKey);
+    if (alreadyRun) {
+      console.log('[SW] Notification check already run today, skipping');
+      return;
+    }
+
     // Get stored task data
-    const tasks = await getStoredData('tasks');
-    const events = await getStoredData('events');
-    const dailyTasks = await getStoredData('dailyTasks');
-    
-    const today = new Date().toISOString().split('T')[0];
+    const tasks = (await getStoredData('tasks')) || [];
+    const events = (await getStoredData('events')) || [];
+    const dailyTasks = (await getStoredData('dailyTasks')) || [];
+
     const now = new Date();
-    
-    // Check for tasks due today
-    const todayTasks = tasks?.filter(task => 
-      !task.is_completed && 
-      new Date(task.deadline).toISOString().split('T')[0] === today
-    ) || [];
-    
-    // Check for events today
-    const todayEvents = events?.filter(event => 
-      new Date(event.start_time).toISOString().split('T')[0] === today
-    ) || [];
-    
-    // Check for daily tasks
-    const todayDailyTasks = dailyTasks?.filter(task => 
-      !task.is_completed && 
-      task.task_date === today
-    ) || [];
-    
-    // Send notifications
-    if (todayTasks.length > 0) {
+    const isSameLocalDate = (dateStr) => {
+      const d = new Date(dateStr);
+      return (
+        d.getFullYear() === now.getFullYear() &&
+        d.getMonth() === now.getMonth() &&
+        d.getDate() === now.getDate()
+      );
+    };
+
+    // Filter for today using LOCAL date (avoid UTC shift issues)
+    const todayTasks = tasks.filter(
+      (task) => !task.is_completed && task.deadline && isSameLocalDate(task.deadline)
+    );
+
+    const todayEvents = events.filter(
+      (event) => event.start_time && isSameLocalDate(event.start_time)
+    );
+
+    const todayDailyTasks = dailyTasks.filter(
+      (task) => !task.is_completed && task.task_date === todayKey
+    );
+
+    // De-dupe: only once per type per day
+    const notifiedTasksKey = `notified_${todayKey}_tasks`;
+    const notifiedEventsKey = `notified_${todayKey}_events`;
+    const notifiedDailyKey = `notified_${todayKey}_daily`;
+
+    if (todayTasks.length > 0 && !(await getFlag(notifiedTasksKey))) {
       await self.registration.showNotification('Tasks Due Today', {
         body: `You have ${todayTasks.length} task(s) due today`,
-        icon: '/favicon.ico',
-        badge: '/favicon.ico',
-        tag: 'tasks-due',
+        icon: '/icon-512.png',
+        badge: '/icon-512.png',
+        tag: 'tasks-today',
+        renotify: false,
         data: { type: 'tasks', count: todayTasks.length }
       });
+      await setFlag(notifiedTasksKey);
     }
-    
-    if (todayEvents.length > 0) {
+
+    if (todayEvents.length > 0 && !(await getFlag(notifiedEventsKey))) {
       await self.registration.showNotification('Events Today', {
         body: `You have ${todayEvents.length} event(s) scheduled today`,
-        icon: '/favicon.ico',
-        badge: '/favicon.ico',
+        icon: '/icon-512.png',
+        badge: '/icon-512.png',
         tag: 'events-today',
+        renotify: false,
         data: { type: 'events', count: todayEvents.length }
       });
+      await setFlag(notifiedEventsKey);
     }
-    
-    if (todayDailyTasks.length > 0) {
+
+    if (todayDailyTasks.length > 0 && !(await getFlag(notifiedDailyKey))) {
       await self.registration.showNotification('Daily Tasks', {
         body: `You have ${todayDailyTasks.length} daily task(s) pending`,
-        icon: '/favicon.ico',
-        badge: '/favicon.ico',
+        icon: '/icon-512.png',
+        badge: '/icon-512.png',
         tag: 'daily-tasks',
+        renotify: false,
         data: { type: 'daily-tasks', count: todayDailyTasks.length }
       });
+      await setFlag(notifiedDailyKey);
     }
+
+    await setFlag(dailyRunKey);
   } catch (error) {
     console.error('Error checking tasks:', error);
   }
@@ -121,4 +147,30 @@ async function getStoredData(key) {
     console.error(`Error getting stored ${key}:`, error);
   }
   return null;
+}
+
+async function getFlag(key) {
+  try {
+    const cache = await caches.open('dashboard-data');
+    const res = await cache.match(`/flags/${key}`);
+    if (res) {
+      const json = await res.json();
+      return Boolean(json?.value);
+    }
+  } catch (e) {
+    console.error('Error getting flag', key, e);
+  }
+  return false;
+}
+
+async function setFlag(key) {
+  try {
+    const cache = await caches.open('dashboard-data');
+    const resp = new Response(JSON.stringify({ value: true }), {
+      headers: { 'Content-Type': 'application/json' }
+    });
+    await cache.put(`/flags/${key}`, resp);
+  } catch (e) {
+    console.error('Error setting flag', key, e);
+  }
 }
