@@ -2,8 +2,30 @@ import { createClient } from 'jsr:@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-cron-secret',
 };
+
+// Rate limiting cache (resets when function instance restarts)
+const rateLimitCache = new Map<string, { count: number; resetTime: number }>();
+const MAX_REQUESTS_PER_HOUR = 10;
+const RATE_LIMIT_WINDOW = 60 * 60 * 1000; // 1 hour
+
+function checkRateLimit(userId: string): boolean {
+  const now = Date.now();
+  const userLimit = rateLimitCache.get(userId);
+  
+  if (!userLimit || now > userLimit.resetTime) {
+    rateLimitCache.set(userId, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
+    return true;
+  }
+  
+  if (userLimit.count >= MAX_REQUESTS_PER_HOUR) {
+    return false;
+  }
+  
+  userLimit.count++;
+  return true;
+}
 
 interface PushSubscription {
   endpoint: string;
@@ -20,6 +42,17 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Validate cron secret header for scheduled requests
+    const cronSecret = req.headers.get('x-cron-secret');
+    const isCronRequest = cronSecret === 'cron-trigger-secret';
+    
+    if (!isCronRequest) {
+      console.log('Unauthorized request - missing or invalid cron secret');
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
     console.log('Starting daily notification check...');
     
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -54,6 +87,13 @@ Deno.serve(async (req) => {
     // Check each user's tasks
     for (const sub of subscriptions) {
       const userId = sub.user_id;
+      
+      // Apply rate limiting per user
+      if (!checkRateLimit(userId)) {
+        console.log(`Rate limit exceeded for user ${userId}`);
+        continue;
+      }
+      
       console.log(`Checking tasks for user: ${userId}`);
       
       // Fetch tasks
