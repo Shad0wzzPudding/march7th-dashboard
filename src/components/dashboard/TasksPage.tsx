@@ -85,11 +85,16 @@ export const TasksPage = ({
   };
 
   const handleCopy = (task: Task) => {
-    const text = `${task.title}${task.description ? `\n\n${task.description}` : ''}\n\nStart: ${format(parseISO(task.start_date), 'MMM dd, yyyy HH:mm')}\nDeadline: ${format(parseISO(task.deadline), 'MMM dd, yyyy HH:mm')}\nStatus: ${task.is_completed ? 'Completed' : 'Pending'}`;
-    navigator.clipboard.writeText(text);
+    onCreateTask({
+      title: task.title,
+      description: task.description,
+      start_date: task.start_date,
+      deadline: task.deadline,
+      is_completed: false
+    });
     toast({
-      title: "Copied to clipboard",
-      description: "Task details copied successfully",
+      title: "Task duplicated",
+      description: "A copy of the task has been created",
     });
   };
 

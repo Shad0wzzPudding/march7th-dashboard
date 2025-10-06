@@ -83,11 +83,16 @@ export const InterestsPage = ({
   };
 
   const handleCopy = (interest: Interest) => {
-    const text = `${interest.title}${interest.description ? `\n\n${interest.description}` : ''}${interest.deadline ? `\n\nDeadline: ${format(parseISO(interest.deadline), 'MMM dd, yyyy HH:mm')}` : ''}`;
-    navigator.clipboard.writeText(text);
+    onCreateInterest({
+      title: interest.title,
+      description: interest.description,
+      deadline: interest.deadline,
+      is_pinned: false,
+      sort_order: 0
+    });
     toast({
-      title: "Copied to clipboard",
-      description: "Interest details copied successfully",
+      title: "Interest duplicated",
+      description: "A copy of the interest has been created",
     });
   };
 

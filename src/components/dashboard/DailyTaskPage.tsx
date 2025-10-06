@@ -53,11 +53,15 @@ export const DailyTaskPage = ({
   };
 
   const handleCopy = (task: DailyTask) => {
-    const text = `${task.title}${task.description ? `\n\n${task.description}` : ''}${task.deadline ? `\n\nTime: ${task.deadline}` : ''}\nStatus: ${task.is_completed ? 'Completed' : 'Pending'}`;
-    navigator.clipboard.writeText(text);
+    onCreateDailyTask({
+      title: task.title,
+      description: task.description,
+      deadline: task.deadline,
+      is_completed: false
+    });
     toast({
-      title: "Copied to clipboard",
-      description: "Daily task details copied successfully",
+      title: "Daily task duplicated",
+      description: "A copy of the task has been created",
     });
   };
 

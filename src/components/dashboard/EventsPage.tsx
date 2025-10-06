@@ -74,11 +74,15 @@ export const EventsPage = ({
   };
 
   const handleCopy = (event: Event) => {
-    const text = `${event.title}${event.description ? `\n\n${event.description}` : ''}\n\nStart: ${format(parseISO(event.start_time), 'MMM dd, yyyy HH:mm')}${event.deadline ? `\nDeadline: ${format(parseISO(event.deadline), 'MMM dd, yyyy HH:mm')}` : ''}`;
-    navigator.clipboard.writeText(text);
+    onCreateEvent({
+      title: event.title,
+      description: event.description,
+      start_time: event.start_time,
+      deadline: event.deadline
+    });
     toast({
-      title: "Copied to clipboard",
-      description: "Event details copied successfully",
+      title: "Event duplicated",
+      description: "A copy of the event has been created",
     });
   };
 
