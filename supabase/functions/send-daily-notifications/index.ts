@@ -83,10 +83,16 @@ Deno.serve(async (req) => {
     }
     
     const notificationsSent = [];
+    const processedUsers = new Set<string>();
     
     // Check each user's tasks
     for (const sub of subscriptions) {
       const userId = sub.user_id;
+      if (processedUsers.has(userId)) {
+        console.log(`Skipping duplicate subscription for user ${userId}`);
+        continue;
+      }
+      processedUsers.add(userId);
       
       // Apply rate limiting per user
       if (!checkRateLimit(userId)) {

@@ -60,6 +60,8 @@ async function checkTodaysTasks() {
       console.log('[SW] Notification check already run today, skipping');
       return;
     }
+    // Set run flag immediately to avoid race conditions causing duplicates
+    await setFlag(dailyRunKey);
 
     // Get stored task data
     const tasks = (await getStoredData('tasks')) || [];

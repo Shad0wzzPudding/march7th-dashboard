@@ -86,10 +86,19 @@ export const useNotifications = () => {
     try {
       const registration = await navigator.serviceWorker.ready;
       
-      // Check if already subscribed
       const existingSubscription = await registration.pushManager.getSubscription();
-      if (existingSubscription) {
-        console.log('Already subscribed to push notifications');
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      if (existingSubscription && currentUser) {
+        // Ensure the subscription is saved in DB as well (idempotent)
+        await supabase
+          .from('push_subscriptions')
+          .upsert([
+            {
+              user_id: currentUser.id,
+              subscription: existingSubscription.toJSON() as any,
+            },
+          ], { onConflict: 'user_id' });
+        console.log('Already subscribed to push notifications (DB upserted)');
         return existingSubscription;
       }
       
@@ -197,9 +206,20 @@ export const useNotifications = () => {
       await cache.put('/events', new Response(JSON.stringify(events)));
       await cache.put('/dailyTasks', new Response(JSON.stringify(dailyTasks)));
       
-      // Schedule background sync
-      if ('sync' in registration && 'sync' in window.navigator.serviceWorker) {
-        await (registration as any).sync.register('check-tasks');
+      // Schedule background sync (avoid duplicate tags)
+      const regAny = registration as any;
+      if ('sync' in regAny) {
+        try {
+          const tags = regAny.sync.getTags ? await regAny.sync.getTags() : [];
+          if (!tags || !tags.includes('check-tasks')) {
+            await regAny.sync.register('check-tasks');
+          } else {
+            console.log('[Notifications] Background sync already registered');
+          }
+        } catch (e) {
+          console.warn('Background Sync tag check failed, attempting register once', e);
+          try { await regAny.sync.register('check-tasks'); } catch {}
+        }
       }
     } catch (error) {
       console.error('Error scheduling notification check:', error);
