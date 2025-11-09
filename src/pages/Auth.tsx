@@ -29,7 +29,17 @@ const Auth = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if user is already logged in
+    // Check if this is a password recovery flow FIRST
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const type = hashParams.get('type');
+    const isRecovery = type === 'recovery';
+    
+    if (isRecovery) {
+      setIsPasswordRecovery(true);
+      return; // Don't redirect if it's a recovery flow
+    }
+
+    // Only check session and redirect if NOT in recovery flow
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
@@ -37,13 +47,6 @@ const Auth = () => {
       }
     };
     checkSession();
-
-    // Check if this is a password recovery flow
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    const type = hashParams.get('type');
-    if (type === 'recovery') {
-      setIsPasswordRecovery(true);
-    }
   }, [navigate]);
 
   const handleSignUp = async (e: React.FormEvent) => {
