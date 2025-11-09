@@ -66,13 +66,15 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
   const getMarkedDates = () => {
     const markedDates: Date[] = [];
     
-    // Add task deadlines and start dates
+    // Add task deadlines and start dates (only for incomplete tasks)
     tasks.forEach(task => {
-      if (task.deadline) {
-        markedDates.push(parseDate(task.deadline));
-      }
-      if (task.start_date) {
-        markedDates.push(parseDate(task.start_date));
+      if (!task.is_completed) {
+        if (task.deadline) {
+          markedDates.push(parseDate(task.deadline));
+        }
+        if (task.start_date) {
+          markedDates.push(parseDate(task.start_date));
+        }
       }
     });
     
