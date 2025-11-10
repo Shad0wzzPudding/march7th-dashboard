@@ -123,10 +123,29 @@
     @apply border-border;
   }
 
+  html {
+    height: -webkit-fill-available;
+  }
+
   body {
     @apply bg-background text-foreground min-h-screen;
+    /* Improve iOS PWA keyboard behavior */
+    min-height: 100dvh;
+    height: -webkit-fill-available;
+    -webkit-text-size-adjust: 100%;
     background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(120 25% 95%) 100%);
   }
+
+  #root {
+    min-height: 100%;
+  }
+
+  /* Ensure inputs are always focusable and show keyboard on iOS */
+  input, textarea, select {
+    font-size: 16px; /* prevent zoom quirks and help keyboard */
+    touch-action: manipulation;
+  }
+  button { touch-action: manipulation; }
 
   /* Custom scrollbar */
   ::-webkit-scrollbar {
