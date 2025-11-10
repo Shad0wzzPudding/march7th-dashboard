@@ -185,6 +185,7 @@ const Auth = () => {
                   placeholder="Min 8 chars, 1 uppercase, 1 lowercase, 1 number"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
+                  autoComplete="new-password"
                   required
                   minLength={8}
                 />
@@ -225,6 +226,8 @@ const Auth = () => {
                     placeholder="Enter your email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    autoComplete="email"
+                    inputMode="email"
                     required
                   />
                 </div>
@@ -236,6 +239,7 @@ const Auth = () => {
                     placeholder="Enter your password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    autoComplete="current-password"
                     required
                   />
                   <button
@@ -263,6 +267,8 @@ const Auth = () => {
                     placeholder="Enter your email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    autoComplete="email"
+                    inputMode="email"
                     required
                   />
                 </div>
@@ -274,6 +280,7 @@ const Auth = () => {
                     placeholder="Min 8 chars, 1 uppercase, 1 lowercase, 1 number"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    autoComplete="new-password"
                     required
                     minLength={8}
                   />
