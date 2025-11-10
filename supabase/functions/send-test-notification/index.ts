@@ -55,16 +55,26 @@ Deno.serve(async (req) => {
 
     if (subError) {
       console.error('Error fetching subscription:', subError);
-      throw new Error('Failed to fetch push subscription');
+      return new Response(
+        JSON.stringify({ 
+          error: 'Failed to fetch push subscription',
+          details: subError.message
+        }),
+        { 
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
     }
 
     if (!subscriptions || subscriptions.length === 0) {
+      console.log('No subscription found for user:', user.id);
       return new Response(
         JSON.stringify({ 
-          error: 'No push subscription found. Please enable notifications first.' 
+          error: 'No push subscription found. You need to enable notifications first by opening this app in Safari, adding it to your home screen, and granting notification permission.' 
         }),
         { 
-          status: 404,
+          status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       );
@@ -78,9 +88,19 @@ Deno.serve(async (req) => {
     const vapidEmail = Deno.env.get('VAPID_EMAIL') || 'mailto:test@example.com';
 
     if (!vapidPublicKey || !vapidPrivateKey) {
-      throw new Error('VAPID keys not configured');
+      console.error('VAPID keys not configured');
+      return new Response(
+        JSON.stringify({ 
+          error: 'VAPID keys not configured on server'
+        }),
+        { 
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
     }
 
+    console.log('Setting VAPID details...');
     setVapidDetails(vapidEmail, vapidPublicKey, vapidPrivateKey);
 
     // Send test notification
@@ -93,6 +113,7 @@ Deno.serve(async (req) => {
       requireInteraction: false,
     });
 
+    console.log('Sending push notification...');
     await sendNotification(subscription, payload);
 
     console.log('Test notification sent successfully to user:', user.id);
