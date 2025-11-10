@@ -15,19 +15,40 @@ export const NotificationSettings = () => {
   const sendTestNotification = async () => {
     setIsSendingTest(true);
     try {
-      const { error } = await supabase.functions.invoke('send-daily-notifications');
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        toast({
+          title: "Not authenticated",
+          description: "Please sign in to test notifications.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke('send-test-notification', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        }
+      });
       
       if (error) {
         console.error('Error sending test notification:', error);
         toast({
           title: "Test failed",
-          description: "Failed to trigger notification. Check console for details.",
+          description: error.message || "Failed to send notification. Make sure you've enabled notifications.",
+          variant: "destructive"
+        });
+      } else if (data?.error) {
+        toast({
+          title: "Test failed",
+          description: data.error,
           variant: "destructive"
         });
       } else {
         toast({
           title: "Test notification sent!",
-          description: "Close this website completely. You should receive a notification shortly if you have tasks/events today.",
+          description: "You should receive a notification in a few seconds. If the app is open, you might need to close it to see the notification.",
         });
       }
     } catch (error) {

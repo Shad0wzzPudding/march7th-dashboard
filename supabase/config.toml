@@ -3,5 +3,8 @@ project_id = "orlypvtllefclnwjayyf"
 [functions.send-daily-notifications]
 verify_jwt = false
 
+[functions.send-test-notification]
+verify_jwt = true
+
 [functions.get-vapid-key]
 verify_jwt = false
