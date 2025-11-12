@@ -30,9 +30,7 @@ const Auth = () => {
   const navigate = useNavigate();
 
   const { isIOS, isStandalone } = usePWA();
-  const containerClass = (isIOS && isStandalone)
-    ? "min-h-[100svh] bg-background p-4 flex flex-col justify-start pt-10"
-    : "min-h-[100svh] bg-background p-4 flex items-center justify-center";
+  const containerClass = "min-h-[100svh] bg-background p-4 flex items-center justify-center";
 
   useEffect(() => {
     // Check if this is a password recovery flow FIRST
@@ -174,7 +172,7 @@ const Auth = () => {
   if (isPasswordRecovery) {
     return (
       <div className={containerClass}>
-        <Card className="w-full max-w-md relative z-20">
+        <Card className={`w-full max-w-md relative z-20 ${isIOS && isStandalone ? 'ios-auth-fix' : ''}`}>
           <CardHeader className="text-center">
             <CardTitle className="text-2xl font-bold">Reset Password</CardTitle>
             <CardDescription>
@@ -192,6 +190,10 @@ const Auth = () => {
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   autoComplete="new-password"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  enterKeyHint="done"
                   required
                   minLength={8}
                   onTouchEnd={(e) => e.currentTarget.focus()}
@@ -209,7 +211,7 @@ const Auth = () => {
 
   return (
     <div className={containerClass}>
-      <Card className="w-full max-w-md relative z-20">
+      <Card className={`w-full max-w-md relative z-20 ${isIOS && isStandalone ? 'ios-auth-fix' : ''}`}>
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">Welcome</CardTitle>
           <CardDescription>
@@ -235,6 +237,10 @@ const Auth = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     autoComplete="email"
                     inputMode="email"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    enterKeyHint="next"
                     required
                     onTouchEnd={(e) => e.currentTarget.focus()}
                   />
@@ -248,6 +254,10 @@ const Auth = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     autoComplete="current-password"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    enterKeyHint="go"
                     required
                     onTouchEnd={(e) => e.currentTarget.focus()}
                   />
@@ -278,6 +288,10 @@ const Auth = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     autoComplete="email"
                     inputMode="email"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    enterKeyHint="next"
                     required
                     onTouchEnd={(e) => e.currentTarget.focus()}
                   />
@@ -291,6 +305,10 @@ const Auth = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     autoComplete="new-password"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    enterKeyHint="done"
                     required
                     minLength={8}
                     onTouchEnd={(e) => e.currentTarget.focus()}

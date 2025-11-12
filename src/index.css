@@ -164,3 +164,16 @@
     @apply bg-primary/50;
   }
 }
+
+/* iOS PWA input focus fix: disable transforms/animations in auth */
+@media (display-mode: standalone) {
+  .ios-auth-fix *,
+  .ios-auth-fix *::before,
+  .ios-auth-fix *::after {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+    backdrop-filter: none !important;
+    filter: none !important;
+  }
+}
