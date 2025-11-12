@@ -215,10 +215,7 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: undefined
       }
-      reset_daily_tasks_for_new_day: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      reset_daily_tasks_for_new_day: { Args: never; Returns: undefined }
     }
     Enums: {
       [_ in never]: never
