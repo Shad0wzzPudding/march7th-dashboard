@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { z } from 'zod';
+import { usePWA } from '@/hooks/usePWA';
 
 const authSchema = z.object({
   email: z.string().trim().email({ message: "Invalid email address" }).max(255),
@@ -27,6 +28,11 @@ const Auth = () => {
   const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const navigate = useNavigate();
+
+  const { isIOS, isStandalone } = usePWA();
+  const containerClass = (isIOS && isStandalone)
+    ? "min-h-[100svh] bg-background p-4 flex flex-col justify-start pt-10"
+    : "min-h-[100svh] bg-background p-4 flex items-center justify-center";
 
   useEffect(() => {
     // Check if this is a password recovery flow FIRST
@@ -167,7 +173,7 @@ const Auth = () => {
   // Show password reset form if this is a recovery flow
   if (isPasswordRecovery) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      <div className={containerClass}>
         <Card className="w-full max-w-md relative z-20">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl font-bold">Reset Password</CardTitle>
@@ -188,6 +194,7 @@ const Auth = () => {
                   autoComplete="new-password"
                   required
                   minLength={8}
+                  onTouchEnd={(e) => e.currentTarget.focus()}
                 />
               </div>
               <Button type="submit" className="w-full" disabled={loading}>
@@ -201,7 +208,7 @@ const Auth = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+    <div className={containerClass}>
       <Card className="w-full max-w-md relative z-20">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">Welcome</CardTitle>
@@ -229,6 +236,7 @@ const Auth = () => {
                     autoComplete="email"
                     inputMode="email"
                     required
+                    onTouchEnd={(e) => e.currentTarget.focus()}
                   />
                 </div>
                 <div className="space-y-2">
@@ -241,6 +249,7 @@ const Auth = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     autoComplete="current-password"
                     required
+                    onTouchEnd={(e) => e.currentTarget.focus()}
                   />
                   <button
                     type="button"
@@ -270,6 +279,7 @@ const Auth = () => {
                     autoComplete="email"
                     inputMode="email"
                     required
+                    onTouchEnd={(e) => e.currentTarget.focus()}
                   />
                 </div>
                 <div className="space-y-2">
@@ -283,6 +293,7 @@ const Auth = () => {
                     autoComplete="new-password"
                     required
                     minLength={8}
+                    onTouchEnd={(e) => e.currentTarget.focus()}
                   />
                 </div>
                 <Button type="submit" className="w-full relative z-30 pointer-events-auto" disabled={loading}>
