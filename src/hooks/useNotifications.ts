@@ -270,7 +270,17 @@ if (upsertError) {
     permission,
     requestPermission,
     scheduleNotificationCheck,
-    showImmediateNotification
+    showImmediateNotification,
+    ensureSubscribed: async () => {
+      if (!isSupported) return false;
+      try {
+        await subscribeToPushNotifications();
+        return true;
+      } catch (e) {
+        console.error('ensureSubscribed failed:', e);
+        return false;
+      }
+    }
   };
 };
 

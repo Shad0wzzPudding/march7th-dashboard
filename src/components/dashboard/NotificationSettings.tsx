@@ -8,7 +8,7 @@ import { toast } from '@/hooks/use-toast';
 import { useState } from 'react';
 
 export const NotificationSettings = () => {
-  const { isSupported, permission, requestPermission } = useNotifications();
+  const { isSupported, permission, requestPermission, ensureSubscribed } = useNotifications();
   const { canInstall, isInstalled, isStandalone, isIOS, installApp } = usePWA();
   const [isSendingTest, setIsSendingTest] = useState(false);
 
@@ -25,6 +25,9 @@ export const NotificationSettings = () => {
         });
         return;
       }
+
+      // Ensure we have a saved push subscription before testing
+      await ensureSubscribed();
 
       const { data, error } = await supabase.functions.invoke('send-test-notification', {
         headers: {
