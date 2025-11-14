@@ -89,31 +89,20 @@ export const useNotifications = () => {
       const existingSubscription = await registration.pushManager.getSubscription();
       const { data: { user: currentUser } } = await supabase.auth.getUser();
 if (existingSubscription && currentUser) {
-  // Ensure the subscription is saved in DB as well (idempotent)
-  const { error: upsertError } = await supabase
-    .from('push_subscriptions')
-    .upsert([
-      {
-        user_id: currentUser.id,
-        subscription: existingSubscription.toJSON() as any,
+  try {
+    const { error: fnError, data: fnData } = await supabase.functions.invoke('save-push-subscription', {
+      body: {
+        subscription: existingSubscription.toJSON(),
       },
-    ], { onConflict: 'user_id' });
-
-  if (upsertError) {
-    console.error('Error upserting existing push subscription:', upsertError);
-    // Fallback: try plain insert (works even if onConflict requires unique constraint)
-    const { error: insertError } = await supabase
-      .from('push_subscriptions')
-      .insert([{
-        user_id: currentUser.id,
-        subscription: existingSubscription.toJSON() as any,
-      }]);
-    if (insertError) {
-      console.error('Fallback insert for existing subscription failed:', insertError);
+    });
+    if (fnError || (fnData as any)?.error) {
+      console.error('save-push-subscription failed (existing):', fnError || (fnData as any)?.error);
     }
+  } catch (e) {
+    console.error('save-push-subscription threw (existing):', e);
   }
 
-  console.log('Already subscribed to push notifications (DB ensured)');
+  console.log('Already subscribed to push notifications (server ensured)');
   return existingSubscription;
 }
       
@@ -138,36 +127,22 @@ if (existingSubscription && currentUser) {
       // Store subscription in database
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-const { error: upsertError } = await supabase
-  .from('push_subscriptions')
-  .upsert([{
-    user_id: user.id,
-    subscription: subscription.toJSON() as any
-  }], {
-    onConflict: 'user_id'
+try {
+  const { error: fnError, data: fnData } = await supabase.functions.invoke('save-push-subscription', {
+    body: {
+      subscription: subscription.toJSON(),
+    },
   });
-
-if (upsertError) {
-  console.error('Error storing push subscription (upsert):', upsertError);
-  const { error: insertError } = await supabase
-    .from('push_subscriptions')
-    .insert([{
-      user_id: user.id,
-      subscription: subscription.toJSON() as any
-    }]);
-  if (insertError) {
-    console.error('Fallback insert storing push subscription failed:', insertError);
+  if (fnError || (fnData as any)?.error) {
+    console.error('save-push-subscription failed (new):', fnError || (fnData as any)?.error);
   } else {
     toast({
       title: "Success",
       description: "Push notifications enabled! You'll receive daily reminders at 8:00 AM.",
     });
   }
-} else {
-  toast({
-    title: "Success",
-    description: "Push notifications enabled! You'll receive daily reminders at 8:00 AM.",
-  });
+} catch (e) {
+  console.error('save-push-subscription threw (new):', e);
 }
       }
       
