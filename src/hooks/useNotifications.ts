@@ -106,6 +106,11 @@ if (existingSubscription && currentUser) {
 
   console.log('Already subscribed to push notifications (server ensured)');
   return existingSubscription;
+} else if (existingSubscription && !currentUser) {
+  // Don't attempt to re-subscribe when a browser subscription already exists.
+  // iOS/Safari will throw InvalidStateError if we try to subscribe again.
+  console.log('Existing push subscription found but no authenticated user; skipping server save for now.');
+  return existingSubscription;
 }
       
       // Fetch VAPID public key from edge function
