@@ -90,7 +90,9 @@ export const useNotifications = () => {
       const { data: { user: currentUser } } = await supabase.auth.getUser();
 if (existingSubscription && currentUser) {
   try {
+    const { data: { session } } = await supabase.auth.getSession();
     const { error: fnError, data: fnData } = await supabase.functions.invoke('save-push-subscription', {
+      headers: session ? { Authorization: `Bearer ${session.access_token}` } : undefined,
       body: {
         subscription: existingSubscription.toJSON(),
       },
@@ -128,7 +130,9 @@ if (existingSubscription && currentUser) {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
 try {
+  const { data: { session } } = await supabase.auth.getSession();
   const { error: fnError, data: fnData } = await supabase.functions.invoke('save-push-subscription', {
+    headers: session ? { Authorization: `Bearer ${session.access_token}` } : undefined,
     body: {
       subscription: subscription.toJSON(),
     },
