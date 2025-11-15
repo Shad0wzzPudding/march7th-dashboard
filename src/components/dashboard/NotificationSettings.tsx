@@ -26,6 +26,18 @@ export const NotificationSettings = () => {
         return;
       }
 
+      // Extra validation: clear stale/invalid sessions
+      const { data: userData, error: userErr } = await supabase.auth.getUser();
+      if (userErr || !userData?.user) {
+        await supabase.auth.signOut();
+        toast({
+          title: 'Session expired',
+          description: 'Please sign in again, then try Send Test Notification.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
       // Ensure permission is granted first
       if (permission !== 'granted') {
         toast({
