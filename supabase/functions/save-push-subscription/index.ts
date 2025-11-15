@@ -5,8 +5,82 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+interface PushSubscription {
+  endpoint: string;
+  keys: {
+    p256dh: string;
+    auth: string;
+  };
+}
+
 interface SubscriptionBody {
-  subscription?: any;
+  subscription?: PushSubscription;
+}
+
+// Validate push subscription structure and content
+function validateSubscription(subscription: any): subscription is PushSubscription {
+  // Check basic structure
+  if (!subscription || typeof subscription !== 'object') {
+    return false;
+  }
+
+  // Validate endpoint
+  if (!subscription.endpoint || typeof subscription.endpoint !== 'string') {
+    return false;
+  }
+
+  // Check endpoint length (max 4KB for safety)
+  if (subscription.endpoint.length > 4096) {
+    return false;
+  }
+
+  // Validate endpoint is from known push services
+  const validPushDomains = [
+    'fcm.googleapis.com',
+    'updates.push.services.mozilla.com',
+    'android.googleapis.com',
+    'push.apple.com',
+    'wns.windows.com',
+    'updates-autopush.stage.mozaws.net',
+    'updates-autopush.dev.mozaws.net',
+  ];
+
+  try {
+    const url = new URL(subscription.endpoint);
+    const isValidDomain = validPushDomains.some(domain => 
+      url.hostname === domain || url.hostname.endsWith('.' + domain)
+    );
+    
+    if (!isValidDomain) {
+      console.warn('Push endpoint from unrecognized domain:', url.hostname);
+      // Allow it but log warning - new push services may emerge
+    }
+  } catch {
+    return false; // Invalid URL format
+  }
+
+  // Validate keys object
+  if (!subscription.keys || typeof subscription.keys !== 'object') {
+    return false;
+  }
+
+  // Validate p256dh key
+  if (!subscription.keys.p256dh || typeof subscription.keys.p256dh !== 'string') {
+    return false;
+  }
+  if (subscription.keys.p256dh.length < 20 || subscription.keys.p256dh.length > 200) {
+    return false;
+  }
+
+  // Validate auth key
+  if (!subscription.keys.auth || typeof subscription.keys.auth !== 'string') {
+    return false;
+  }
+  if (subscription.keys.auth.length < 10 || subscription.keys.auth.length > 100) {
+    return false;
+  }
+
+  return true;
 }
 
 Deno.serve(async (req) => {
@@ -44,9 +118,13 @@ Deno.serve(async (req) => {
     const body = (await req.json().catch(() => ({}))) as SubscriptionBody;
     const subscription = body.subscription;
 
-    if (!subscription || !subscription.endpoint) {
+    // Validate subscription structure and content
+    if (!validateSubscription(subscription)) {
       return new Response(
-        JSON.stringify({ error: 'Invalid subscription payload' }),
+        JSON.stringify({ 
+          error: 'Invalid subscription payload',
+          details: 'Subscription must include valid endpoint URL and encryption keys'
+        }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
