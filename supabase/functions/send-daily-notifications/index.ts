@@ -44,7 +44,8 @@ Deno.serve(async (req) => {
   try {
     // Validate cron secret header for scheduled requests
     const cronSecret = req.headers.get('x-cron-secret');
-    const isCronRequest = cronSecret === 'cron-trigger-secret';
+    const expectedCronSecret = Deno.env.get('CRON_SECRET');
+    const isCronRequest = cronSecret === expectedCronSecret;
     
     if (!isCronRequest) {
       console.log('Unauthorized request - missing or invalid cron secret');
