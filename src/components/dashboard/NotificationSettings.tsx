@@ -16,7 +16,7 @@ export const NotificationSettings = () => {
     setIsSendingTest(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      
+
       if (!session) {
         toast({
           title: "Not authenticated",
@@ -26,40 +26,89 @@ export const NotificationSettings = () => {
         return;
       }
 
-      // Ensure we have a saved push subscription before testing
-      await ensureSubscribed();
+      // Ensure permission is granted first
+      if (permission !== 'granted') {
+        toast({
+          title: "Permission required",
+          description: "Please allow notifications first.",
+          variant: "destructive"
+        });
+        return;
+      }
 
-      const { data, error } = await supabase.functions.invoke('send-test-notification', {
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
+      // Force-save the current browser push subscription on the server
+      try {
+        const registration = await navigator.serviceWorker.ready;
+        let subscription = await registration.pushManager.getSubscription();
+
+        if (!subscription) {
+          // Fetch VAPID key and create a new subscription if none exists
+          const { data: vapidData, error: vapidError } = await supabase.functions.invoke('get-vapid-key');
+          if (vapidError || !vapidData?.publicKey) {
+            throw new Error(vapidError?.message || 'Failed to fetch VAPID key');
+          }
+          const appServerKey = (function urlBase64ToUint8Array(base64String: string) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+            const rawData = window.atob(base64);
+            const outputArray = new Uint8Array(rawData.length);
+            for (let i = 0; i < rawData.length; ++i) outputArray[i] = rawData.charCodeAt(i);
+            return outputArray;
+          })(vapidData.publicKey);
+
+          subscription = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: appServerKey,
+          });
         }
+
+        const { error: saveError, data: saveData } = await supabase.functions.invoke('save-push-subscription', {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+          body: { subscription: subscription.toJSON() },
+        });
+        if (saveError || (saveData as any)?.error) {
+          throw new Error(saveError?.message || (saveData as any)?.error || 'Failed to save subscription');
+        }
+      } catch (saveErr) {
+        console.error('Failed to ensure server subscription:', saveErr);
+        toast({
+          title: 'Subscription error',
+          description: 'Could not save your device subscription. Please try again.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Now send the test notification (JWT required by the function)
+      const { data, error } = await supabase.functions.invoke('send-test-notification', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
       });
-      
+
       if (error) {
         console.error('Error sending test notification:', error);
         toast({
-          title: "Test failed",
+          title: 'Test failed',
           description: error.message || "Failed to send notification. Make sure you've enabled notifications.",
-          variant: "destructive"
+          variant: 'destructive',
         });
       } else if (data?.error) {
         toast({
-          title: "Test failed",
+          title: 'Test failed',
           description: data.error,
-          variant: "destructive"
+          variant: 'destructive',
         });
       } else {
         toast({
-          title: "Test notification sent!",
-          description: "You should receive a notification in a few seconds. If the app is open, you might need to close it to see the notification.",
+          title: 'Test notification sent!',
+          description: 'You should receive a notification in a few seconds. If the app is open, you might need to close it to see the notification.',
         });
       }
     } catch (error) {
       console.error('Error:', error);
       toast({
-        title: "Error",
-        description: "Failed to send test notification.",
-        variant: "destructive"
+        title: 'Error',
+        description: 'Failed to send test notification.',
+        variant: 'destructive',
       });
     } finally {
       setIsSendingTest(false);
