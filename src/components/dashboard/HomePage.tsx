@@ -5,7 +5,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Badge } from "@/components/ui/badge";
 import { Clock, Star, Calendar as CalendarIcon, CheckCircle2, Circle, ChevronDown, ChevronRight, Pin, Activity, AlertCircle, ChevronUp, CalendarDays, ArrowRight } from "lucide-react";
 import { format, isToday, startOfDay, endOfDay, isSameDay, isAfter, parseISO, parseISO as parseDate } from "date-fns";
-import { Interest, Task, Event, ActivityLog, DailyTask } from "@/lib/types";
+import { Interest, Task, Event, ActivityLog } from "@/lib/types";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useNotifications } from "@/hooks/useNotifications";
 import { NotificationSettings } from "./NotificationSettings";
@@ -16,12 +16,10 @@ interface HomePageProps {
   tasks: Task[];
   events: Event[];
   activityLog: ActivityLog[];
-  dailyTasks: DailyTask[];
   onUpdateInterest?: (data: Partial<Interest> & { id: string }) => void;
 }
 
-export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks, onUpdateInterest }: HomePageProps) => {
-  const [showRemainingTasks, setShowRemainingTasks] = useState(false);
+export const HomePage = ({ interests, tasks, events, activityLog, onUpdateInterest }: HomePageProps) => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [recentChangesCollapsed, setRecentChangesCollapsed] = useState(() => {
     try {
@@ -46,10 +44,10 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks, on
 
   // Schedule notification checks when data changes
   useEffect(() => {
-    if (tasks.length > 0 || events.length > 0 || dailyTasks.length > 0) {
-      scheduleNotificationCheck(tasks, events, dailyTasks);
+    if (tasks.length > 0 || events.length > 0) {
+      scheduleNotificationCheck(tasks, events, []);
     }
-  }, [tasks, events, dailyTasks, scheduleNotificationCheck]);
+  }, [tasks, events, scheduleNotificationCheck]);
   
   const toggleInterestCollapse = (interestId: string) => {
     setCollapsedInterests(prev => {
@@ -189,23 +187,6 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks, on
     .filter(event => isAfter(parseISO(event.start_time), new Date()) && !isToday(parseISO(event.start_time)))
     .slice(0, 3);
 
-  // Daily tasks stats
-  const completedDailyTasks = dailyTasks.filter(task => task.is_completed).length;
-  const totalDailyTasks = dailyTasks.length;
-  const unfinishedDailyTasks = totalDailyTasks - completedDailyTasks;
-  const remainingDailyTasks = dailyTasks.filter(task => !task.is_completed);
-  
-  // Random motivational messages for unfinished tasks
-  const getRandomMessage = () => {
-    const messages = [
-      `${unfinishedDailyTasks}/${totalDailyTasks} tasks left undone!`,
-      `${unfinishedDailyTasks} daily tasks still waiting!`,
-      `You have ${unfinishedDailyTasks} tasks remaining today!`,
-      `${unfinishedDailyTasks} more tasks to complete!`,
-      `${unfinishedDailyTasks} tasks need your attention!`
-    ];
-    return messages[Math.floor(Math.random() * messages.length)];
-  };
 
   return (
     <div className="space-y-6">
@@ -244,59 +225,6 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks, on
               </div>
               <div className="text-sm text-orange-600 dark:text-orange-400">Today's Events</div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
-      
-      {/* Daily Tasks for Today */}
-      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border-blue-200 dark:border-blue-800">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
-            <AlertCircle size={20} />
-            <span className="font-bold">Daily task for today!</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center space-y-4">
-            <div className="text-6xl font-bold text-blue-600 dark:text-blue-400">
-              {completedDailyTasks}/{totalDailyTasks}
-            </div>
-            <div className="text-base text-blue-600 dark:text-blue-400">
-              {unfinishedDailyTasks > 0 ? getRandomMessage() : "All daily tasks completed! Great job!"}
-            </div>
-            {unfinishedDailyTasks > 0 && (
-              <div className="space-y-3">
-                <Button
-                  variant="outline"
-                  onClick={() => setShowRemainingTasks(!showRemainingTasks)}
-                  className="border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-300 dark:hover:bg-blue-950/30"
-                >
-                  {showRemainingTasks ? (
-                    <>Hide Remaining Tasks <ChevronUp size={16} className="ml-1" /></>
-                  ) : (
-                    <>Show Remaining Tasks <ChevronDown size={16} className="ml-1" /></>
-                  )}
-                </Button>
-                {showRemainingTasks && (
-                  <div className="space-y-2 max-w-md mx-auto">
-                    {remainingDailyTasks.map(task => (
-                      <div key={task.id} className="p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800 text-left">
-                        <h5 className="font-medium text-blue-900 dark:text-blue-100">{task.title}</h5>
-                         {task.description && (
-                           <p className="text-sm text-blue-700 dark:text-blue-300 mt-1 whitespace-pre-wrap">{task.description}</p>
-                         )}
-                        {task.deadline && (
-                          <div className="flex items-center gap-1 mt-2 text-xs text-blue-600 dark:text-blue-400">
-                            <Clock size={12} />
-                            Due: {task.deadline}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
           </div>
         </CardContent>
       </Card>
