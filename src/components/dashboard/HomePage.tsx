@@ -23,6 +23,13 @@ interface HomePageProps {
 export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks, onUpdateInterest }: HomePageProps) => {
   const [showRemainingTasks, setShowRemainingTasks] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [recentChangesCollapsed, setRecentChangesCollapsed] = useState(() => {
+    try {
+      return localStorage.getItem('recentChangesCollapsed') === 'true';
+    } catch {
+      return false;
+    }
+  });
   const { scheduleNotificationCheck } = useNotifications();
   
   // Initialize collapsed interests from localStorage
@@ -654,39 +661,64 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks, on
       </Card>
 
       {/* Recent Changes */}
-      <Card className="bg-recent-changes/20 border-recent-changes/40">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-recent-changes">
-            <Activity size={20} />
-            <span className="font-bold">Recent Changes</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {activityLog.length > 0 ? (
-            <div className="space-y-2">
-              {activityLog.map(log => (
-                <div key={log.id} className="flex items-center justify-between p-2 bg-gray-100 dark:bg-gray-800 rounded border border-gray-300 dark:border-gray-600">
-                  <div className="flex items-center gap-2">
-                    <Badge 
-                      variant={log.action_type === 'created' ? 'default' : log.action_type === 'updated' ? 'secondary' : 'destructive'}
-                      className="text-xs"
-                    >
-                      {log.action_type}
-                    </Badge>
-                    <span className="text-sm font-medium">{log.item_title}</span>
-                    <span className="text-xs text-gray-500 dark:text-gray-400">({log.item_type})</span>
-                  </div>
-                  <span className="text-xs text-gray-500 dark:text-gray-400">
-                    {format(parseISO(log.created_at), 'MMM dd, HH:mm')}
-                  </span>
+      <Collapsible 
+        open={!recentChangesCollapsed}
+        onOpenChange={(open) => {
+          setRecentChangesCollapsed(!open);
+          try {
+            localStorage.setItem('recentChangesCollapsed', String(!open));
+          } catch (e) {
+            console.error('Failed to save collapsed state:', e);
+          }
+        }}
+      >
+        <Card className="bg-recent-changes/20 border-recent-changes/40">
+          <CardHeader className="pb-2">
+            <CollapsibleTrigger asChild>
+              <div className="flex items-center justify-between cursor-pointer group">
+                <CardTitle className="flex items-center gap-2 text-recent-changes">
+                  <Activity size={20} />
+                  <span className="font-bold">Recent Changes</span>
+                </CardTitle>
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 group-hover:bg-recent-changes/20">
+                  {recentChangesCollapsed ? (
+                    <ChevronDown size={18} className="text-recent-changes" />
+                  ) : (
+                    <ChevronUp size={18} className="text-recent-changes" />
+                  )}
+                </Button>
+              </div>
+            </CollapsibleTrigger>
+          </CardHeader>
+          <CollapsibleContent>
+            <CardContent>
+              {activityLog.length > 0 ? (
+                <div className="space-y-2">
+                  {activityLog.map(log => (
+                    <div key={log.id} className="flex items-center justify-between p-2 bg-gray-100 dark:bg-gray-800 rounded border border-gray-300 dark:border-gray-600">
+                      <div className="flex items-center gap-2">
+                        <Badge 
+                          variant={log.action_type === 'created' ? 'default' : log.action_type === 'updated' ? 'secondary' : 'destructive'}
+                          className="text-xs"
+                        >
+                          {log.action_type}
+                        </Badge>
+                        <span className="text-sm font-medium">{log.item_title}</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">({log.item_type})</span>
+                      </div>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                        {format(parseISO(log.created_at), 'MMM dd, HH:mm')}
+                      </span>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-gray-500 dark:text-gray-400 text-sm">No recent activity yet!</p>
-          )}
-        </CardContent>
-      </Card>
+              ) : (
+                <p className="text-gray-500 dark:text-gray-400 text-sm">No recent activity yet!</p>
+              )}
+            </CardContent>
+          </CollapsibleContent>
+        </Card>
+      </Collapsible>
     </div>
   );
 };
