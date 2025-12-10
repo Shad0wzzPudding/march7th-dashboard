@@ -70,10 +70,11 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
     tasks.forEach(task => {
       if (!task.is_completed) {
         if (task.deadline) {
-          markedDates.push(parseDate(task.deadline));
+          // Normalize to start of day to ensure consistent date matching
+          markedDates.push(startOfDay(parseDate(task.deadline)));
         }
         if (task.start_date) {
-          markedDates.push(parseDate(task.start_date));
+          markedDates.push(startOfDay(parseDate(task.start_date)));
         }
       }
     });
@@ -81,14 +82,19 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
     // Add event start times and deadlines
     events.forEach(event => {
       if (event.start_time) {
-        markedDates.push(parseDate(event.start_time));
+        markedDates.push(startOfDay(parseDate(event.start_time)));
       }
       if (event.deadline) {
-        markedDates.push(parseDate(event.deadline));
+        markedDates.push(startOfDay(parseDate(event.deadline)));
       }
     });
     
-    return markedDates;
+    // Remove duplicates by comparing date strings
+    const uniqueDates = markedDates.filter((date, index, self) =>
+      index === self.findIndex(d => d.getTime() === date.getTime())
+    );
+    
+    return uniqueDates;
   };
   
   const markedDates = getMarkedDates();
