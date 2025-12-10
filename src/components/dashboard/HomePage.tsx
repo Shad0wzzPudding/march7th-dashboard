@@ -3,12 +3,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Star, Calendar as CalendarIcon, CheckCircle2, Circle, ChevronDown, ChevronRight, Pin, Activity, AlertCircle, ChevronUp, CalendarDays } from "lucide-react";
+import { Clock, Star, Calendar as CalendarIcon, CheckCircle2, Circle, ChevronDown, ChevronRight, Pin, Activity, AlertCircle, ChevronUp, CalendarDays, ArrowRight } from "lucide-react";
 import { format, isToday, startOfDay, endOfDay, isSameDay, isAfter, parseISO, parseISO as parseDate } from "date-fns";
 import { Interest, Task, Event, ActivityLog, DailyTask } from "@/lib/types";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useNotifications } from "@/hooks/useNotifications";
 import { NotificationSettings } from "./NotificationSettings";
+import { SwipeableInterestCard } from "./SwipeableInterestCard";
 
 interface HomePageProps {
   interests: Interest[];
@@ -16,9 +17,10 @@ interface HomePageProps {
   events: Event[];
   activityLog: ActivityLog[];
   dailyTasks: DailyTask[];
+  onUpdateInterest?: (data: Partial<Interest> & { id: string }) => void;
 }
 
-export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: HomePageProps) => {
+export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks, onUpdateInterest }: HomePageProps) => {
   const [showRemainingTasks, setShowRemainingTasks] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const { scheduleNotificationCheck } = useNotifications();
@@ -526,51 +528,69 @@ export const HomePage = ({ interests, tasks, events, activityLog, dailyTasks }: 
       {/* Pinned Interests */}
       <Card className="bg-main-focus/20 border-main-focus/40">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-main-focus">
-            <Pin size={20} />
-            <span className="font-bold">Main Focus</span>
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2 text-main-focus">
+              <Pin size={20} />
+              <span className="font-bold">Main Focus</span>
+            </CardTitle>
+            {pinnedInterests.length > 0 && onUpdateInterest && (
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded-full animate-fade-in">
+                <ArrowRight size={12} className="animate-pulse" />
+                <span>Swipe right to unpin</span>
+              </div>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
           {pinnedInterests.length > 0 ? (
             <div className="space-y-3">
               {pinnedInterests.map(interest => (
-                <Collapsible key={interest.id} open={!collapsedInterests.has(interest.id)}>
-                  <div className="p-3 bg-card/80 rounded-lg border border-main-focus/30">
-                    <div className="flex items-start justify-between">
-                      <h4 className="font-semibold text-gray-900 dark:text-gray-100 flex-1">{interest.title}</h4>
-                      {interest.description && (
-                        <CollapsibleTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => toggleInterestCollapse(interest.id)}
-                            className="ml-2 h-6 w-6 p-0"
-                          >
-                            {collapsedInterests.has(interest.id) ? (
-                              <ChevronDown size={16} />
-                            ) : (
-                              <ChevronUp size={16} />
-                            )}
-                          </Button>
-                        </CollapsibleTrigger>
+                onUpdateInterest ? (
+                  <SwipeableInterestCard
+                    key={interest.id}
+                    interest={interest}
+                    isCollapsed={collapsedInterests.has(interest.id)}
+                    onToggleCollapse={toggleInterestCollapse}
+                    onUnpin={(i) => onUpdateInterest({ id: i.id, is_pinned: false })}
+                  />
+                ) : (
+                  <Collapsible key={interest.id} open={!collapsedInterests.has(interest.id)}>
+                    <div className="p-3 bg-card/80 rounded-lg border border-main-focus/30">
+                      <div className="flex items-start justify-between">
+                        <h4 className="font-semibold text-gray-900 dark:text-gray-100 flex-1">{interest.title}</h4>
+                        {interest.description && (
+                          <CollapsibleTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => toggleInterestCollapse(interest.id)}
+                              className="ml-2 h-6 w-6 p-0"
+                            >
+                              {collapsedInterests.has(interest.id) ? (
+                                <ChevronDown size={16} />
+                              ) : (
+                                <ChevronUp size={16} />
+                              )}
+                            </Button>
+                          </CollapsibleTrigger>
+                        )}
+                      </div>
+                      
+                      <CollapsibleContent>
+                        {interest.description && (
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 whitespace-pre-wrap">{interest.description}</p>
+                        )}
+                      </CollapsibleContent>
+                      
+                      {interest.deadline && (
+                        <div className="flex items-center gap-1 mt-2 text-xs text-gray-500 dark:text-gray-400">
+                          <Clock size={12} />
+                          {format(parseISO(interest.deadline), 'MMM dd, yyyy')}
+                        </div>
                       )}
                     </div>
-                    
-                    <CollapsibleContent>
-                      {interest.description && (
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 whitespace-pre-wrap">{interest.description}</p>
-                      )}
-                    </CollapsibleContent>
-                    
-                    {interest.deadline && (
-                      <div className="flex items-center gap-1 mt-2 text-xs text-gray-500 dark:text-gray-400">
-                        <Clock size={12} />
-                        {format(parseISO(interest.deadline), 'MMM dd, yyyy')}
-                      </div>
-                    )}
-                  </div>
-                </Collapsible>
+                  </Collapsible>
+                )
               ))}
             </div>
           ) : (

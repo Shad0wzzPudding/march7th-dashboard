@@ -137,6 +137,7 @@ const Index = () => {
             events={events}
             activityLog={activityLog}
             dailyTasks={dailyTasks}
+            onUpdateInterest={mutations.updateInterest.mutate}
           />
         );
       case 'interests':
