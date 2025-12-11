@@ -3,14 +3,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Star, Calendar as CalendarIcon, CheckCircle2, Circle, ChevronDown, ChevronRight, Pin, Activity, AlertCircle, ChevronUp, CalendarDays, ArrowRight } from "lucide-react";
-import { format, isToday, startOfDay, endOfDay, isSameDay, isAfter, parseISO, parseISO as parseDate } from "date-fns";
+import { Clock, Star, Calendar as CalendarIcon, CheckCircle2, Circle, ChevronDown, ChevronRight, Pin, Activity, AlertCircle, ChevronUp, CalendarDays, ArrowRight, GripVertical } from "lucide-react";
+import { format, isToday, startOfDay, endOfDay, isSameDay, isAfter, isBefore, parseISO, parseISO as parseDate } from "date-fns";
 import { Interest, Task, Event, ActivityLog } from "@/lib/types";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useNotifications } from "@/hooks/useNotifications";
 import { NotificationSettings } from "./NotificationSettings";
 import { SwipeableInterestCard } from "./SwipeableInterestCard";
-
+import { DraggableSummaryItem } from "./DraggableSummaryItem";
 interface HomePageProps {
   interests: Interest[];
   tasks: Task[];
@@ -179,6 +179,15 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
     .filter(event => isToday(parseISO(event.start_time)))
     .slice(0, 3);
   
+  // Overdue tasks and events
+  const now = new Date();
+  const overdueTasks = tasks.filter(task => 
+    !task.is_completed && isBefore(parseISO(task.deadline), now) && !isToday(parseISO(task.deadline))
+  );
+  const overdueEvents = events.filter(event => 
+    isBefore(parseISO(event.start_time), now) && !isToday(parseISO(event.start_time))
+  );
+  
   // Upcoming events and tasks (excluding today)
   const upcomingTasks = tasks
     .filter(task => !task.is_completed && isAfter(parseISO(task.deadline), new Date()) && !isToday(parseISO(task.deadline)))
@@ -186,6 +195,50 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
   const upcomingEvents = events
     .filter(event => isAfter(parseISO(event.start_time), new Date()) && !isToday(parseISO(event.start_time)))
     .slice(0, 3);
+
+  // Summary items order state
+  const [summaryOrder, setSummaryOrder] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('summaryOrder');
+      return saved ? JSON.parse(saved) : ['todayTasks', 'completed', 'todayEvents', 'overdueTasks', 'overdueEvents'];
+    } catch {
+      return ['todayTasks', 'completed', 'todayEvents', 'overdueTasks', 'overdueEvents'];
+    }
+  });
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+
+  const summaryItems = {
+    todayTasks: { value: todayTasks.length + todayStartingTasks.length, label: "Today's Tasks", colorClass: "text-blue-600 dark:text-blue-400" },
+    completed: { value: tasks.filter(task => task.is_completed && isToday(parseISO(task.deadline))).length, label: "Completed", colorClass: "text-green-600 dark:text-green-400" },
+    todayEvents: { value: todayEvents.length, label: "Today's Events", colorClass: "text-orange-600 dark:text-orange-400" },
+    overdueTasks: { value: overdueTasks.length, label: "Overdue Tasks", colorClass: "text-red-600 dark:text-red-400" },
+    overdueEvents: { value: overdueEvents.length, label: "Overdue Events", colorClass: "text-rose-600 dark:text-rose-400" },
+  };
+
+  const handleDragStart = (index: number) => {
+    setDragIndex(index);
+  };
+
+  const handleDragOver = (index: number) => {
+    setDragOverIndex(index);
+  };
+
+  const handleDragEnd = () => {
+    if (dragIndex !== null && dragOverIndex !== null && dragIndex !== dragOverIndex) {
+      const newOrder = [...summaryOrder];
+      const [removed] = newOrder.splice(dragIndex, 1);
+      newOrder.splice(dragOverIndex, 0, removed);
+      setSummaryOrder(newOrder);
+      try {
+        localStorage.setItem('summaryOrder', JSON.stringify(newOrder));
+      } catch (e) {
+        console.error('Failed to save summary order:', e);
+      }
+    }
+    setDragIndex(null);
+    setDragOverIndex(null);
+  };
 
 
   return (
@@ -203,28 +256,33 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
           <CardTitle className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
             <AlertCircle size={20} />
             <span className="font-bold">Today's Summary</span>
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded-full ml-auto">
+              <GripVertical size={12} />
+              <span>Drag to reorder</span>
+            </div>
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                {todayTasks.length + todayStartingTasks.length}
-              </div>
-              <div className="text-sm text-blue-600 dark:text-blue-400">Today's Tasks</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                {tasks.filter(task => task.is_completed && isToday(parseISO(task.deadline))).length}
-              </div>
-              <div className="text-sm text-green-600 dark:text-green-400">Completed</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
-                {todayEvents.length}
-              </div>
-              <div className="text-sm text-orange-600 dark:text-orange-400">Today's Events</div>
-            </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+            {summaryOrder.map((key, index) => {
+              const item = summaryItems[key as keyof typeof summaryItems];
+              if (!item) return null;
+              return (
+                <DraggableSummaryItem
+                  key={key}
+                  id={key}
+                  value={item.value}
+                  label={item.label}
+                  colorClass={item.colorClass}
+                  index={index}
+                  onDragStart={handleDragStart}
+                  onDragOver={handleDragOver}
+                  onDragEnd={handleDragEnd}
+                  isDragging={dragIndex !== null}
+                  dragOverIndex={dragOverIndex}
+                />
+              );
+            })}
           </div>
         </CardContent>
       </Card>
