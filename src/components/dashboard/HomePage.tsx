@@ -184,9 +184,6 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
   const overdueTasks = tasks.filter(task => 
     !task.is_completed && isBefore(parseISO(task.deadline), now) && !isToday(parseISO(task.deadline))
   );
-  const overdueEvents = events.filter(event => 
-    event.deadline && isBefore(parseISO(event.deadline), now)
-  );
   
   // Upcoming events and tasks (excluding today)
   const upcomingTasks = tasks
@@ -200,9 +197,11 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
   const [summaryOrder, setSummaryOrder] = useState<string[]>(() => {
     try {
       const saved = localStorage.getItem('summaryOrder');
-      return saved ? JSON.parse(saved) : ['todayTasks', 'completed', 'todayEvents', 'overdueTasks', 'overdueEvents'];
+      const order = saved ? JSON.parse(saved) : ['todayTasks', 'completed', 'todayEvents', 'overdueTasks'];
+      // Filter out overdueEvents if it exists from old saved data
+      return order.filter((key: string) => key !== 'overdueEvents');
     } catch {
-      return ['todayTasks', 'completed', 'todayEvents', 'overdueTasks', 'overdueEvents'];
+      return ['todayTasks', 'completed', 'todayEvents', 'overdueTasks'];
     }
   });
   const [dragIndex, setDragIndex] = useState<number | null>(null);
@@ -213,7 +212,6 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
     completed: { value: tasks.filter(task => task.is_completed && isToday(parseISO(task.deadline))).length, label: "Completed", colorClass: "text-green-600 dark:text-green-400" },
     todayEvents: { value: todayEvents.length, label: "Today's Events", colorClass: "text-orange-600 dark:text-orange-400" },
     overdueTasks: { value: overdueTasks.length, label: "Overdue Tasks", colorClass: "text-red-600 dark:text-red-400" },
-    overdueEvents: { value: overdueEvents.length, label: "Overdue Events", colorClass: "text-rose-600 dark:text-rose-400" },
   };
 
   const handleDragStart = (index: number) => {
