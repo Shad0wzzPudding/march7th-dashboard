@@ -185,7 +185,7 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
     !task.is_completed && isBefore(parseISO(task.deadline), now) && !isToday(parseISO(task.deadline))
   );
   const overdueEvents = events.filter(event => 
-    isBefore(parseISO(event.start_time), now) && !isToday(parseISO(event.start_time))
+    event.deadline && isBefore(parseISO(event.deadline), now) && !isToday(parseISO(event.deadline))
   );
   
   // Upcoming events and tasks (excluding today)
