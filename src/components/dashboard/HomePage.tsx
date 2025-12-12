@@ -86,13 +86,20 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
       }
     });
     
-    // Add event start times and deadlines
+    // Add event start times and deadlines (only for today or future events)
+    const today = startOfDay(new Date());
     events.forEach(event => {
       if (event.start_time) {
-        markedDates.push(startOfDay(parseDate(event.start_time)));
+        const eventDate = startOfDay(parseDate(event.start_time));
+        if (eventDate >= today) {
+          markedDates.push(eventDate);
+        }
       }
       if (event.deadline) {
-        markedDates.push(startOfDay(parseDate(event.deadline)));
+        const deadlineDate = startOfDay(parseDate(event.deadline));
+        if (deadlineDate >= today) {
+          markedDates.push(deadlineDate);
+        }
       }
     });
     
