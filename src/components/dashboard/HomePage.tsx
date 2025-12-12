@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Star, Calendar as CalendarIcon, CheckCircle2, Circle, ChevronDown, ChevronRight, Pin, Activity, AlertCircle, ChevronUp, CalendarDays, ArrowRight, GripVertical } from "lucide-react";
+import { Clock, Star, Calendar as CalendarIcon, CheckCircle2, Circle, ChevronDown, ChevronRight, Pin, Activity, AlertCircle, ChevronUp, CalendarDays, ArrowRight, GripVertical, EyeOff, Eye } from "lucide-react";
 import { format, isToday, startOfDay, endOfDay, isSameDay, isAfter, isBefore, parseISO, parseISO as parseDate } from "date-fns";
 import { Interest, Task, Event, ActivityLog } from "@/lib/types";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -29,6 +29,16 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
     }
   });
   const { scheduleNotificationCheck } = useNotifications();
+  
+  // Hidden dates for calendar (manually unhighlighted by user)
+  const [hiddenDates, setHiddenDates] = useState<Set<string>>(() => {
+    try {
+      const saved = localStorage.getItem('hiddenCalendarDates');
+      return saved ? new Set(JSON.parse(saved)) : new Set();
+    } catch {
+      return new Set();
+    }
+  });
   
   // Initialize collapsed interests from localStorage
   const [collapsedInterests, setCollapsedInterests] = useState<Set<string>>(() => {
@@ -69,6 +79,34 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
     });
   };
   
+  // Toggle date visibility in calendar
+  const toggleDateVisibility = (date: Date) => {
+    const dateKey = format(date, 'yyyy-MM-dd');
+    setHiddenDates(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(dateKey)) {
+        newSet.delete(dateKey);
+      } else {
+        newSet.add(dateKey);
+      }
+      
+      // Save to localStorage
+      try {
+        localStorage.setItem('hiddenCalendarDates', JSON.stringify(Array.from(newSet)));
+      } catch (error) {
+        console.error('Failed to save hidden dates:', error);
+      }
+      
+      return newSet;
+    });
+  };
+  
+  // Check if a date is hidden
+  const isDateHidden = (date: Date) => {
+    const dateKey = format(date, 'yyyy-MM-dd');
+    return hiddenDates.has(dateKey);
+  };
+  
   // Get all dates with tasks or events for calendar highlighting
   const getMarkedDates = () => {
     const markedDates: Date[] = [];
@@ -101,7 +139,8 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
       index === self.findIndex(d => d.getTime() === date.getTime())
     );
     
-    return uniqueDates;
+    // Filter out hidden dates
+    return uniqueDates.filter(date => !isDateHidden(date));
   };
   
   const markedDates = getMarkedDates();
@@ -401,19 +440,34 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
             <div className="bg-gradient-to-br from-white/90 to-purple-50/50 dark:from-gray-900/70 dark:to-purple-950/40 rounded-xl border-2 border-purple-300/40 dark:border-purple-600/30 shadow-lg backdrop-blur-sm p-5 min-h-[400px]">
               {selectedDate ? (
                 <div className="space-y-4 animate-fade-in">
-                  {/* Compact Header */}
-                  <div className="flex items-center gap-3 pb-3 border-b border-purple-200/60 dark:border-purple-700/50">
-                    <div className="p-1.5 bg-purple-100 dark:bg-purple-900/50 rounded-lg">
-                      <CalendarIcon size={16} className="text-purple-600 dark:text-purple-400" />
+                  {/* Compact Header with Toggle Button */}
+                  <div className="flex items-center justify-between pb-3 border-b border-purple-200/60 dark:border-purple-700/50">
+                    <div className="flex items-center gap-3">
+                      <div className="p-1.5 bg-purple-100 dark:bg-purple-900/50 rounded-lg">
+                        <CalendarIcon size={16} className="text-purple-600 dark:text-purple-400" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-base text-purple-800 dark:text-purple-200">
+                          {format(selectedDate, 'EEE, MMM d')}
+                        </h3>
+                        <p className="text-xs text-purple-600 dark:text-purple-400">
+                          {format(selectedDate, 'yyyy')}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="font-bold text-base text-purple-800 dark:text-purple-200">
-                        {format(selectedDate, 'EEE, MMM d')}
-                      </h3>
-                      <p className="text-xs text-purple-600 dark:text-purple-400">
-                        {format(selectedDate, 'yyyy')}
-                      </p>
-                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => toggleDateVisibility(selectedDate)}
+                      className="text-purple-600 dark:text-purple-400 hover:bg-purple-100 dark:hover:bg-purple-900/50"
+                      title={isDateHidden(selectedDate) ? "Show highlight" : "Hide highlight"}
+                    >
+                      {isDateHidden(selectedDate) ? (
+                        <Eye size={16} />
+                      ) : (
+                        <EyeOff size={16} />
+                      )}
+                    </Button>
                   </div>
                   
                   {(() => {
