@@ -117,27 +117,29 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
       description?: string;
     }> = [];
     
-    // Check tasks
+    // Check tasks (only incomplete tasks)
     tasks.forEach(task => {
-      if (task.deadline && isSameDay(parseDate(task.deadline), date)) {
-        dateItems.push({
-          id: task.id,
-          title: task.title,
-          type: 'task',
-          dateType: 'deadline',
-          time: format(parseDate(task.deadline), 'HH:mm'),
-          description: task.description
-        });
-      }
-      if (task.start_date && isSameDay(parseDate(task.start_date), date)) {
-        dateItems.push({
-          id: task.id,
-          title: task.title,
-          type: 'task',
-          dateType: 'start',
-          time: format(parseDate(task.start_date), 'HH:mm'),
-          description: task.description
-        });
+      if (!task.is_completed) {
+        if (task.deadline && isSameDay(parseDate(task.deadline), date)) {
+          dateItems.push({
+            id: task.id,
+            title: task.title,
+            type: 'task',
+            dateType: 'deadline',
+            time: format(parseDate(task.deadline), 'HH:mm'),
+            description: task.description
+          });
+        }
+        if (task.start_date && isSameDay(parseDate(task.start_date), date)) {
+          dateItems.push({
+            id: task.id,
+            title: task.title,
+            type: 'task',
+            dateType: 'start',
+            time: format(parseDate(task.start_date), 'HH:mm'),
+            description: task.description
+          });
+        }
       }
     });
     
