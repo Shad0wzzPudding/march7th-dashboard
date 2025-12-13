@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -107,19 +107,18 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
     return hiddenDates.has(dateKey);
   };
   
-  // Get all dates with tasks or events for calendar highlighting
-  const getMarkedDates = () => {
-    const markedDates: Date[] = [];
+  // Get all dates with tasks or events for calendar highlighting (reactive to hiddenDates)
+  const markedDates = useMemo(() => {
+    const dates: Date[] = [];
     
     // Add task deadlines and start dates (only for incomplete tasks)
     tasks.forEach(task => {
       if (!task.is_completed) {
         if (task.deadline) {
-          // Normalize to start of day to ensure consistent date matching
-          markedDates.push(startOfDay(parseDate(task.deadline)));
+          dates.push(startOfDay(parseDate(task.deadline)));
         }
         if (task.start_date) {
-          markedDates.push(startOfDay(parseDate(task.start_date)));
+          dates.push(startOfDay(parseDate(task.start_date)));
         }
       }
     });
@@ -127,23 +126,24 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
     // Add event start times and deadlines (including past events)
     events.forEach(event => {
       if (event.start_time) {
-        markedDates.push(startOfDay(parseDate(event.start_time)));
+        dates.push(startOfDay(parseDate(event.start_time)));
       }
       if (event.deadline) {
-        markedDates.push(startOfDay(parseDate(event.deadline)));
+        dates.push(startOfDay(parseDate(event.deadline)));
       }
     });
     
-    // Remove duplicates by comparing date strings
-    const uniqueDates = markedDates.filter((date, index, self) =>
+    // Remove duplicates
+    const uniqueDates = dates.filter((date, index, self) =>
       index === self.findIndex(d => d.getTime() === date.getTime())
     );
     
     // Filter out hidden dates
-    return uniqueDates.filter(date => !isDateHidden(date));
-  };
-  
-  const markedDates = getMarkedDates();
+    return uniqueDates.filter(date => {
+      const dateKey = format(date, 'yyyy-MM-dd');
+      return !hiddenDates.has(dateKey);
+    });
+  }, [tasks, events, hiddenDates]);
   
   // Get events and tasks for a specific date
   const getDateDetails = (date: Date) => {
