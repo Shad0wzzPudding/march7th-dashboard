@@ -432,10 +432,12 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
                 selected={selectedDate}
                 onSelect={setSelectedDate}
                 modifiers={{
-                  marked: markedDates
+                  marked: markedDates,
+                  hidden: Array.from(hiddenDates).map(dateStr => new Date(dateStr))
                 }}
                 modifiersClassNames={{
-                  marked: "bg-gradient-to-br from-purple-200 to-pink-200 dark:from-purple-700/50 dark:to-pink-700/50 text-purple-900 dark:text-purple-100 font-semibold relative after:absolute after:inset-0 after:rounded-full after:bg-purple-300/30 dark:after:bg-purple-500/30 cursor-pointer hover:scale-105 transition-transform"
+                  marked: "bg-gradient-to-br from-purple-200 to-pink-200 dark:from-purple-700/50 dark:to-pink-700/50 text-purple-900 dark:text-purple-100 font-semibold relative after:absolute after:inset-0 after:rounded-full after:bg-purple-300/30 dark:after:bg-purple-500/30 cursor-pointer hover:scale-105 transition-transform",
+                  hidden: "!bg-transparent !text-foreground !font-normal after:hidden"
                 }}
               />
               <div className="mt-4 text-center">
