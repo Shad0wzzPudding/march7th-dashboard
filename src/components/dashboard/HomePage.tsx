@@ -82,6 +82,7 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
   // Toggle date visibility in calendar
   const toggleDateVisibility = (date: Date) => {
     const dateKey = format(date, 'yyyy-MM-dd');
+    console.log('[Calendar] toggleDateVisibility for', dateKey);
     setHiddenDates(prev => {
       const newSet = new Set(prev);
       if (newSet.has(dateKey)) {
@@ -89,7 +90,7 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
       } else {
         newSet.add(dateKey);
       }
-      
+      console.log('[Calendar] new hiddenDates set', Array.from(newSet));
       // Save to localStorage
       try {
         localStorage.setItem('hiddenCalendarDates', JSON.stringify(Array.from(newSet)));
@@ -138,11 +139,19 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
       index === self.findIndex(d => d.getTime() === date.getTime())
     );
     
-    // Filter out hidden dates
-    return uniqueDates.filter(date => {
+    const result = uniqueDates.filter(date => {
       const dateKey = format(date, 'yyyy-MM-dd');
       return !hiddenDates.has(dateKey);
     });
+
+    console.log('[Calendar] markedDates recomputed', {
+      hiddenDates: Array.from(hiddenDates),
+      allDates: uniqueDates.map(d => format(d, 'yyyy-MM-dd')),
+      visibleDates: result.map(d => format(d, 'yyyy-MM-dd')),
+    });
+    
+    // Filter out hidden dates
+    return result;
   }, [tasks, events, hiddenDates]);
   
   // Get events and tasks for a specific date
