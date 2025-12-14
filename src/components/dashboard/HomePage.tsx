@@ -108,7 +108,7 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
     return hiddenDates.has(dateKey);
   };
   
-  // Get all dates with tasks or events for calendar highlighting (reactive to hiddenDates)
+  // Get all dates with tasks or events for calendar highlighting
   const markedDates = useMemo(() => {
     const dates: Date[] = [];
     
@@ -139,20 +139,8 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
       index === self.findIndex(d => d.getTime() === date.getTime())
     );
     
-    const result = uniqueDates.filter(date => {
-      const dateKey = format(date, 'yyyy-MM-dd');
-      return !hiddenDates.has(dateKey);
-    });
-
-    console.log('[Calendar] markedDates recomputed', {
-      hiddenDates: Array.from(hiddenDates),
-      allDates: uniqueDates.map(d => format(d, 'yyyy-MM-dd')),
-      visibleDates: result.map(d => format(d, 'yyyy-MM-dd')),
-    });
-    
-    // Filter out hidden dates
-    return result;
-  }, [tasks, events, hiddenDates]);
+    return uniqueDates;
+  }, [tasks, events]);
   
   // Get events and tasks for a specific date
   const getDateDetails = (date: Date) => {
@@ -433,9 +421,13 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
                 onSelect={setSelectedDate}
                 modifiers={{
                   marked: markedDates,
+                  hidden: Array.from(hiddenDates).map((dateStr) => parseISO(dateStr)),
                 }}
                 modifiersClassNames={{
-                  marked: "bg-gradient-to-br from-purple-200 to-pink-200 dark:from-purple-700/50 dark:to-pink-700/50 text-purple-900 dark:text-purple-100 font-semibold relative after:absolute after:inset-0 after:rounded-full after:bg-purple-300/30 dark:after:bg-purple-500/30 cursor-pointer hover:scale-105 transition-transform",
+                  marked:
+                    "bg-gradient-to-br from-purple-200 to-pink-200 dark:from-purple-700/50 dark:to-pink-700/50 text-purple-900 dark:text-purple-100 font-semibold relative after:absolute after:inset-0 after:rounded-full after:bg-purple-300/30 dark:after:bg-purple-500/30 cursor-pointer hover:scale-105 transition-transform",
+                  hidden:
+                    "bg-transparent text-foreground font-normal after:hidden shadow-none ring-0 ring-offset-0",
                 }}
               />
               <div className="mt-4 text-center">
