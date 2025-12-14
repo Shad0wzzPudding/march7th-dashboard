@@ -421,12 +421,12 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
                 onSelect={setSelectedDate}
                 modifiers={{
                   marked: markedDates,
-                  hidden: Array.from(hiddenDates).map((dateStr) => parseISO(dateStr)),
+                  neutralized: Array.from(hiddenDates).map((dateStr) => parseISO(dateStr)),
                 }}
                 modifiersClassNames={{
                   marked:
                     "bg-gradient-to-br from-purple-200 to-pink-200 dark:from-purple-700/50 dark:to-pink-700/50 text-purple-900 dark:text-purple-100 font-semibold relative after:absolute after:inset-0 after:rounded-full after:bg-purple-300/30 dark:after:bg-purple-500/30 cursor-pointer hover:scale-105 transition-transform",
-                  hidden:
+                  neutralized:
                     "bg-transparent text-foreground font-normal after:hidden shadow-none ring-0 ring-offset-0",
                 }}
               />
