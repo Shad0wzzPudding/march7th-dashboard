@@ -2,16 +2,33 @@ import { useNotifications } from '@/hooks/useNotifications';
 import { usePWA } from '@/hooks/usePWA';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Bell, BellOff, Download, Smartphone, Send } from 'lucide-react';
+import { Bell, BellOff, Download, Smartphone, Send, ChevronDown, ChevronUp } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { useState } from 'react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 export const NotificationSettings = () => {
   const { isSupported, permission, requestPermission, ensureSubscribed } = useNotifications();
   const { canInstall, isInstalled, isStandalone, isIOS, installApp } = usePWA();
   const [isSendingTest, setIsSendingTest] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    try {
+      return localStorage.getItem('notificationSettingsCollapsed') === 'true';
+    } catch {
+      return false;
+    }
+  });
 
+  const toggleCollapse = () => {
+    setIsCollapsed(prev => {
+      const newValue = !prev;
+      try {
+        localStorage.setItem('notificationSettingsCollapsed', String(newValue));
+      } catch {}
+      return newValue;
+    });
+  };
   const sendTestNotification = async () => {
     setIsSendingTest(true);
     try {
@@ -210,89 +227,92 @@ export const NotificationSettings = () => {
   }
 
   return (
-    <div className="space-y-4">
-      {/* Mobile Installation Status */}
-      {(isIOS || navigator.userAgent.match(/Android/i)) && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Smartphone className="h-5 w-5" />
-              Mobile App Status
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium">
-                  {isStandalone ? '✅ Installed as App' : '📱 Running in Browser'}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {isStandalone 
-                    ? 'Perfect! You can receive notifications.'
-                    : 'For best notification support, add to home screen.'
-                  }
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Notification Settings */}
+    <Collapsible open={!isCollapsed} onOpenChange={() => toggleCollapse()}>
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Bell className="h-5 w-5" />
-            Push Notifications
-          </CardTitle>
-          <CardDescription>
-            Get notified about your tasks and events even when you're not on the website.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium">
-                  Status: {permission === 'granted' ? 'Enabled' : permission === 'denied' ? 'Disabled' : 'Not set'}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {permission === 'granted' 
-                    ? 'You\'ll receive notifications about today\'s tasks and events'
-                    : permission === 'denied'
-                    ? 'Notifications are blocked. Enable them in your browser settings.'
-                    : 'Click to enable notifications'
-                  }
-                </p>
+        <CollapsibleTrigger asChild>
+          <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Bell className="h-5 w-5" />
+                Push Notifications
               </div>
-              {permission !== 'granted' && permission !== 'denied' && (
-                <Button onClick={requestPermission} size="sm">
-                  Enable Notifications
-                </Button>
+              {isCollapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+            </CardTitle>
+            {isCollapsed && (
+              <CardDescription>
+                {permission === 'granted' ? '✅ Enabled' : permission === 'denied' ? '❌ Disabled' : '⏳ Not set'}
+              </CardDescription>
+            )}
+          </CardHeader>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <CardContent className="pt-0">
+            <div className="space-y-4">
+              {/* Mobile Installation Status */}
+              {(isIOS || navigator.userAgent.match(/Android/i)) && (
+                <div className="p-3 rounded-lg bg-muted/50">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Smartphone className="h-4 w-4" />
+                    <p className="text-sm font-medium">
+                      {isStandalone ? '✅ Installed as App' : '📱 Running in Browser'}
+                    </p>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {isStandalone 
+                      ? 'Perfect! You can receive notifications.'
+                      : 'For best notification support, add to home screen.'
+                    }
+                  </p>
+                </div>
+              )}
+
+              <CardDescription>
+                Get notified about your tasks and events even when you're not on the website.
+              </CardDescription>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium">
+                    Status: {permission === 'granted' ? 'Enabled' : permission === 'denied' ? 'Disabled' : 'Not set'}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {permission === 'granted' 
+                      ? 'You\'ll receive notifications about today\'s tasks and events'
+                      : permission === 'denied'
+                      ? 'Notifications are blocked. Enable them in your browser settings.'
+                      : 'Click to enable notifications'
+                    }
+                  </p>
+                </div>
+                {permission !== 'granted' && permission !== 'denied' && (
+                  <Button onClick={requestPermission} size="sm">
+                    Enable Notifications
+                  </Button>
+                )}
+              </div>
+              
+              {/* Test Notification Button */}
+              {permission === 'granted' && (
+                <div className="pt-4 border-t">
+                  <Button 
+                    onClick={sendTestNotification} 
+                    size="sm" 
+                    variant="outline"
+                    disabled={isSendingTest}
+                    className="w-full"
+                  >
+                    <Send className="h-4 w-4 mr-2" />
+                    {isSendingTest ? 'Sending...' : 'Send Test Notification'}
+                  </Button>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    This simulates tomorrow's 8:00 AM notification. Close the website after clicking to test.
+                  </p>
+                </div>
               )}
             </div>
-            
-            {/* Test Notification Button */}
-            {permission === 'granted' && (
-              <div className="pt-4 border-t">
-                <Button 
-                  onClick={sendTestNotification} 
-                  size="sm" 
-                  variant="outline"
-                  disabled={isSendingTest}
-                  className="w-full"
-                >
-                  <Send className="h-4 w-4 mr-2" />
-                  {isSendingTest ? 'Sending...' : 'Send Test Notification'}
-                </Button>
-                <p className="text-xs text-muted-foreground mt-2">
-                  This simulates tomorrow's 8:00 AM notification. Close the website after clicking to test.
-                </p>
-              </div>
-            )}
-          </div>
-        </CardContent>
+          </CardContent>
+        </CollapsibleContent>
       </Card>
-    </div>
+    </Collapsible>
   );
 };
