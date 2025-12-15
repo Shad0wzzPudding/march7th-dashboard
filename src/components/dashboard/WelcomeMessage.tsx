@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import march7thSticker from '@/assets/march7th-sticker.png';
 
 const march7thGreetings = [
   { text: "Heyyy Shad0wzz! How's your day going today??", emoji: "😊" },
@@ -45,6 +46,13 @@ export const WelcomeMessage = () => {
 
   return (
     <div className="text-center py-8 px-4">
+      <div className="flex justify-center mb-4">
+        <img 
+          src={march7thSticker} 
+          alt="March 7th" 
+          className={`w-24 h-24 object-contain transition-all duration-500 ${showEmoji ? 'animate-bounce' : 'opacity-80'}`}
+        />
+      </div>
       <h1 className="text-3xl md:text-5xl font-bold mb-4 flex flex-wrap items-center justify-center gap-2 min-h-[2.5em]">
         <span className="bg-gradient-to-r from-welcome-primary to-welcome-secondary bg-clip-text text-transparent">
           {displayedText}
