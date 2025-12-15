@@ -1,15 +1,22 @@
 import { useState, useEffect, useRef } from 'react';
 import march7thSticker from '@/assets/march7th-sticker.png';
+import march7thExcited from '@/assets/march7th-excited.png';
+import march7thHappy from '@/assets/march7th-happy.png';
+import march7thWinking from '@/assets/march7th-winking.png';
+import march7thCandy from '@/assets/march7th-candy.png';
+import march7thProud from '@/assets/march7th-proud.png';
+import march7thWelcoming from '@/assets/march7th-welcoming.png';
+import march7thConfident from '@/assets/march7th-confident.png';
 
 const march7thGreetings = [
-  { text: "Heyyy Shad0wzz! How's your day going today??", emoji: "😊" },
-  { text: "Welcome back! Ready for another adventure?", emoji: "📸✨" },
-  { text: "Ooh, perfect timing! I was just organizing some photos!", emoji: "📷" },
-  { text: "Hi there! Got any exciting plans for today?", emoji: "🌟" },
-  { text: "Yay, you're here! Let's make today super productive!", emoji: "💫" },
-  { text: "Hello hello! Ready to tackle your tasks like a true Trailblazer?", emoji: "🚀" },
-  { text: "Heya! Time to check what's on your agenda!", emoji: "📝" },
-  { text: "Welcome! I've been waiting to show you all your updates!", emoji: "✨" }
+  { text: "Heyyy Shad0wzz! How's your day going today??", emoji: "😊", sticker: march7thSticker },
+  { text: "Welcome back! Ready for another adventure?", emoji: "📸✨", sticker: march7thExcited },
+  { text: "Ooh, perfect timing! I was just organizing some photos!", emoji: "📷", sticker: march7thCandy },
+  { text: "Hi there! Got any exciting plans for today?", emoji: "🌟", sticker: march7thWelcoming },
+  { text: "Yay, you're here! Let's make today super productive!", emoji: "💫", sticker: march7thHappy },
+  { text: "Hello hello! Ready to tackle your tasks like a true Trailblazer?", emoji: "🚀", sticker: march7thProud },
+  { text: "Heya! Time to check what's on your agenda!", emoji: "📝", sticker: march7thWinking },
+  { text: "Welcome! I've been waiting to show you all your updates!", emoji: "✨", sticker: march7thConfident }
 ];
 
 export const WelcomeMessage = () => {
@@ -48,7 +55,7 @@ export const WelcomeMessage = () => {
     <div className="text-center py-8 px-4">
       <div className="flex justify-center mb-4">
         <img 
-          src={march7thSticker} 
+          src={greeting.sticker} 
           alt="March 7th" 
           className={`w-24 h-24 object-contain transition-all duration-500 ${showEmoji ? 'animate-bounce' : 'opacity-80'}`}
         />
