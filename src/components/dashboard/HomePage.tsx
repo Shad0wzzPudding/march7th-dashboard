@@ -11,6 +11,7 @@ import { useNotifications } from "@/hooks/useNotifications";
 import { NotificationSettings } from "./NotificationSettings";
 import { SwipeableInterestCard } from "./SwipeableInterestCard";
 import { DraggableSummaryItem } from "./DraggableSummaryItem";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 interface HomePageProps {
   interests: Interest[];
   tasks: Task[];
@@ -21,6 +22,14 @@ interface HomePageProps {
 
 export const HomePage = ({ interests, tasks, events, activityLog, onUpdateInterest }: HomePageProps) => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [selectedItem, setSelectedItem] = useState<{
+    id: string;
+    title: string;
+    type: 'task' | 'event';
+    dateTypes: Array<'start' | 'deadline'>;
+    times: { start?: string; deadline?: string };
+    description?: string;
+  } | null>(null);
   const [recentChangesCollapsed, setRecentChangesCollapsed] = useState(() => {
     try {
       return localStorage.getItem('recentChangesCollapsed') === 'true';
@@ -142,68 +151,106 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
     return uniqueDates;
   }, [tasks, events]);
   
-  // Get events and tasks for a specific date
+  // Get events and tasks for a specific date (grouped by item ID)
   const getDateDetails = (date: Date) => {
-    const dateItems: Array<{
+    const itemsMap: Map<string, {
       id: string;
       title: string;
       type: 'task' | 'event';
-      dateType: 'start' | 'deadline';
-      time?: string;
+      dateTypes: Array<'start' | 'deadline'>;
+      times: { start?: string; deadline?: string };
       description?: string;
-    }> = [];
+    }> = new Map();
     
     // Check tasks (only incomplete tasks)
     tasks.forEach(task => {
       if (!task.is_completed) {
-        if (task.deadline && isSameDay(parseDate(task.deadline), date)) {
-          dateItems.push({
-            id: task.id,
-            title: task.title,
-            type: 'task',
-            dateType: 'deadline',
-            time: format(parseDate(task.deadline), 'HH:mm'),
-            description: task.description
-          });
-        }
-        if (task.start_date && isSameDay(parseDate(task.start_date), date)) {
-          dateItems.push({
-            id: task.id,
-            title: task.title,
-            type: 'task',
-            dateType: 'start',
-            time: format(parseDate(task.start_date), 'HH:mm'),
-            description: task.description
-          });
+        const key = `task-${task.id}`;
+        const existing = itemsMap.get(key);
+        
+        const hasDeadline = task.deadline && isSameDay(parseDate(task.deadline), date);
+        const hasStart = task.start_date && isSameDay(parseDate(task.start_date), date);
+        
+        if (hasDeadline || hasStart) {
+          if (existing) {
+            if (hasDeadline && !existing.dateTypes.includes('deadline')) {
+              existing.dateTypes.push('deadline');
+              existing.times.deadline = format(parseDate(task.deadline), 'HH:mm');
+            }
+            if (hasStart && !existing.dateTypes.includes('start')) {
+              existing.dateTypes.unshift('start');
+              existing.times.start = format(parseDate(task.start_date), 'HH:mm');
+            }
+          } else {
+            const dateTypes: Array<'start' | 'deadline'> = [];
+            const times: { start?: string; deadline?: string } = {};
+            
+            if (hasStart) {
+              dateTypes.push('start');
+              times.start = format(parseDate(task.start_date), 'HH:mm');
+            }
+            if (hasDeadline) {
+              dateTypes.push('deadline');
+              times.deadline = format(parseDate(task.deadline), 'HH:mm');
+            }
+            
+            itemsMap.set(key, {
+              id: task.id,
+              title: task.title,
+              type: 'task',
+              dateTypes,
+              times,
+              description: task.description
+            });
+          }
         }
       }
     });
     
     // Check events
     events.forEach(event => {
-      if (event.start_time && isSameDay(parseDate(event.start_time), date)) {
-        dateItems.push({
-          id: event.id,
-          title: event.title,
-          type: 'event',
-          dateType: 'start',
-          time: format(parseDate(event.start_time), 'HH:mm'),
-          description: event.description
-        });
-      }
-      if (event.deadline && isSameDay(parseDate(event.deadline), date)) {
-        dateItems.push({
-          id: event.id,
-          title: event.title,
-          type: 'event',
-          dateType: 'deadline',
-          time: format(parseDate(event.deadline), 'HH:mm'),
-          description: event.description
-        });
+      const key = `event-${event.id}`;
+      const existing = itemsMap.get(key);
+      
+      const hasStart = event.start_time && isSameDay(parseDate(event.start_time), date);
+      const hasDeadline = event.deadline && isSameDay(parseDate(event.deadline), date);
+      
+      if (hasStart || hasDeadline) {
+        if (existing) {
+          if (hasDeadline && !existing.dateTypes.includes('deadline')) {
+            existing.dateTypes.push('deadline');
+            existing.times.deadline = format(parseDate(event.deadline), 'HH:mm');
+          }
+          if (hasStart && !existing.dateTypes.includes('start')) {
+            existing.dateTypes.unshift('start');
+            existing.times.start = format(parseDate(event.start_time), 'HH:mm');
+          }
+        } else {
+          const dateTypes: Array<'start' | 'deadline'> = [];
+          const times: { start?: string; deadline?: string } = {};
+          
+          if (hasStart) {
+            dateTypes.push('start');
+            times.start = format(parseDate(event.start_time), 'HH:mm');
+          }
+          if (hasDeadline) {
+            dateTypes.push('deadline');
+            times.deadline = format(parseDate(event.deadline), 'HH:mm');
+          }
+          
+          itemsMap.set(key, {
+            id: event.id,
+            title: event.title,
+            type: 'event',
+            dateTypes,
+            times,
+            description: event.description
+          });
+        }
       }
     });
     
-    return dateItems;
+    return Array.from(itemsMap.values());
   };
   
   // Today's events and tasks
@@ -496,12 +543,13 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
                       <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
                         {dateItems.map((item) => (
                           <div 
-                            key={`${item.type}-${item.id}-${item.dateType}`} 
-                            className="group relative bg-white/80 dark:bg-gray-800/60 rounded-lg border border-purple-200/60 dark:border-purple-700/40 p-3 shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.01] hover:border-purple-300 dark:hover:border-purple-600"
+                            key={`${item.type}-${item.id}`} 
+                            className="group relative bg-white/80 dark:bg-gray-800/60 rounded-lg border border-purple-200/60 dark:border-purple-700/40 p-3 shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.01] hover:border-purple-300 dark:hover:border-purple-600 cursor-pointer"
+                            onClick={() => setSelectedItem(item)}
                           >
                             {/* Slim accent border */}
                             <div className={`absolute left-0 top-0 w-0.5 h-full rounded-l-lg ${
-                              item.dateType === 'deadline' 
+                              item.dateTypes.includes('deadline') 
                                 ? 'bg-red-500' 
                                 : item.type === 'event'
                                 ? 'bg-blue-500'
@@ -513,34 +561,45 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
                                 <h4 className="font-semibold text-gray-900 dark:text-gray-100 text-sm leading-tight flex-1 mr-2">
                                   {item.title}
                                 </h4>
-                                <div className="flex gap-1 flex-shrink-0">
+                                <div className="flex gap-1 flex-shrink-0 flex-wrap justify-end">
                                   <Badge 
                                     variant={item.type === 'task' ? 'default' : 'secondary'}
                                     className="text-xs px-1.5 py-0.5 h-5"
                                   >
                                     {item.type}
                                   </Badge>
-                                  <Badge 
-                                    variant={item.dateType === 'deadline' ? 'destructive' : 'outline'}
-                                    className="text-xs px-1.5 py-0.5 h-5"
-                                  >
-                                    {item.dateType === 'deadline' ? 'Due' : 'Start'}
-                                  </Badge>
+                                  {item.dateTypes.map((dt) => (
+                                    <Badge 
+                                      key={dt}
+                                      variant={dt === 'deadline' ? 'destructive' : 'outline'}
+                                      className="text-xs px-1.5 py-0.5 h-5"
+                                    >
+                                      {dt === 'deadline' ? 'Due' : 'Start'}
+                                    </Badge>
+                                  ))}
                                 </div>
                               </div>
                               
                                {item.description && (
                                  <p className="text-xs text-gray-600 dark:text-gray-300 mb-2 line-clamp-1 whitespace-pre-wrap">
-                                   {item.description}
+                                   • {item.description}
                                  </p>
                                )}
                               
-                              {item.time && (
-                                <div className="flex items-center gap-1 text-xs font-medium text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 rounded px-1.5 py-0.5 w-fit">
-                                  <Clock size={10} />
-                                  {item.time}
-                                </div>
-                              )}
+                              <div className="flex flex-wrap gap-2">
+                                {item.times.start && (
+                                  <div className="flex items-center gap-1 text-xs font-medium text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/30 rounded px-1.5 py-0.5 w-fit">
+                                    <Clock size={10} />
+                                    {item.times.start}
+                                  </div>
+                                )}
+                                {item.times.deadline && (
+                                  <div className="flex items-center gap-1 text-xs font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 rounded px-1.5 py-0.5 w-fit">
+                                    <Clock size={10} />
+                                    {item.times.deadline}
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           </div>
                         ))}
@@ -760,6 +819,68 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
           </CollapsibleContent>
         </Card>
       </Collapsible>
+
+      {/* Item Detail Dialog */}
+      <Dialog open={!!selectedItem} onOpenChange={(open) => !open && setSelectedItem(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              {selectedItem?.type === 'task' ? (
+                <CheckCircle2 className="text-primary" size={20} />
+              ) : (
+                <CalendarIcon className="text-secondary" size={20} />
+              )}
+              {selectedItem?.title}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="flex flex-wrap gap-2">
+              <Badge variant={selectedItem?.type === 'task' ? 'default' : 'secondary'}>
+                {selectedItem?.type}
+              </Badge>
+              {selectedItem?.dateTypes.map((dt) => (
+                <Badge 
+                  key={dt}
+                  variant={dt === 'deadline' ? 'destructive' : 'outline'}
+                >
+                  {dt === 'deadline' ? 'Due' : 'Start'}
+                </Badge>
+              ))}
+            </div>
+            
+            {selectedItem?.description && (
+              <div>
+                <h4 className="text-sm font-medium text-muted-foreground mb-1">Description</h4>
+                <p className="text-sm whitespace-pre-wrap">{selectedItem.description}</p>
+              </div>
+            )}
+            
+            <div>
+              <h4 className="text-sm font-medium text-muted-foreground mb-2">Times</h4>
+              <div className="space-y-2">
+                {selectedItem?.times.start && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <div className="flex items-center gap-1 text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/30 rounded px-2 py-1">
+                      <Clock size={14} />
+                      <span className="font-medium">Start:</span>
+                    </div>
+                    <span>{selectedItem.times.start}</span>
+                  </div>
+                )}
+                {selectedItem?.times.deadline && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <div className="flex items-center gap-1 text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 rounded px-2 py-1">
+                      <Clock size={14} />
+                      <span className="font-medium">Due:</span>
+                    </div>
+                    <span>{selectedItem.times.deadline}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
