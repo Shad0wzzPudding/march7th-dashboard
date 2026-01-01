@@ -469,12 +469,15 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
                 modifiers={{
                   marked: markedDates,
                   neutralized: Array.from(hiddenDates).map((dateStr) => parseISO(dateStr)),
+                  today: [new Date()],
                 }}
                 modifiersClassNames={{
                   marked:
                     "bg-gradient-to-br from-purple-200 to-pink-200 dark:from-purple-700/50 dark:to-pink-700/50 text-purple-900 dark:text-purple-100 font-semibold relative after:absolute after:inset-0 after:rounded-full after:bg-purple-300/30 dark:after:bg-purple-500/30 cursor-pointer hover:scale-105 transition-transform",
                   neutralized:
                     "!bg-transparent !from-transparent !to-transparent !text-foreground !font-normal !after:hidden !shadow-none",
+                  today:
+                    "!bg-transparent ring-2 ring-sky-300 dark:ring-sky-400 rounded-full",
                 }}
               />
               <div className="mt-4 text-center">
