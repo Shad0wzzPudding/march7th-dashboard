@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, ResizableDialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Plus, Edit, Trash2, Clock, CalendarDays, Copy } from 'lucide-react';
 import { format, parseISO, isAfter, isBefore, isToday } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
@@ -130,7 +130,7 @@ export const EventsPage = ({
               Add Event
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <ResizableDialogContent>
             <DialogHeader>
               <DialogTitle>
                 {editingEvent ? 'Edit Event' : 'Create New Event'}
@@ -170,7 +170,7 @@ export const EventsPage = ({
                 </Button>
               </div>
             </form>
-          </DialogContent>
+          </ResizableDialogContent>
         </Dialog>
       </div>
 

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, ResizableDialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Plus, Edit, Trash2, Pin, PinOff, Clock, GripVertical, Copy } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
@@ -115,7 +115,7 @@ export const InterestsPage = ({
               Add Interest
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <ResizableDialogContent>
             <DialogHeader>
               <DialogTitle>
                 {editingInterest ? 'Edit Interest' : 'Create New Interest'}
@@ -158,7 +158,7 @@ export const InterestsPage = ({
                 </Button>
               </div>
             </form>
-          </DialogContent>
+          </ResizableDialogContent>
         </Dialog>
       </div>
 
