@@ -10,6 +10,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { useNotifications } from "@/hooks/useNotifications";
 import { NotificationSettings } from "./NotificationSettings";
 import { SwipeableInterestCard } from "./SwipeableInterestCard";
+import { DraggableInterestCard } from "./DraggableInterestCard";
 import { DraggableSummaryItem } from "./DraggableSummaryItem";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 interface HomePageProps {
@@ -59,7 +60,61 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
     }
   });
   
+  // Main Focus interests order state
+  const [interestOrder, setInterestOrder] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('mainFocusOrder');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [interestDragIndex, setInterestDragIndex] = useState<number | null>(null);
+  const [interestDragOverIndex, setInterestDragOverIndex] = useState<number | null>(null);
+  
   const pinnedInterests = interests.filter(interest => interest.is_pinned);
+  
+  // Sort pinned interests by saved order
+  const sortedPinnedInterests = useMemo(() => {
+    if (interestOrder.length === 0) return pinnedInterests;
+    
+    return [...pinnedInterests].sort((a, b) => {
+      const indexA = interestOrder.indexOf(a.id);
+      const indexB = interestOrder.indexOf(b.id);
+      
+      // Items not in order go to the end
+      if (indexA === -1 && indexB === -1) return 0;
+      if (indexA === -1) return 1;
+      if (indexB === -1) return -1;
+      
+      return indexA - indexB;
+    });
+  }, [pinnedInterests, interestOrder]);
+
+  const handleInterestDragStart = (index: number) => {
+    setInterestDragIndex(index);
+  };
+
+  const handleInterestDragOver = (index: number) => {
+    setInterestDragOverIndex(index);
+  };
+
+  const handleInterestDragEnd = () => {
+    if (interestDragIndex !== null && interestDragOverIndex !== null && interestDragIndex !== interestDragOverIndex) {
+      const currentOrder = sortedPinnedInterests.map(i => i.id);
+      const newOrder = [...currentOrder];
+      const [removed] = newOrder.splice(interestDragIndex, 1);
+      newOrder.splice(interestDragOverIndex, 0, removed);
+      setInterestOrder(newOrder);
+      try {
+        localStorage.setItem('mainFocusOrder', JSON.stringify(newOrder));
+      } catch (e) {
+        console.error('Failed to save interest order:', e);
+      }
+    }
+    setInterestDragIndex(null);
+    setInterestDragOverIndex(null);
+  };
 
   // Schedule notification checks when data changes
   useEffect(() => {
@@ -643,25 +698,37 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
               <Pin size={20} />
               <span className="font-bold">Main Focus</span>
             </CardTitle>
-            {pinnedInterests.length > 0 && onUpdateInterest && (
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded-full animate-fade-in">
-                <ArrowRight size={12} className="animate-pulse" />
-                <span>Swipe right to unpin</span>
+            {sortedPinnedInterests.length > 0 && onUpdateInterest && (
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded-full">
+                  <GripVertical size={12} />
+                  <span>Drag to reorder</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded-full animate-fade-in">
+                  <ArrowRight size={12} className="animate-pulse" />
+                  <span>Swipe to unpin</span>
+                </div>
               </div>
             )}
           </div>
         </CardHeader>
         <CardContent>
-          {pinnedInterests.length > 0 ? (
+          {sortedPinnedInterests.length > 0 ? (
             <div className="space-y-3">
-              {pinnedInterests.map(interest => (
+              {sortedPinnedInterests.map((interest, index) => (
                 onUpdateInterest ? (
-                  <SwipeableInterestCard
+                  <DraggableInterestCard
                     key={interest.id}
                     interest={interest}
                     isCollapsed={collapsedInterests.has(interest.id)}
                     onToggleCollapse={toggleInterestCollapse}
                     onUnpin={(i) => onUpdateInterest({ id: i.id, is_pinned: false })}
+                    index={index}
+                    onDragStart={handleInterestDragStart}
+                    onDragOver={handleInterestDragOver}
+                    onDragEnd={handleInterestDragEnd}
+                    isDragging={interestDragIndex !== null}
+                    dragOverIndex={interestDragOverIndex}
                   />
                 ) : (
                   <Collapsible key={interest.id} open={!collapsedInterests.has(interest.id)}>
