@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, ResizableDialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Plus, Edit, Trash2, Clock, CheckCircle2, Circle, Calendar, CalendarClock, Copy } from 'lucide-react';
 import { format, parseISO, isAfter, isBefore } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
@@ -143,7 +143,7 @@ export const TasksPage = ({
               Add Task
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <ResizableDialogContent>
             <DialogHeader>
               <DialogTitle>
                 {editingTask ? 'Edit Task' : 'Create New Task'}
@@ -198,7 +198,7 @@ export const TasksPage = ({
                 </Button>
               </div>
             </form>
-          </DialogContent>
+          </ResizableDialogContent>
         </Dialog>
       </div>
 
