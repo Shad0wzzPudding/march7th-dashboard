@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, ResizableDialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Edit, Trash2, Clock, CalendarDays, Copy } from 'lucide-react';
+import { Plus, Edit, Trash2, Clock, CalendarDays, Copy, Trash } from 'lucide-react';
 import { format, parseISO, isAfter, isBefore, isToday } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 
@@ -15,13 +15,15 @@ interface EventsPageProps {
   onCreateEvent: (data: Omit<Event, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => void;
   onUpdateEvent: (data: Partial<Event> & { id: string }) => void;
   onDeleteEvent: (id: string) => void;
+  onClearPast: () => void;
 }
 
 export const EventsPage = ({ 
   events, 
   onCreateEvent, 
   onUpdateEvent, 
-  onDeleteEvent 
+  onDeleteEvent,
+  onClearPast
 }: EventsPageProps) => {
   const { toast } = useToast();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -120,16 +122,27 @@ export const EventsPage = ({
         <h2 className="text-2xl font-bold text-events-theme">
           My Events
         </h2>
-        <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-          <DialogTrigger asChild>
+        <div className="flex items-center gap-2">
+          {pastEvents.length > 0 && (
             <Button 
-              onClick={resetForm}
-              className="bg-events-theme hover:bg-events-theme/80 text-white"
+              variant="outline"
+              onClick={() => onClearPast()}
+              className="text-destructive hover:text-destructive"
             >
-              <Plus size={16} className="mr-2" />
-              Add Event
+              <Trash size={16} className="mr-2" />
+              Clear Past
             </Button>
-          </DialogTrigger>
+          )}
+          <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+            <DialogTrigger asChild>
+              <Button 
+                onClick={resetForm}
+                className="bg-events-theme hover:bg-events-theme/80 text-white"
+              >
+                <Plus size={16} className="mr-2" />
+                Add Event
+              </Button>
+            </DialogTrigger>
           <ResizableDialogContent>
             <DialogHeader>
               <DialogTitle>
@@ -172,6 +185,7 @@ export const EventsPage = ({
             </form>
           </ResizableDialogContent>
         </Dialog>
+        </div>
       </div>
 
       {/* Event Statistics */}

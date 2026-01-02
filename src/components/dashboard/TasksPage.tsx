@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, ResizableDialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Edit, Trash2, Clock, CheckCircle2, Circle, Calendar, CalendarClock, Copy } from 'lucide-react';
+import { Plus, Edit, Trash2, Clock, CheckCircle2, Circle, Calendar, CalendarClock, Copy, Trash } from 'lucide-react';
 import { format, parseISO, isAfter, isBefore } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 
@@ -16,13 +16,15 @@ interface TasksPageProps {
   onCreateTask: (data: Omit<Task, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => void;
   onUpdateTask: (data: Partial<Task> & { id: string }) => void;
   onDeleteTask: (id: string) => void;
+  onClearCompleted: () => void;
 }
 
 export const TasksPage = ({ 
   tasks, 
   onCreateTask, 
   onUpdateTask, 
-  onDeleteTask 
+  onDeleteTask,
+  onClearCompleted
 }: TasksPageProps) => {
   const { toast } = useToast();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -133,16 +135,27 @@ export const TasksPage = ({
         <h2 className="text-2xl font-bold text-upcoming-events">
           My Tasks
         </h2>
-        <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-          <DialogTrigger asChild>
+        <div className="flex items-center gap-2">
+          {completedTasks.length > 0 && (
             <Button 
-              onClick={resetForm}
-              className="bg-upcoming-events hover:bg-upcoming-events/80 text-white"
+              variant="outline"
+              onClick={() => onClearCompleted()}
+              className="text-destructive hover:text-destructive"
             >
-              <Plus size={16} className="mr-2" />
-              Add Task
+              <Trash size={16} className="mr-2" />
+              Clear Completed
             </Button>
-          </DialogTrigger>
+          )}
+          <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+            <DialogTrigger asChild>
+              <Button 
+                onClick={resetForm}
+                className="bg-upcoming-events hover:bg-upcoming-events/80 text-white"
+              >
+                <Plus size={16} className="mr-2" />
+                Add Task
+              </Button>
+            </DialogTrigger>
           <ResizableDialogContent>
             <DialogHeader>
               <DialogTitle>
@@ -200,6 +213,7 @@ export const TasksPage = ({
             </form>
           </ResizableDialogContent>
         </Dialog>
+        </div>
       </div>
 
       {/* Task Statistics */}

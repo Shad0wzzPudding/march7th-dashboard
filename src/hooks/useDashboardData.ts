@@ -264,6 +264,26 @@ export const useDashboardData = () => {
     }
   });
 
+  const clearCompletedTasks = useMutation({
+    mutationFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      const { error } = await supabase
+        .from('tasks')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('is_completed', true);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['activity_log'] });
+      toast.success('Completed tasks cleared!');
+    }
+  });
+
   // Daily Task mutations
   const createDailyTask = useMutation({
     mutationFn: async (data: Omit<DailyTask, 'id' | 'user_id' | 'created_at' | 'updated_at' | 'task_date'>) => {
@@ -383,6 +403,27 @@ export const useDashboardData = () => {
     }
   });
 
+  const clearPastEvents = useMutation({
+    mutationFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      const now = new Date().toISOString();
+      const { error } = await supabase
+        .from('events')
+        .delete()
+        .eq('user_id', user.id)
+        .lt('start_time', now);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+      queryClient.invalidateQueries({ queryKey: ['activity_log'] });
+      toast.success('Past events cleared!');
+    }
+  });
+
   return {
     interests,
     tasks,
@@ -398,12 +439,14 @@ export const useDashboardData = () => {
       createTask,
       updateTask,
       deleteTask,
+      clearCompletedTasks,
       createDailyTask,
       updateDailyTask,
       deleteDailyTask,
       createEvent,
       updateEvent,
       deleteEvent,
+      clearPastEvents,
     }
   };
 };
