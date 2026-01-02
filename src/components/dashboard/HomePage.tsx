@@ -44,8 +44,19 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
   const [hiddenDates, setHiddenDates] = useState<Set<string>>(() => {
     try {
       const saved = localStorage.getItem('hiddenCalendarDates');
-      return saved ? new Set(JSON.parse(saved)) : new Set();
+      if (!saved) return new Set();
+      const parsed = JSON.parse(saved);
+      // Validate that parsed is an array of valid date strings
+      if (Array.isArray(parsed)) {
+        const validDates = parsed.filter((d): d is string => 
+          typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d)
+        );
+        return new Set(validDates);
+      }
+      return new Set();
     } catch {
+      // Clear corrupted data
+      try { localStorage.removeItem('hiddenCalendarDates'); } catch {}
       return new Set();
     }
   });
@@ -522,8 +533,17 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
                 selected={selectedDate}
                 onSelect={setSelectedDate}
                 modifiers={{
-                  marked: markedDates,
-                  neutralized: Array.from(hiddenDates).map((dateStr) => parseISO(dateStr)),
+                  marked: markedDates.filter(d => !isNaN(d.getTime())),
+                  neutralized: Array.from(hiddenDates)
+                    .map((dateStr) => {
+                      try {
+                        const parsed = parseISO(dateStr);
+                        return isNaN(parsed.getTime()) ? null : parsed;
+                      } catch {
+                        return null;
+                      }
+                    })
+                    .filter((d): d is Date => d !== null),
                   today: [new Date()],
                 }}
                 modifiersClassNames={{
