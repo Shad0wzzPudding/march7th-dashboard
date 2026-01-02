@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Event } from '@/lib/types';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,9 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, ResizableDialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Edit, Trash2, Clock, CalendarDays, Copy, Trash } from 'lucide-react';
+import { Plus, Edit, Trash2, Clock, CalendarDays, Copy, Trash, Undo2 } from 'lucide-react';
 import { format, parseISO, isAfter, isBefore, isToday } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
+import { MarchConfirmDialog } from './MarchConfirmDialog';
 
 interface EventsPageProps {
   events: Event[];
@@ -28,12 +29,58 @@ export const EventsPage = ({
   const { toast } = useToast();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [clearedEvents, setClearedEvents] = useState<Event[]>([]);
+  const [showUndo, setShowUndo] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     start_time: '',
     deadline: ''
   });
+
+  const now = new Date();
+  const pastEvents = events.filter(event => isBefore(parseISO(event.start_time), now) && !isToday(parseISO(event.start_time)));
+
+  // Hide undo button after 10 seconds
+  useEffect(() => {
+    if (showUndo) {
+      const timer = setTimeout(() => {
+        setShowUndo(false);
+        setClearedEvents([]);
+      }, 10000);
+      return () => clearTimeout(timer);
+    }
+  }, [showUndo]);
+
+  const handleClearConfirm = () => {
+    setClearedEvents(pastEvents);
+    onClearPast();
+    setShowClearConfirm(false);
+    setShowUndo(true);
+    toast({
+      title: "Events cleared! ✨",
+      description: "You can undo this action within 10 seconds~",
+    });
+  };
+
+  const handleUndo = () => {
+    // Re-create the cleared events
+    clearedEvents.forEach(event => {
+      onCreateEvent({
+        title: event.title,
+        description: event.description,
+        start_time: event.start_time,
+        deadline: event.deadline
+      });
+    });
+    setShowUndo(false);
+    setClearedEvents([]);
+    toast({
+      title: "Events restored! 📸",
+      description: "March 7th saved the day~",
+    });
+  };
 
   const resetForm = () => {
     setFormData({
@@ -88,10 +135,8 @@ export const EventsPage = ({
     });
   };
 
-  const now = new Date();
   const todayEvents = events.filter(event => isToday(parseISO(event.start_time)));
   const upcomingEvents = events.filter(event => isAfter(parseISO(event.start_time), now) && !isToday(parseISO(event.start_time)));
-  const pastEvents = events.filter(event => isBefore(parseISO(event.start_time), now) && !isToday(parseISO(event.start_time)));
 
   const getEventStatus = (event: Event) => {
     const eventDate = parseISO(event.start_time);
@@ -118,15 +163,36 @@ export const EventsPage = ({
 
   return (
     <div className="space-y-6 animate-fade-in">
+      {/* March Confirmation Dialog */}
+      <MarchConfirmDialog
+        open={showClearConfirm}
+        onOpenChange={setShowClearConfirm}
+        onConfirm={handleClearConfirm}
+        title="Clear all past events?"
+        description="This will permanently delete all your past events. But don't worry, you'll have 10 seconds to undo!"
+        confirmText="Yep, clear them!"
+        cancelText="Wait, no!"
+      />
+
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-events-theme">
           My Events
         </h2>
         <div className="flex items-center gap-2">
-          {pastEvents.length > 0 && (
+          {showUndo && (
             <Button 
               variant="outline"
-              onClick={() => onClearPast()}
+              onClick={handleUndo}
+              className="bg-gradient-to-r from-pink-100 to-purple-100 dark:from-pink-900/30 dark:to-purple-900/30 border-pink-300 dark:border-pink-700 text-pink-600 dark:text-pink-400 hover:from-pink-200 hover:to-purple-200 animate-pulse"
+            >
+              <Undo2 size={16} className="mr-2" />
+              Undo Clear
+            </Button>
+          )}
+          {pastEvents.length > 0 && !showUndo && (
+            <Button 
+              variant="outline"
+              onClick={() => setShowClearConfirm(true)}
               className="text-destructive hover:text-destructive"
             >
               <Trash size={16} className="mr-2" />
