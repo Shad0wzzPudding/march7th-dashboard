@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Task } from '@/lib/types';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,9 +7,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, ResizableDialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Edit, Trash2, Clock, CheckCircle2, Circle, Calendar, CalendarClock, Copy, Trash } from 'lucide-react';
+import { Plus, Edit, Trash2, Clock, CheckCircle2, Circle, Calendar, CalendarClock, Copy, Trash, Undo2 } from 'lucide-react';
 import { format, parseISO, isAfter, isBefore } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
+import { MarchConfirmDialog } from './MarchConfirmDialog';
 
 interface TasksPageProps {
   tasks: Task[];
@@ -17,6 +18,7 @@ interface TasksPageProps {
   onUpdateTask: (data: Partial<Task> & { id: string }) => void;
   onDeleteTask: (id: string) => void;
   onClearCompleted: () => void;
+  onRestoreTasks?: (tasks: Task[]) => void;
 }
 
 export const TasksPage = ({ 
@@ -29,6 +31,9 @@ export const TasksPage = ({
   const { toast } = useToast();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [clearedTasks, setClearedTasks] = useState<Task[]>([]);
+  const [showUndo, setShowUndo] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -36,6 +41,48 @@ export const TasksPage = ({
     deadline: '',
     is_completed: false
   });
+
+  // Hide undo button after 10 seconds
+  useEffect(() => {
+    if (showUndo) {
+      const timer = setTimeout(() => {
+        setShowUndo(false);
+        setClearedTasks([]);
+      }, 10000);
+      return () => clearTimeout(timer);
+    }
+  }, [showUndo]);
+
+  const handleClearConfirm = () => {
+    const completed = tasks.filter(task => task.is_completed);
+    setClearedTasks(completed);
+    onClearCompleted();
+    setShowClearConfirm(false);
+    setShowUndo(true);
+    toast({
+      title: "Tasks cleared! ✨",
+      description: "You can undo this action within 10 seconds~",
+    });
+  };
+
+  const handleUndo = () => {
+    // Re-create the cleared tasks
+    clearedTasks.forEach(task => {
+      onCreateTask({
+        title: task.title,
+        description: task.description,
+        start_date: task.start_date,
+        deadline: task.deadline,
+        is_completed: true
+      });
+    });
+    setShowUndo(false);
+    setClearedTasks([]);
+    toast({
+      title: "Tasks restored! 📸",
+      description: "March 7th saved the day~",
+    });
+  };
 
   const resetForm = () => {
     setFormData({
@@ -131,15 +178,36 @@ export const TasksPage = ({
 
   return (
     <div className="space-y-6 animate-fade-in">
+      {/* March Confirmation Dialog */}
+      <MarchConfirmDialog
+        open={showClearConfirm}
+        onOpenChange={setShowClearConfirm}
+        onConfirm={handleClearConfirm}
+        title="Clear all completed tasks?"
+        description="This will permanently delete all your completed tasks. But don't worry, you'll have 10 seconds to undo!"
+        confirmText="Yep, clear them!"
+        cancelText="Wait, no!"
+      />
+
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-upcoming-events">
           My Tasks
         </h2>
         <div className="flex items-center gap-2">
-          {completedTasks.length > 0 && (
+          {showUndo && (
             <Button 
               variant="outline"
-              onClick={() => onClearCompleted()}
+              onClick={handleUndo}
+              className="bg-gradient-to-r from-pink-100 to-purple-100 dark:from-pink-900/30 dark:to-purple-900/30 border-pink-300 dark:border-pink-700 text-pink-600 dark:text-pink-400 hover:from-pink-200 hover:to-purple-200 animate-pulse"
+            >
+              <Undo2 size={16} className="mr-2" />
+              Undo Clear
+            </Button>
+          )}
+          {completedTasks.length > 0 && !showUndo && (
+            <Button 
+              variant="outline"
+              onClick={() => setShowClearConfirm(true)}
               className="text-destructive hover:text-destructive"
             >
               <Trash size={16} className="mr-2" />
