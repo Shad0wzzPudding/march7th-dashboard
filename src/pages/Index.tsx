@@ -155,6 +155,7 @@ const Index = () => {
             onCreateTask={mutations.createTask.mutate}
             onUpdateTask={mutations.updateTask.mutate}
             onDeleteTask={mutations.deleteTask.mutate}
+            onClearCompleted={mutations.clearCompletedTasks.mutate}
           />
         );
       case 'events':
@@ -164,6 +165,7 @@ const Index = () => {
             onCreateEvent={mutations.createEvent.mutate}
             onUpdateEvent={mutations.updateEvent.mutate}
             onDeleteEvent={mutations.deleteEvent.mutate}
+            onClearPast={mutations.clearPastEvents.mutate}
           />
         );
       default:
