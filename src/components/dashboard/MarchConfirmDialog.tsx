@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import march7thExcited from '@/assets/march7th-excited.png';
 import march7thWinking from '@/assets/march7th-winking.png';
-import { playMarchSound } from '@/lib/sounds';
+import { playMarchSound, playConfirmSound, playCancelSound } from '@/lib/sounds';
 
 interface MarchConfirmDialogProps {
   open: boolean;
@@ -22,6 +22,16 @@ interface MarchConfirmDialogProps {
   confirmText?: string;
   cancelText?: string;
 }
+
+const handleConfirmClick = (onConfirm: () => void) => {
+  playConfirmSound();
+  onConfirm();
+};
+
+const handleCancelClick = (onOpenChange: (open: boolean) => void) => {
+  playCancelSound();
+  onOpenChange(false);
+};
 
 const marchMessages = [
   { text: "Whoa, wait a second!", sticker: march7thExcited },
@@ -73,11 +83,14 @@ export const MarchConfirmDialog = ({
           </div>
         </AlertDialogHeader>
         <AlertDialogFooter className="flex-col sm:flex-row gap-2">
-          <AlertDialogCancel className="w-full sm:w-auto bg-white dark:bg-gray-800 border-pink-200 dark:border-pink-700 text-pink-600 dark:text-pink-400 hover:bg-pink-50 dark:hover:bg-pink-950/50">
+          <AlertDialogCancel 
+            onClick={() => handleCancelClick(onOpenChange)}
+            className="w-full sm:w-auto bg-white dark:bg-gray-800 border-pink-200 dark:border-pink-700 text-pink-600 dark:text-pink-400 hover:bg-pink-50 dark:hover:bg-pink-950/50"
+          >
             {cancelText}
           </AlertDialogCancel>
           <AlertDialogAction
-            onClick={onConfirm}
+            onClick={() => handleConfirmClick(onConfirm)}
             className="w-full sm:w-auto bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-semibold"
           >
             {confirmText}

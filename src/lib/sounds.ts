@@ -96,3 +96,69 @@ export const playMarchSound = () => {
     console.log('Audio not available');
   }
 };
+
+export const playConfirmSound = () => {
+  try {
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    
+    const playTone = (frequency: number, startTime: number, duration: number) => {
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator.frequency.value = frequency;
+      oscillator.type = 'sine';
+      
+      gainNode.gain.setValueAtTime(0, startTime);
+      gainNode.gain.linearRampToValueAtTime(0.25, startTime + 0.02);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+      
+      oscillator.start(startTime);
+      oscillator.stop(startTime + duration);
+    };
+    
+    const now = audioContext.currentTime;
+    // Cheerful ascending confirmation sound
+    playTone(523.25, now, 0.08);        // C5
+    playTone(659.25, now + 0.06, 0.08); // E5
+    playTone(783.99, now + 0.12, 0.12); // G5
+    playTone(1046.5, now + 0.18, 0.15); // C6
+    
+  } catch (e) {
+    console.log('Audio not available');
+  }
+};
+
+export const playCancelSound = () => {
+  try {
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    
+    const playTone = (frequency: number, startTime: number, duration: number) => {
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator.frequency.value = frequency;
+      oscillator.type = 'sine';
+      
+      gainNode.gain.setValueAtTime(0, startTime);
+      gainNode.gain.linearRampToValueAtTime(0.2, startTime + 0.02);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+      
+      oscillator.start(startTime);
+      oscillator.stop(startTime + duration);
+    };
+    
+    const now = audioContext.currentTime;
+    // Gentle descending "nevermind" sound
+    playTone(523.25, now, 0.1);        // C5
+    playTone(392, now + 0.08, 0.15);   // G4
+    
+  } catch (e) {
+    console.log('Audio not available');
+  }
+};
