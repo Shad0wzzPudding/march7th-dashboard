@@ -11,7 +11,7 @@ import { Plus, Edit, Trash2, Clock, CheckCircle2, Circle, Calendar, CalendarCloc
 import { format, parseISO, isAfter, isBefore } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { MarchConfirmDialog } from './MarchConfirmDialog';
-import { playSuccessSound } from '@/lib/sounds';
+import { playSuccessSound, playCompletionSound } from '@/lib/sounds';
 
 interface TasksPageProps {
   tasks: Task[];
@@ -129,10 +129,14 @@ export const TasksPage = ({
   };
 
   const handleToggleComplete = (task: Task) => {
+    const isCompleting = !task.is_completed;
     onUpdateTask({
       id: task.id,
-      is_completed: !task.is_completed
+      is_completed: isCompleting
     });
+    if (isCompleting) {
+      playCompletionSound();
+    }
   };
 
   const handleCopy = (task: Task) => {
