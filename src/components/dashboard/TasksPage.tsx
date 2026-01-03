@@ -11,6 +11,7 @@ import { Plus, Edit, Trash2, Clock, CheckCircle2, Circle, Calendar, CalendarCloc
 import { format, parseISO, isAfter, isBefore } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { MarchConfirmDialog } from './MarchConfirmDialog';
+import { playSuccessSound } from '@/lib/sounds';
 
 interface TasksPageProps {
   tasks: Task[];
@@ -108,6 +109,7 @@ export const TasksPage = ({
       onUpdateTask({ id: editingTask.id, ...submissionData });
     } else {
       onCreateTask(submissionData);
+      playSuccessSound();
     }
     
     resetForm();

@@ -10,6 +10,7 @@ import { Plus, Edit, Trash2, Clock, CalendarDays, Copy, Trash, Undo2 } from 'luc
 import { format, parseISO, isAfter, isBefore, isToday } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { MarchConfirmDialog } from './MarchConfirmDialog';
+import { playSuccessSound } from '@/lib/sounds';
 
 interface EventsPageProps {
   events: Event[];
@@ -105,6 +106,7 @@ export const EventsPage = ({
       onUpdateEvent({ id: editingEvent.id, ...submissionData });
     } else {
       onCreateEvent(submissionData);
+      playSuccessSound();
     }
     
     resetForm();
