@@ -1,5 +1,5 @@
 // Sound effects utility using Web Audio API
-
+import { toast } from "@/hooks/use-toast";
 export const playSuccessSound = () => {
   try {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -132,6 +132,7 @@ export const playConfirmSound = () => {
 };
 
 export const playCancelSound = () => {
+  toast({ title: "🔊 Cancel sound triggered!", duration: 1500 });
   try {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     
@@ -143,10 +144,10 @@ export const playCancelSound = () => {
       gainNode.connect(audioContext.destination);
       
       oscillator.frequency.value = frequency;
-      oscillator.type = 'triangle'; // Softer but more audible tone
+      oscillator.type = 'triangle';
       
       gainNode.gain.setValueAtTime(0, startTime);
-      gainNode.gain.linearRampToValueAtTime(0.4, startTime + 0.02); // Louder
+      gainNode.gain.linearRampToValueAtTime(0.4, startTime + 0.02);
       gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
       
       oscillator.start(startTime);
@@ -154,12 +155,11 @@ export const playCancelSound = () => {
     };
     
     const now = audioContext.currentTime;
-    // More noticeable descending "womp womp" sound
-    playTone(440, now, 0.15);           // A4
-    playTone(349.23, now + 0.12, 0.2);  // F4
-    playTone(293.66, now + 0.28, 0.25); // D4
+    playTone(440, now, 0.15);
+    playTone(349.23, now + 0.12, 0.2);
+    playTone(293.66, now + 0.28, 0.25);
     
   } catch (e) {
-    console.log('Audio not available');
+    toast({ title: "❌ Audio error", description: String(e), variant: "destructive" });
   }
 };
