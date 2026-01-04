@@ -94,7 +94,7 @@ export const MarchConfirmDialog = ({
         <AlertDialogFooter className="flex-col sm:flex-row gap-2">
           <Button 
             variant="outline"
-            onClick={() => handleCancelClick(onOpenChange)}
+            onClick={() => handleOpenChange(false)}
             className="w-full sm:w-auto bg-white dark:bg-gray-800 border-pink-200 dark:border-pink-700 text-pink-600 dark:text-pink-400 hover:bg-pink-50 dark:hover:bg-pink-950/50"
           >
             {cancelText}
