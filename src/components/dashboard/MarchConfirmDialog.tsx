@@ -28,9 +28,11 @@ const handleConfirmClick = (onConfirm: () => void) => {
   onConfirm();
 };
 
-const handleCancelClick = (onOpenChange: (open: boolean) => void) => {
+const handleCancelClick = (e: React.MouseEvent, onOpenChange: (open: boolean) => void) => {
+  e.preventDefault();
   playCancelSound();
-  onOpenChange(false);
+  // Small delay to let the sound play before closing
+  setTimeout(() => onOpenChange(false), 100);
 };
 
 const marchMessages = [
@@ -84,7 +86,7 @@ export const MarchConfirmDialog = ({
         </AlertDialogHeader>
         <AlertDialogFooter className="flex-col sm:flex-row gap-2">
           <AlertDialogCancel 
-            onClick={() => handleCancelClick(onOpenChange)}
+            onClick={(e) => handleCancelClick(e, onOpenChange)}
             className="w-full sm:w-auto bg-white dark:bg-gray-800 border-pink-200 dark:border-pink-700 text-pink-600 dark:text-pink-400 hover:bg-pink-50 dark:hover:bg-pink-950/50"
           >
             {cancelText}
