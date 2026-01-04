@@ -28,8 +28,8 @@ const handleConfirmClick = (onConfirm: () => void) => {
   onConfirm();
 };
 
+// Cancel button just closes the dialog - sound is handled by handleOpenChange
 const handleCancelClick = (onOpenChange: (open: boolean) => void) => {
-  playCancelSound();
   onOpenChange(false);
 };
 
@@ -59,8 +59,17 @@ export const MarchConfirmDialog = ({
     }
   }, [open]);
 
+  // Intercept all close attempts (clicking outside, pressing Escape, etc.)
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen && open) {
+      // Dialog is being closed - play cancel sound
+      playCancelSound();
+    }
+    onOpenChange(newOpen);
+  };
+
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
+    <AlertDialog open={open} onOpenChange={handleOpenChange}>
       <AlertDialogContent className="bg-gradient-to-br from-pink-50 to-purple-50 dark:from-pink-950/40 dark:to-purple-950/40 border-2 border-pink-200 dark:border-pink-800 max-w-md">
         <AlertDialogHeader className="text-center">
           <div className="flex justify-center mb-2">
