@@ -143,10 +143,10 @@ export const playCancelSound = () => {
       gainNode.connect(audioContext.destination);
       
       oscillator.frequency.value = frequency;
-      oscillator.type = 'sine';
+      oscillator.type = 'triangle'; // Softer but more audible tone
       
       gainNode.gain.setValueAtTime(0, startTime);
-      gainNode.gain.linearRampToValueAtTime(0.2, startTime + 0.02);
+      gainNode.gain.linearRampToValueAtTime(0.4, startTime + 0.02); // Louder
       gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
       
       oscillator.start(startTime);
@@ -154,9 +154,10 @@ export const playCancelSound = () => {
     };
     
     const now = audioContext.currentTime;
-    // Gentle descending "nevermind" sound
-    playTone(523.25, now, 0.1);        // C5
-    playTone(392, now + 0.08, 0.15);   // G4
+    // More noticeable descending "womp womp" sound
+    playTone(440, now, 0.15);           // A4
+    playTone(349.23, now + 0.12, 0.2);  // F4
+    playTone(293.66, now + 0.28, 0.25); // D4
     
   } catch (e) {
     console.log('Audio not available');
