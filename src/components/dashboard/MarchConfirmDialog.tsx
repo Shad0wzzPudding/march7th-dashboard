@@ -94,9 +94,15 @@ export const MarchConfirmDialog = ({
         <AlertDialogFooter className="flex-col sm:flex-row gap-2">
           <Button 
             variant="outline"
-            onClick={(e) => {
+            type="button"
+            onClick={() => {
+              console.log("Cancel button onClick fired");
+              playCancelSound();
+              onOpenChange(false);
+            }}
+            onTouchEnd={(e) => {
               e.preventDefault();
-              e.stopPropagation();
+              console.log("Cancel button onTouchEnd fired");
               playCancelSound();
               onOpenChange(false);
             }}
