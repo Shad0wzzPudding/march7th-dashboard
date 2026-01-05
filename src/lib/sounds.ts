@@ -131,10 +131,19 @@ export const playConfirmSound = () => {
   }
 };
 
-export const playCancelSound = () => {
+export const playCancelSound = async () => {
+  console.log("playCancelSound called");
   toast({ title: "🔊 Cancel sound triggered!", duration: 1500 });
   try {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    console.log("AudioContext state:", audioContext.state);
+    
+    // iOS requires resuming the audio context on user gesture
+    if (audioContext.state === 'suspended') {
+      console.log("Resuming suspended audio context...");
+      await audioContext.resume();
+      console.log("AudioContext resumed, new state:", audioContext.state);
+    }
     
     const playTone = (frequency: number, startTime: number, duration: number) => {
       const oscillator = audioContext.createOscillator();
@@ -155,11 +164,13 @@ export const playCancelSound = () => {
     };
     
     const now = audioContext.currentTime;
+    console.log("Playing tones at:", now);
     playTone(440, now, 0.15);
     playTone(349.23, now + 0.12, 0.2);
     playTone(293.66, now + 0.28, 0.25);
     
   } catch (e) {
+    console.error("Audio error:", e);
     toast({ title: "❌ Audio error", description: String(e), variant: "destructive" });
   }
 };
