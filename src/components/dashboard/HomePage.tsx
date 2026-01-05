@@ -12,6 +12,7 @@ import { NotificationSettings } from "./NotificationSettings";
 import { SwipeableInterestCard } from "./SwipeableInterestCard";
 import { DraggableInterestCard } from "./DraggableInterestCard";
 import { DraggableSummaryItem } from "./DraggableSummaryItem";
+import { SoundTestButton } from "./SoundTestButton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 interface HomePageProps {
   interests: Interest[];
@@ -392,6 +393,11 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
 
   return (
     <div className="space-y-6">
+      {/* Sound Test Button - TEMPORARY */}
+      <div className="flex justify-center">
+        <SoundTestButton />
+      </div>
+      
       {/* Notification Settings */}
       <NotificationSettings />
       
