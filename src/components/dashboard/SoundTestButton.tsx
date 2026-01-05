@@ -46,10 +46,10 @@ export const SoundTestButton = () => {
       gainNode.connect(audioContext.destination);
       
       oscillator.frequency.value = frequency;
-      oscillator.type = 'sine';
+      oscillator.type = 'triangle'; // Softer sound for cancel
       
       gainNode.gain.setValueAtTime(0, startTime);
-      gainNode.gain.linearRampToValueAtTime(0.3, startTime + 0.02);
+      gainNode.gain.linearRampToValueAtTime(0.25, startTime + 0.02);
       gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
       
       oscillator.start(startTime);
@@ -57,14 +57,15 @@ export const SoundTestButton = () => {
     };
     
     const now = audioContext.currentTime;
-    console.log("Playing test tones at:", now);
-    playTone(523.25, now, 0.1);
-    playTone(659.25, now + 0.1, 0.1);
-    playTone(783.99, now + 0.2, 0.15);
+    console.log("Playing cancel tones at:", now);
+    // Descending tones for cancel effect
+    playTone(493.88, now, 0.12);        // B4
+    playTone(392.00, now + 0.1, 0.12);  // G4
+    playTone(329.63, now + 0.2, 0.18);  // E4
     
     toast({ 
-      title: "✅ Sound played!", 
-      description: "Did you hear it?",
+      title: "🔕 Cancel sound!", 
+      description: "Did you hear the descending tone?",
       duration: 2000 
     });
   };
