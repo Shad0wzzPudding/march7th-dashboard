@@ -9,7 +9,7 @@ import { Dialog, ResizableDialogContent, DialogHeader, DialogTitle, DialogTrigge
 import { Plus, Edit, Trash2, Pin, PinOff, Clock, GripVertical, Copy } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
-import { playSuccessSound, playCancelSound } from '@/lib/sounds';
+import { playSuccessSound, playCancelSound, playDeleteSound } from '@/lib/sounds';
 
 interface InterestsPageProps {
   interests: Interest[];
@@ -207,7 +207,7 @@ export const InterestsPage = ({
                     <Button 
                       size="sm" 
                       variant="outline" 
-                      onClick={() => onDeleteInterest(interest.id)}
+                      onClick={() => { playDeleteSound(); onDeleteInterest(interest.id); }}
                       className="text-destructive hover:text-destructive"
                     >
                       <Trash2 size={12} />
@@ -257,7 +257,7 @@ export const InterestsPage = ({
                   <Button 
                     size="sm" 
                     variant="outline" 
-                    onClick={() => onDeleteInterest(interest.id)}
+                    onClick={() => { playDeleteSound(); onDeleteInterest(interest.id); }}
                     className="text-destructive hover:text-destructive"
                   >
                     <Trash2 size={12} />

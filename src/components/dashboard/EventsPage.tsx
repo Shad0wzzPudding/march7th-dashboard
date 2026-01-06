@@ -10,7 +10,7 @@ import { Plus, Edit, Trash2, Clock, CalendarDays, Copy, Trash, Undo2 } from 'luc
 import { format, parseISO, isAfter, isBefore, isToday } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { MarchConfirmDialog } from './MarchConfirmDialog';
-import { playSuccessSound, playCancelSound } from '@/lib/sounds';
+import { playSuccessSound, playCancelSound, playDeleteSound } from '@/lib/sounds';
 
 interface EventsPageProps {
   events: Event[];
@@ -320,7 +320,7 @@ export const EventsPage = ({
                         <Button 
                           size="sm" 
                           variant="outline" 
-                          onClick={() => onDeleteEvent(event.id)}
+                          onClick={() => { playDeleteSound(); onDeleteEvent(event.id); }}
                           className="text-destructive hover:text-destructive"
                         >
                           <Trash2 size={12} />
@@ -377,7 +377,7 @@ export const EventsPage = ({
                     <Button 
                       size="sm" 
                       variant="outline" 
-                      onClick={() => onDeleteEvent(event.id)}
+                      onClick={() => { playDeleteSound(); onDeleteEvent(event.id); }}
                       className="text-destructive hover:text-destructive"
                     >
                       <Trash2 size={12} />
@@ -427,7 +427,7 @@ export const EventsPage = ({
                       <Button 
                         size="sm" 
                         variant="outline" 
-                        onClick={() => onDeleteEvent(event.id)}
+                        onClick={() => { playDeleteSound(); onDeleteEvent(event.id); }}
                         className="text-destructive hover:text-destructive"
                       >
                         <Trash2 size={12} />
