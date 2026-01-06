@@ -9,6 +9,7 @@ import { Dialog, ResizableDialogContent, DialogHeader, DialogTitle, DialogTrigge
 import { Plus, Edit, Trash2, Pin, PinOff, Clock, GripVertical, Copy } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
+import { playSuccessSound, playCancelSound } from '@/lib/sounds';
 
 interface InterestsPageProps {
   interests: Interest[];
@@ -57,6 +58,7 @@ export const InterestsPage = ({
       onUpdateInterest({ id: editingInterest.id, ...submissionData });
     } else {
       onCreateInterest(submissionData);
+      playSuccessSound();
     }
     
     resetForm();
@@ -153,7 +155,7 @@ export const InterestsPage = ({
                 <Button type="submit" className="flex-1">
                   {editingInterest ? 'Update' : 'Create'}
                 </Button>
-                <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)}>
+                <Button type="button" variant="outline" onClick={() => { playCancelSound(); setIsCreateOpen(false); }}>
                   Cancel
                 </Button>
               </div>
