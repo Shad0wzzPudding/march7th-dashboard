@@ -11,7 +11,7 @@ import { Plus, Edit, Trash2, Clock, CheckCircle2, Circle, Calendar, CalendarCloc
 import { format, parseISO, isAfter, isBefore } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { MarchConfirmDialog } from './MarchConfirmDialog';
-import { playSuccessSound, playCompletionSound, playCancelSound } from '@/lib/sounds';
+import { playSuccessSound, playCompletionSound, playCancelSound, playDeleteSound } from '@/lib/sounds';
 
 interface TasksPageProps {
   tasks: Task[];
@@ -367,7 +367,7 @@ export const TasksPage = ({
                         <Button 
                           size="sm" 
                           variant="outline" 
-                          onClick={() => onDeleteTask(task.id)}
+                          onClick={() => { playDeleteSound(); onDeleteTask(task.id); }}
                           className="text-destructive hover:text-destructive"
                         >
                           <Trash2 size={12} />
@@ -435,7 +435,7 @@ export const TasksPage = ({
                       <Button 
                         size="sm" 
                         variant="outline" 
-                        onClick={() => onDeleteTask(task.id)}
+                        onClick={() => { playDeleteSound(); onDeleteTask(task.id); }}
                         className="text-destructive hover:text-destructive"
                       >
                         <Trash2 size={12} />
@@ -503,7 +503,7 @@ export const TasksPage = ({
                         <Button 
                           size="sm" 
                           variant="outline" 
-                          onClick={() => onDeleteTask(task.id)}
+                          onClick={() => { playDeleteSound(); onDeleteTask(task.id); }}
                           className="text-destructive hover:text-destructive"
                         >
                           <Trash2 size={12} />

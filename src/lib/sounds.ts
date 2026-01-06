@@ -168,3 +168,41 @@ export const playCancelSound = async () => {
     console.log('Audio not available');
   }
 };
+
+export const playDeleteSound = async () => {
+  try {
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    
+    // iOS requires resuming the audio context on user gesture
+    if (audioContext.state === 'suspended') {
+      await audioContext.resume();
+    }
+    
+    const playTone = (frequency: number, startTime: number, duration: number) => {
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator.frequency.value = frequency;
+      oscillator.type = 'sawtooth'; // Slightly harsher for delete
+      
+      gainNode.gain.setValueAtTime(0, startTime);
+      gainNode.gain.linearRampToValueAtTime(0.15, startTime + 0.01);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+      
+      oscillator.start(startTime);
+      oscillator.stop(startTime + duration);
+    };
+    
+    const now = audioContext.currentTime;
+    // Quick descending "whoosh" for delete
+    playTone(440, now, 0.08);           // A4
+    playTone(330, now + 0.06, 0.1);     // E4
+    playTone(220, now + 0.12, 0.12);    // A3
+    
+  } catch (e) {
+    console.log('Audio not available');
+  }
+};
