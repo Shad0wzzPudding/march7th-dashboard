@@ -11,7 +11,7 @@ import { Plus, Edit, Trash2, Clock, CheckCircle2, Circle, Calendar, CalendarCloc
 import { format, parseISO, isAfter, isBefore } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { MarchConfirmDialog } from './MarchConfirmDialog';
-import { playSuccessSound, playCompletionSound } from '@/lib/sounds';
+import { playSuccessSound, playCompletionSound, playCancelSound } from '@/lib/sounds';
 
 interface TasksPageProps {
   tasks: Task[];
@@ -280,7 +280,7 @@ export const TasksPage = ({
                 <Button type="submit" className="flex-1">
                   {editingTask ? 'Update' : 'Create'}
                 </Button>
-                <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)}>
+                <Button type="button" variant="outline" onClick={() => { playCancelSound(); setIsCreateOpen(false); }}>
                   Cancel
                 </Button>
               </div>

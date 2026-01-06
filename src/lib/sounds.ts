@@ -132,17 +132,12 @@ export const playConfirmSound = () => {
 };
 
 export const playCancelSound = async () => {
-  console.log("playCancelSound called");
-  toast({ title: "🔊 Cancel sound triggered!", duration: 1500 });
   try {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-    console.log("AudioContext state:", audioContext.state);
     
     // iOS requires resuming the audio context on user gesture
     if (audioContext.state === 'suspended') {
-      console.log("Resuming suspended audio context...");
       await audioContext.resume();
-      console.log("AudioContext resumed, new state:", audioContext.state);
     }
     
     const playTone = (frequency: number, startTime: number, duration: number) => {
@@ -153,10 +148,10 @@ export const playCancelSound = async () => {
       gainNode.connect(audioContext.destination);
       
       oscillator.frequency.value = frequency;
-      oscillator.type = 'triangle';
+      oscillator.type = 'triangle'; // Softer sound for cancel
       
       gainNode.gain.setValueAtTime(0, startTime);
-      gainNode.gain.linearRampToValueAtTime(0.4, startTime + 0.02);
+      gainNode.gain.linearRampToValueAtTime(0.25, startTime + 0.02);
       gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
       
       oscillator.start(startTime);
@@ -164,13 +159,12 @@ export const playCancelSound = async () => {
     };
     
     const now = audioContext.currentTime;
-    console.log("Playing tones at:", now);
-    playTone(440, now, 0.15);
-    playTone(349.23, now + 0.12, 0.2);
-    playTone(293.66, now + 0.28, 0.25);
+    // Descending tones for cancel effect
+    playTone(493.88, now, 0.12);        // B4
+    playTone(392.00, now + 0.1, 0.12);  // G4
+    playTone(329.63, now + 0.2, 0.18);  // E4
     
   } catch (e) {
-    console.error("Audio error:", e);
-    toast({ title: "❌ Audio error", description: String(e), variant: "destructive" });
+    console.log('Audio not available');
   }
 };
