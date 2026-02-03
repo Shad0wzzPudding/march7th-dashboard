@@ -9,7 +9,7 @@ import { Dialog, ResizableDialogContent, DialogHeader, DialogTitle, DialogTrigge
 import { Plus, Edit, Trash2, Pin, PinOff, Clock, GripVertical, Copy } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
-import { playSuccessSound, playCancelSound, playDeleteSound, playDuplicateSound } from '@/lib/sounds';
+import { playSuccessSound, playCancelSound, playDeleteSound, playDuplicateSound, playPinSound, playUnpinSound } from '@/lib/sounds';
 
 interface InterestsPageProps {
   interests: Interest[];
@@ -78,6 +78,11 @@ export const InterestsPage = ({
   };
 
   const handlePin = (interest: Interest) => {
+    if (interest.is_pinned) {
+      playUnpinSound();
+    } else {
+      playPinSound();
+    }
     onUpdateInterest({
       id: interest.id,
       is_pinned: !interest.is_pinned
