@@ -10,7 +10,7 @@ import { Plus, Edit, Trash2, Clock, CalendarDays, Copy, Trash, Undo2 } from 'luc
 import { format, parseISO, isAfter, isBefore, isToday } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { MarchConfirmDialog } from './MarchConfirmDialog';
-import { playSuccessSound, playCancelSound, playDeleteSound } from '@/lib/sounds';
+import { playSuccessSound, playCancelSound, playDeleteSound, playDuplicateSound } from '@/lib/sounds';
 
 interface EventsPageProps {
   events: Event[];
@@ -131,6 +131,7 @@ export const EventsPage = ({
       start_time: event.start_time,
       deadline: event.deadline
     });
+    playDuplicateSound();
     toast({
       title: "Event duplicated",
       description: "A copy of the event has been created",

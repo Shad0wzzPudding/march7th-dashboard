@@ -206,3 +206,35 @@ export const playDeleteSound = async () => {
     console.log('Audio not available');
   }
 };
+
+export const playDuplicateSound = () => {
+  try {
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    
+    const playTone = (frequency: number, startTime: number, duration: number) => {
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator.frequency.value = frequency;
+      oscillator.type = 'sine';
+      
+      gainNode.gain.setValueAtTime(0, startTime);
+      gainNode.gain.linearRampToValueAtTime(0.2, startTime + 0.02);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+      
+      oscillator.start(startTime);
+      oscillator.stop(startTime + duration);
+    };
+    
+    const now = audioContext.currentTime;
+    // Quick double "pop" sound for duplicate
+    playTone(698.46, now, 0.08);        // F5
+    playTone(698.46, now + 0.1, 0.08);  // F5 (repeat)
+    
+  } catch (e) {
+    console.log('Audio not available');
+  }
+};
