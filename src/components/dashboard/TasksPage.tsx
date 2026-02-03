@@ -11,7 +11,7 @@ import { Plus, Edit, Trash2, Clock, CheckCircle2, Circle, Calendar, CalendarCloc
 import { format, parseISO, isAfter, isBefore } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { MarchConfirmDialog } from './MarchConfirmDialog';
-import { playSuccessSound, playCompletionSound, playCancelSound, playDeleteSound } from '@/lib/sounds';
+import { playSuccessSound, playCompletionSound, playCancelSound, playDeleteSound, playDuplicateSound } from '@/lib/sounds';
 
 interface TasksPageProps {
   tasks: Task[];
@@ -147,6 +147,7 @@ export const TasksPage = ({
       deadline: task.deadline,
       is_completed: false
     });
+    playDuplicateSound();
     toast({
       title: "Task duplicated",
       description: "A copy of the task has been created",
