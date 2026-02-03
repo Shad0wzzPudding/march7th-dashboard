@@ -4,6 +4,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Clock, ChevronDown, ChevronUp, X } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { Interest } from "@/lib/types";
+import { playUnpinSound } from "@/lib/sounds";
 
 interface SwipeableInterestCardProps {
   interest: Interest;
@@ -45,6 +46,7 @@ export const SwipeableInterestCard = ({
     if (translateX > SWIPE_THRESHOLD) {
       // Animate out and unpin
       setTranslateX(300);
+      playUnpinSound();
       setTimeout(() => {
         onUnpin(interest);
       }, 200);
@@ -70,6 +72,7 @@ export const SwipeableInterestCard = ({
     setIsDragging(false);
     if (translateX > SWIPE_THRESHOLD) {
       setTranslateX(300);
+      playUnpinSound();
       setTimeout(() => {
         onUnpin(interest);
       }, 200);
