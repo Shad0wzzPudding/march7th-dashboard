@@ -239,9 +239,14 @@ export const playDuplicateSound = () => {
   }
 };
 
-export const playPinSound = () => {
+export const playPinSound = async () => {
   try {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    
+    // iOS requires resuming the audio context on user gesture
+    if (audioContext.state === 'suspended') {
+      await audioContext.resume();
+    }
     
     const playTone = (frequency: number, startTime: number, duration: number) => {
       const oscillator = audioContext.createOscillator();
@@ -271,9 +276,14 @@ export const playPinSound = () => {
   }
 };
 
-export const playUnpinSound = () => {
+export const playUnpinSound = async () => {
   try {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    
+    // iOS requires resuming the audio context on user gesture
+    if (audioContext.state === 'suspended') {
+      await audioContext.resume();
+    }
     
     const playTone = (frequency: number, startTime: number, duration: number) => {
       const oscillator = audioContext.createOscillator();
