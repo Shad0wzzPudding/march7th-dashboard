@@ -276,17 +276,11 @@ export const playPinSound = async () => {
   }
 };
 
-export const playUnpinSound = async () => {
+export const playUnpinSound = () => {
   try {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     
     console.log('[playUnpinSound] AudioContext created, state:', audioContext.state);
-    
-    // iOS requires resuming the audio context on user gesture
-    if (audioContext.state === 'suspended') {
-      await audioContext.resume();
-      console.log('[playUnpinSound] AudioContext resumed, new state:', audioContext.state);
-    }
     
     const playTone = (frequency: number, startTime: number, duration: number) => {
       const oscillator = audioContext.createOscillator();
@@ -306,11 +300,24 @@ export const playUnpinSound = async () => {
       oscillator.stop(startTime + duration);
     };
     
-    const now = audioContext.currentTime;
-    // Quick descending "pop-click" for unpin
-    playTone(800, now, 0.06);           // G#5
-    playTone(500, now + 0.05, 0.08);    // B4 (lower)
-    console.log('[playUnpinSound] Tones scheduled at', now);
+    const scheduleTones = () => {
+      const now = audioContext.currentTime;
+      // Quick descending "pop-click" for unpin
+      playTone(800, now, 0.06);           // G#5
+      playTone(500, now + 0.05, 0.08);    // B4 (lower)
+      console.log('[playUnpinSound] Tones scheduled at', now);
+    };
+    
+    // iOS requires resuming - use promise chain instead of async/await
+    // to prevent component unmount from interrupting
+    if (audioContext.state === 'suspended') {
+      audioContext.resume().then(() => {
+        console.log('[playUnpinSound] AudioContext resumed');
+        scheduleTones();
+      });
+    } else {
+      scheduleTones();
+    }
     
   } catch (e) {
     console.log('[playUnpinSound] Audio error:', e);
