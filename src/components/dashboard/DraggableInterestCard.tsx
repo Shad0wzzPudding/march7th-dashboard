@@ -4,6 +4,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Clock, ChevronDown, ChevronUp, X, GripVertical } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { Interest } from "@/lib/types";
+import { playUnpinSound } from "@/lib/sounds";
 
 interface DraggableInterestCardProps {
   interest: Interest;
@@ -33,12 +34,18 @@ export const DraggableInterestCard = ({
   const [translateX, setTranslateX] = useState(0);
   const [isHorizontalDragging, setIsHorizontalDragging] = useState(false);
   const [isVerticalDragging, setIsVerticalDragging] = useState(false);
+  const translateXRef = useRef(0);
   const startXRef = useRef(0);
   const startYRef = useRef(0);
   const cardRef = useRef<HTMLDivElement>(null);
   const dragHandleRef = useRef<HTMLDivElement>(null);
 
   const SWIPE_THRESHOLD = 100;
+
+  const updateTranslateX = (value: number) => {
+    translateXRef.current = value;
+    setTranslateX(value);
+  };
 
   // Horizontal swipe for unpin (on card content)
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -64,20 +71,25 @@ export const DraggableInterestCard = ({
     // Only allow right swipe (positive diff)
     if (diffX > 10) {
       setIsHorizontalDragging(true);
-      setTranslateX(Math.min(diffX, 150));
+      updateTranslateX(Math.min(diffX, 150));
     }
   };
 
   const handleTouchEnd = () => {
-    if (isHorizontalDragging && translateX > SWIPE_THRESHOLD) {
-      setTranslateX(300);
+    // Check ref for immediate value (React state may be stale)
+    if (isHorizontalDragging && translateXRef.current > SWIPE_THRESHOLD) {
+      // Play sound FIRST, before any state updates (per iOS audio requirements)
+      console.log('[DraggableInterestCard] Swipe threshold reached, playing unpin sound');
+      playUnpinSound();
+      updateTranslateX(300);
+      setIsHorizontalDragging(false);
       setTimeout(() => {
         onUnpin(interest);
       }, 200);
     } else {
-      setTranslateX(0);
+      updateTranslateX(0);
+      setIsHorizontalDragging(false);
     }
-    setIsHorizontalDragging(false);
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -93,26 +105,31 @@ export const DraggableInterestCard = ({
     
     const diff = e.clientX - startXRef.current;
     if (diff > 0) {
-      setTranslateX(Math.min(diff, 150));
+      updateTranslateX(Math.min(diff, 150));
     }
   };
 
   const handleMouseUp = () => {
-    if (isHorizontalDragging && translateX > SWIPE_THRESHOLD) {
-      setTranslateX(300);
+    // Check ref for immediate value (React state may be stale)
+    if (isHorizontalDragging && translateXRef.current > SWIPE_THRESHOLD) {
+      // Play sound FIRST, before any state updates
+      console.log('[DraggableInterestCard] Mouse swipe threshold reached, playing unpin sound');
+      playUnpinSound();
+      updateTranslateX(300);
+      setIsHorizontalDragging(false);
       setTimeout(() => {
         onUnpin(interest);
       }, 200);
     } else {
-      setTranslateX(0);
+      updateTranslateX(0);
+      setIsHorizontalDragging(false);
     }
-    setIsHorizontalDragging(false);
   };
 
   const handleMouseLeave = () => {
     if (isHorizontalDragging) {
       setIsHorizontalDragging(false);
-      setTranslateX(0);
+      updateTranslateX(0);
     }
   };
 
