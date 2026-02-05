@@ -21,10 +21,16 @@ export const SwipeableInterestCard = ({
 }: SwipeableInterestCardProps) => {
   const [translateX, setTranslateX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const translateXRef = useRef(0);
   const startXRef = useRef(0);
   const cardRef = useRef<HTMLDivElement>(null);
 
   const SWIPE_THRESHOLD = 100;
+
+  const updateTranslateX = (value: number) => {
+    translateXRef.current = value;
+    setTranslateX(value);
+  };
 
   const handleTouchStart = (e: React.TouchEvent) => {
     startXRef.current = e.touches[0].clientX;
@@ -37,21 +43,23 @@ export const SwipeableInterestCard = ({
     const diff = currentX - startXRef.current;
     // Only allow right swipe (positive diff)
     if (diff > 0) {
-      setTranslateX(Math.min(diff, 150));
+      updateTranslateX(Math.min(diff, 150));
     }
   };
 
   const handleTouchEnd = () => {
-    setIsDragging(false);
-    if (translateX > SWIPE_THRESHOLD) {
-      // Animate out and unpin
-      setTranslateX(300);
+    // Check ref for immediate value (React state may be stale)
+    if (translateXRef.current > SWIPE_THRESHOLD) {
+      // Play sound FIRST, before any state updates (per iOS audio requirements)
       playUnpinSound();
+      updateTranslateX(300);
+      setIsDragging(false);
       setTimeout(() => {
         onUnpin(interest);
       }, 200);
     } else {
-      setTranslateX(0);
+      updateTranslateX(0);
+      setIsDragging(false);
     }
   };
 
@@ -64,27 +72,30 @@ export const SwipeableInterestCard = ({
     if (!isDragging) return;
     const diff = e.clientX - startXRef.current;
     if (diff > 0) {
-      setTranslateX(Math.min(diff, 150));
+      updateTranslateX(Math.min(diff, 150));
     }
   };
 
   const handleMouseUp = () => {
-    setIsDragging(false);
-    if (translateX > SWIPE_THRESHOLD) {
-      setTranslateX(300);
+    // Check ref for immediate value (React state may be stale)
+    if (translateXRef.current > SWIPE_THRESHOLD) {
+      // Play sound FIRST, before any state updates
       playUnpinSound();
+      updateTranslateX(300);
+      setIsDragging(false);
       setTimeout(() => {
         onUnpin(interest);
       }, 200);
     } else {
-      setTranslateX(0);
+      updateTranslateX(0);
+      setIsDragging(false);
     }
   };
 
   const handleMouseLeave = () => {
     if (isDragging) {
       setIsDragging(false);
-      setTranslateX(0);
+      updateTranslateX(0);
     }
   };
 
