@@ -280,9 +280,12 @@ export const playUnpinSound = async () => {
   try {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     
+    console.log('[playUnpinSound] AudioContext created, state:', audioContext.state);
+    
     // iOS requires resuming the audio context on user gesture
     if (audioContext.state === 'suspended') {
       await audioContext.resume();
+      console.log('[playUnpinSound] AudioContext resumed, new state:', audioContext.state);
     }
     
     const playTone = (frequency: number, startTime: number, duration: number) => {
@@ -307,8 +310,9 @@ export const playUnpinSound = async () => {
     // Quick descending "pop-click" for unpin
     playTone(800, now, 0.06);           // G#5
     playTone(500, now + 0.05, 0.08);    // B4 (lower)
+    console.log('[playUnpinSound] Tones scheduled at', now);
     
   } catch (e) {
-    console.log('Audio not available');
+    console.log('[playUnpinSound] Audio error:', e);
   }
 };
