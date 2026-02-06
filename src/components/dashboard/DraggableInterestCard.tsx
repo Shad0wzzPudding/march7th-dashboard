@@ -40,7 +40,7 @@ export const DraggableInterestCard = ({
   const cardRef = useRef<HTMLDivElement>(null);
   const dragHandleRef = useRef<HTMLDivElement>(null);
 
-  const SWIPE_THRESHOLD = 100;
+  const SWIPE_THRESHOLD = 60; // Lowered for easier triggering
 
   const updateTranslateX = (value: number) => {
     translateXRef.current = value;
