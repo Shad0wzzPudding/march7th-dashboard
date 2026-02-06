@@ -1,5 +1,36 @@
 // Sound effects utility using Web Audio API
 import { toast } from "@/hooks/use-toast";
+
+// Shared AudioContext - unlocked once on first user interaction
+let sharedAudioContext: AudioContext | null = null;
+
+const getAudioContext = (): AudioContext => {
+  if (!sharedAudioContext) {
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    sharedAudioContext = new AudioContextClass();
+    console.log('[sounds] Created shared AudioContext, state:', sharedAudioContext.state);
+  }
+  
+  // Always try to resume (no-op if already running)
+  if (sharedAudioContext.state === 'suspended') {
+    sharedAudioContext.resume();
+  }
+  
+  return sharedAudioContext;
+};
+
+// Call this on first touch to unlock audio for iOS
+export const unlockAudio = () => {
+  const ctx = getAudioContext();
+  // Play a silent buffer to fully unlock
+  const buffer = ctx.createBuffer(1, 1, 22050);
+  const source = ctx.createBufferSource();
+  source.buffer = buffer;
+  source.connect(ctx.destination);
+  source.start(0);
+  console.log('[sounds] Audio unlocked, state:', ctx.state);
+};
+
 export const playSuccessSound = () => {
   try {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -278,42 +309,36 @@ export const playPinSound = async () => {
 
 export const playUnpinSound = () => {
   try {
-    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-    const audioContext = new AudioContextClass();
-    
-    console.log('[playUnpinSound] AudioContext state:', audioContext.state);
-    
-    // On iOS, we must resume AND schedule tones synchronously within the gesture
-    // The resume() returns immediately even if pending, so we schedule now
-    audioContext.resume();
-    
+    const audioContext = getAudioContext();
     const now = audioContext.currentTime;
     
-    // First tone
+    console.log('[playUnpinSound] Using shared context, state:', audioContext.state, 'time:', now);
+    
+    // First tone - descending
     const osc1 = audioContext.createOscillator();
     const gain1 = audioContext.createGain();
     osc1.connect(gain1);
     gain1.connect(audioContext.destination);
     osc1.frequency.value = 800;
     osc1.type = 'triangle';
-    gain1.gain.setValueAtTime(0.2, now);
-    gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.06);
+    gain1.gain.setValueAtTime(0.25, now);
+    gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
     osc1.start(now);
-    osc1.stop(now + 0.06);
+    osc1.stop(now + 0.08);
     
-    // Second tone
+    // Second tone - lower
     const osc2 = audioContext.createOscillator();
     const gain2 = audioContext.createGain();
     osc2.connect(gain2);
     gain2.connect(audioContext.destination);
     osc2.frequency.value = 500;
     osc2.type = 'triangle';
-    gain2.gain.setValueAtTime(0.2, now + 0.05);
-    gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.13);
-    osc2.start(now + 0.05);
-    osc2.stop(now + 0.13);
+    gain2.gain.setValueAtTime(0.25, now + 0.06);
+    gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+    osc2.start(now + 0.06);
+    osc2.stop(now + 0.15);
     
-    console.log('[playUnpinSound] Tones scheduled at', now);
+    console.log('[playUnpinSound] Tones scheduled');
     
   } catch (e) {
     console.log('[playUnpinSound] Audio error:', e);

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -13,6 +13,7 @@ import { SwipeableInterestCard } from "./SwipeableInterestCard";
 import { DraggableInterestCard } from "./DraggableInterestCard";
 import { DraggableSummaryItem } from "./DraggableSummaryItem";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { unlockAudio } from "@/lib/sounds";
 interface HomePageProps {
   interests: Interest[];
   tasks: Task[];
@@ -39,6 +40,26 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
     }
   });
   const { scheduleNotificationCheck } = useNotifications();
+  const audioUnlockedRef = useRef(false);
+  
+  // Unlock audio on first touch (iOS requirement)
+  useEffect(() => {
+    const handleFirstTouch = () => {
+      if (!audioUnlockedRef.current) {
+        unlockAudio();
+        audioUnlockedRef.current = true;
+        console.log('[HomePage] Audio unlocked on first touch');
+      }
+    };
+    
+    document.addEventListener('touchstart', handleFirstTouch, { once: true });
+    document.addEventListener('click', handleFirstTouch, { once: true });
+    
+    return () => {
+      document.removeEventListener('touchstart', handleFirstTouch);
+      document.removeEventListener('click', handleFirstTouch);
+    };
+  }, []);
   
   // Hidden dates for calendar (manually unhighlighted by user)
   const [hiddenDates, setHiddenDates] = useState<Set<string>>(() => {
