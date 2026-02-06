@@ -1,5 +1,36 @@
 // Sound effects utility using Web Audio API
 import { toast } from "@/hooks/use-toast";
+
+// Shared AudioContext - unlocked once on first user interaction
+let sharedAudioContext: AudioContext | null = null;
+
+const getAudioContext = (): AudioContext => {
+  if (!sharedAudioContext) {
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    sharedAudioContext = new AudioContextClass();
+    console.log('[sounds] Created shared AudioContext, state:', sharedAudioContext.state);
+  }
+  
+  // Always try to resume (no-op if already running)
+  if (sharedAudioContext.state === 'suspended') {
+    sharedAudioContext.resume();
+  }
+  
+  return sharedAudioContext;
+};
+
+// Call this on first touch to unlock audio for iOS
+export const unlockAudio = () => {
+  const ctx = getAudioContext();
+  // Play a silent buffer to fully unlock
+  const buffer = ctx.createBuffer(1, 1, 22050);
+  const source = ctx.createBufferSource();
+  source.buffer = buffer;
+  source.connect(ctx.destination);
+  source.start(0);
+  console.log('[sounds] Audio unlocked, state:', ctx.state);
+};
+
 export const playSuccessSound = () => {
   try {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
