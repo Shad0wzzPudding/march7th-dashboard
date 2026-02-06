@@ -344,3 +344,25 @@ export const playUnpinSound = () => {
     console.log('[playUnpinSound] Audio error:', e);
   }
 };
+
+export const playNavigationSound = () => {
+  try {
+    const audioContext = getAudioContext();
+    const now = audioContext.currentTime;
+    
+    // Quick subtle "tap" sound for navigation
+    const osc = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    osc.connect(gain);
+    gain.connect(audioContext.destination);
+    osc.frequency.value = 660; // E5
+    osc.type = 'sine';
+    gain.gain.setValueAtTime(0.15, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.06);
+    osc.start(now);
+    osc.stop(now + 0.06);
+    
+  } catch (e) {
+    console.log('[playNavigationSound] Audio error:', e);
+  }
+};
