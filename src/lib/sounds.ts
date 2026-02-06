@@ -278,46 +278,42 @@ export const playPinSound = async () => {
 
 export const playUnpinSound = () => {
   try {
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    const audioContext = new AudioContextClass();
     
-    console.log('[playUnpinSound] AudioContext created, state:', audioContext.state);
+    console.log('[playUnpinSound] AudioContext state:', audioContext.state);
     
-    const playTone = (frequency: number, startTime: number, duration: number) => {
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
-      
-      oscillator.connect(gainNode);
-      gainNode.connect(audioContext.destination);
-      
-      oscillator.frequency.value = frequency;
-      oscillator.type = 'triangle'; // Softer for unpin
-      
-      gainNode.gain.setValueAtTime(0, startTime);
-      gainNode.gain.linearRampToValueAtTime(0.2, startTime + 0.01);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
-      
-      oscillator.start(startTime);
-      oscillator.stop(startTime + duration);
-    };
+    // On iOS, we must resume AND schedule tones synchronously within the gesture
+    // The resume() returns immediately even if pending, so we schedule now
+    audioContext.resume();
     
-    const scheduleTones = () => {
-      const now = audioContext.currentTime;
-      // Quick descending "pop-click" for unpin
-      playTone(800, now, 0.06);           // G#5
-      playTone(500, now + 0.05, 0.08);    // B4 (lower)
-      console.log('[playUnpinSound] Tones scheduled at', now);
-    };
+    const now = audioContext.currentTime;
     
-    // iOS requires resuming - use promise chain instead of async/await
-    // to prevent component unmount from interrupting
-    if (audioContext.state === 'suspended') {
-      audioContext.resume().then(() => {
-        console.log('[playUnpinSound] AudioContext resumed');
-        scheduleTones();
-      });
-    } else {
-      scheduleTones();
-    }
+    // First tone
+    const osc1 = audioContext.createOscillator();
+    const gain1 = audioContext.createGain();
+    osc1.connect(gain1);
+    gain1.connect(audioContext.destination);
+    osc1.frequency.value = 800;
+    osc1.type = 'triangle';
+    gain1.gain.setValueAtTime(0.2, now);
+    gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.06);
+    osc1.start(now);
+    osc1.stop(now + 0.06);
+    
+    // Second tone
+    const osc2 = audioContext.createOscillator();
+    const gain2 = audioContext.createGain();
+    osc2.connect(gain2);
+    gain2.connect(audioContext.destination);
+    osc2.frequency.value = 500;
+    osc2.type = 'triangle';
+    gain2.gain.setValueAtTime(0.2, now + 0.05);
+    gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.13);
+    osc2.start(now + 0.05);
+    osc2.stop(now + 0.13);
+    
+    console.log('[playUnpinSound] Tones scheduled at', now);
     
   } catch (e) {
     console.log('[playUnpinSound] Audio error:', e);
