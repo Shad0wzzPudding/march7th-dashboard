@@ -2,6 +2,7 @@ import { NavigationPage } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Home, Heart, CheckSquare, Calendar } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { playNavigationSound } from '@/lib/sounds';
 
 interface NavigationProps {
   activePage: NavigationPage;
@@ -16,6 +17,13 @@ const navigationItems = [
 ];
 
 export const Navigation = ({ activePage, onPageChange }: NavigationProps) => {
+  const handlePageChange = (page: NavigationPage) => {
+    if (page !== activePage) {
+      playNavigationSound();
+      onPageChange(page);
+    }
+  };
+
   return (
     <div className="fixed right-6 top-1/2 -translate-y-1/2 z-10 bg-card/95 backdrop-blur-sm border rounded-2xl p-3 shadow-lg">
       <div className="flex flex-col gap-3">
@@ -24,7 +32,7 @@ export const Navigation = ({ activePage, onPageChange }: NavigationProps) => {
             key={page}
             variant={activePage === page ? "default" : "ghost"}
             size="icon"
-            onClick={() => onPageChange(page)}
+            onClick={() => handlePageChange(page)}
             className={cn(
               "w-12 h-12 rounded-full transition-all duration-300 group relative",
               activePage === page 
