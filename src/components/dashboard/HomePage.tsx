@@ -40,6 +40,26 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
     }
   });
   const { scheduleNotificationCheck } = useNotifications();
+  const audioUnlockedRef = useRef(false);
+  
+  // Unlock audio on first touch (iOS requirement)
+  useEffect(() => {
+    const handleFirstTouch = () => {
+      if (!audioUnlockedRef.current) {
+        unlockAudio();
+        audioUnlockedRef.current = true;
+        console.log('[HomePage] Audio unlocked on first touch');
+      }
+    };
+    
+    document.addEventListener('touchstart', handleFirstTouch, { once: true });
+    document.addEventListener('click', handleFirstTouch, { once: true });
+    
+    return () => {
+      document.removeEventListener('touchstart', handleFirstTouch);
+      document.removeEventListener('click', handleFirstTouch);
+    };
+  }, []);
   
   // Hidden dates for calendar (manually unhighlighted by user)
   const [hiddenDates, setHiddenDates] = useState<Set<string>>(() => {
