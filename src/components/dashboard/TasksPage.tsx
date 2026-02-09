@@ -251,48 +251,48 @@ export const TasksPage = ({
               />
               <div className="space-y-2">
                 <label className="text-sm font-medium">Start Date <span className="text-muted-foreground">(optional)</span></label>
-                <div className="flex gap-2">
+                <div className="flex gap-2 items-center">
                   <Input
                     type="datetime-local"
                     placeholder="When task becomes active"
                     value={formData.start_date}
                     onChange={(e) => setFormData(prev => ({ ...prev, start_date: e.target.value }))}
-                    className="flex-1"
+                    className="flex-1 h-9 text-sm"
                   />
-                  {formData.start_date && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setFormData(prev => ({ ...prev, start_date: '' }))}
-                      className="shrink-0"
-                    >
-                      <X size={16} />
-                    </Button>
-                  )}
+                  <button
+                    type="button"
+                    onClick={() => formData.start_date && setFormData(prev => ({ ...prev, start_date: '' }))}
+                    className={`shrink-0 h-9 w-9 rounded-md border flex items-center justify-center transition-colors ${
+                      formData.start_date 
+                        ? 'bg-rose-500 border-rose-500 text-white hover:bg-rose-600 cursor-pointer' 
+                        : 'bg-white dark:bg-background border-input cursor-default'
+                    }`}
+                  >
+                    {formData.start_date && <X size={16} />}
+                  </button>
                 </div>
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">Deadline <span className="text-muted-foreground">(optional)</span></label>
-                <div className="flex gap-2">
+                <div className="flex gap-2 items-center">
                   <Input
                     type="datetime-local"
                     placeholder="When task is due"
                     value={formData.deadline}
                     onChange={(e) => setFormData(prev => ({ ...prev, deadline: e.target.value }))}
-                    className="flex-1"
+                    className="flex-1 h-9 text-sm"
                   />
-                  {formData.deadline && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setFormData(prev => ({ ...prev, deadline: '' }))}
-                      className="shrink-0"
-                    >
-                      <X size={16} />
-                    </Button>
-                  )}
+                  <button
+                    type="button"
+                    onClick={() => formData.deadline && setFormData(prev => ({ ...prev, deadline: '' }))}
+                    className={`shrink-0 h-9 w-9 rounded-md border flex items-center justify-center transition-colors ${
+                      formData.deadline 
+                        ? 'bg-rose-500 border-rose-500 text-white hover:bg-rose-600 cursor-pointer' 
+                        : 'bg-white dark:bg-background border-input cursor-default'
+                    }`}
+                  >
+                    {formData.deadline && <X size={16} />}
+                  </button>
                 </div>
               </div>
               <div className="flex items-center gap-2">
