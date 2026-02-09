@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, ResizableDialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Edit, Trash2, Clock, CheckCircle2, Circle, Calendar, CalendarClock, Copy, Trash, Undo2 } from 'lucide-react';
+import { Plus, Edit, Trash2, Clock, CheckCircle2, Circle, Calendar, CalendarClock, Copy, Trash, Undo2, X } from 'lucide-react';
 import { format, parseISO, isAfter, isBefore } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { MarchConfirmDialog } from './MarchConfirmDialog';
@@ -251,21 +251,49 @@ export const TasksPage = ({
               />
               <div className="space-y-2">
                 <label className="text-sm font-medium">Start Date <span className="text-muted-foreground">(optional)</span></label>
-                <Input
-                  type="datetime-local"
-                  placeholder="When task becomes active"
-                  value={formData.start_date}
-                  onChange={(e) => setFormData(prev => ({ ...prev, start_date: e.target.value }))}
-                />
+                <div className="flex gap-2">
+                  <Input
+                    type="datetime-local"
+                    placeholder="When task becomes active"
+                    value={formData.start_date}
+                    onChange={(e) => setFormData(prev => ({ ...prev, start_date: e.target.value }))}
+                    className="flex-1"
+                  />
+                  {formData.start_date && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setFormData(prev => ({ ...prev, start_date: '' }))}
+                      className="shrink-0"
+                    >
+                      <X size={16} />
+                    </Button>
+                  )}
+                </div>
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">Deadline <span className="text-muted-foreground">(optional)</span></label>
-                <Input
-                  type="datetime-local"
-                  placeholder="When task is due"
-                  value={formData.deadline}
-                  onChange={(e) => setFormData(prev => ({ ...prev, deadline: e.target.value }))}
-                />
+                <div className="flex gap-2">
+                  <Input
+                    type="datetime-local"
+                    placeholder="When task is due"
+                    value={formData.deadline}
+                    onChange={(e) => setFormData(prev => ({ ...prev, deadline: e.target.value }))}
+                    className="flex-1"
+                  />
+                  {formData.deadline && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setFormData(prev => ({ ...prev, deadline: '' }))}
+                      className="shrink-0"
+                    >
+                      <X size={16} />
+                    </Button>
+                  )}
+                </div>
               </div>
               <div className="flex items-center gap-2">
                 <Checkbox
