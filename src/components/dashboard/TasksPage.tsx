@@ -101,8 +101,8 @@ export const TasksPage = ({
     
     const submissionData = {
       ...formData,
-      start_date: new Date(formData.start_date).toISOString(),
-      deadline: new Date(formData.deadline).toISOString(),
+      start_date: formData.start_date ? new Date(formData.start_date).toISOString() : new Date().toISOString(),
+      deadline: formData.deadline ? new Date(formData.deadline).toISOString() : new Date().toISOString(),
     };
 
     if (editingTask) {
@@ -121,8 +121,8 @@ export const TasksPage = ({
     setFormData({
       title: task.title,
       description: task.description || '',
-      start_date: format(parseISO(task.start_date), "yyyy-MM-dd'T'HH:mm"),
-      deadline: format(parseISO(task.deadline), "yyyy-MM-dd'T'HH:mm"),
+      start_date: task.start_date ? format(parseISO(task.start_date), "yyyy-MM-dd'T'HH:mm") : '',
+      deadline: task.deadline ? format(parseISO(task.deadline), "yyyy-MM-dd'T'HH:mm") : '',
       is_completed: task.is_completed
     });
     setIsCreateOpen(true);
@@ -250,23 +250,21 @@ export const TasksPage = ({
                 onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
               />
               <div className="space-y-2">
-                <label className="text-sm font-medium">Start Date</label>
+                <label className="text-sm font-medium">Start Date <span className="text-muted-foreground">(optional)</span></label>
                 <Input
                   type="datetime-local"
                   placeholder="When task becomes active"
                   value={formData.start_date}
                   onChange={(e) => setFormData(prev => ({ ...prev, start_date: e.target.value }))}
-                  required
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Deadline</label>
+                <label className="text-sm font-medium">Deadline <span className="text-muted-foreground">(optional)</span></label>
                 <Input
                   type="datetime-local"
                   placeholder="When task is due"
                   value={formData.deadline}
                   onChange={(e) => setFormData(prev => ({ ...prev, deadline: e.target.value }))}
-                  required
                 />
               </div>
               <div className="flex items-center gap-2">
