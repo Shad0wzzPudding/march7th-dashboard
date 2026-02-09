@@ -101,14 +101,14 @@ export const TasksPage = ({
     
     const submissionData = {
       ...formData,
-      start_date: formData.start_date ? new Date(formData.start_date).toISOString() : new Date().toISOString(),
-      deadline: formData.deadline ? new Date(formData.deadline).toISOString() : new Date().toISOString(),
+      start_date: formData.start_date ? new Date(formData.start_date).toISOString() : undefined,
+      deadline: formData.deadline ? new Date(formData.deadline).toISOString() : undefined,
     };
 
     if (editingTask) {
       onUpdateTask({ id: editingTask.id, ...submissionData });
     } else {
-      onCreateTask(submissionData);
+      onCreateTask(submissionData as any);
       playSuccessSound();
     }
     
@@ -158,12 +158,12 @@ export const TasksPage = ({
   const pendingTasks = tasks.filter(task => !task.is_completed);
   const completedTasks = tasks.filter(task => task.is_completed);
   
-  const overdueTasks = pendingTasks.filter(task => isBefore(parseISO(task.deadline), now));
-  const upcomingTasks = pendingTasks.filter(task => isAfter(parseISO(task.deadline), now));
+  const overdueTasks = pendingTasks.filter(task => task.deadline && isBefore(parseISO(task.deadline), now));
+  const upcomingTasks = pendingTasks.filter(task => !task.deadline || isAfter(parseISO(task.deadline), now));
 
   const getTaskStatus = (task: Task) => {
     if (task.is_completed) return 'completed';
-    if (isBefore(parseISO(task.deadline), now)) return 'overdue';
+    if (task.deadline && isBefore(parseISO(task.deadline), now)) return 'overdue';
     return 'pending';
   };
 
@@ -344,13 +344,15 @@ export const TasksPage = ({
                              <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap">{task.description}</p>
                            )}
                            <div className="space-y-1 mt-2">
-                             <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                               <Calendar size={12} />
-                               <span>Start: {format(parseISO(task.start_date), 'MMM dd, yyyy HH:mm')}</span>
-                             </div>
+                             {task.start_date ? (
+                               <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                                 <Calendar size={12} />
+                                 <span>Start: {format(parseISO(task.start_date), 'MMM dd, yyyy HH:mm')}</span>
+                               </div>
+                             ) : null}
                              <div className={`flex items-center gap-1 text-sm ${getStatusColor(status)}`}>
                                <CalendarClock size={12} />
-                               <span>Due: {format(parseISO(task.deadline), 'MMM dd, yyyy HH:mm')}</span>
+                               <span>Due: {task.deadline ? format(parseISO(task.deadline), 'MMM dd, yyyy HH:mm') : 'No deadline'}</span>
                              </div>
                            </div>
                         </div>
@@ -413,13 +415,15 @@ export const TasksPage = ({
                            <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap">{task.description}</p>
                          )}
                          <div className="space-y-1 mt-2">
-                           <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                             <Calendar size={12} />
-                             <span>Start: {format(parseISO(task.start_date), 'MMM dd, yyyy HH:mm')}</span>
-                           </div>
+                           {task.start_date ? (
+                             <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                               <Calendar size={12} />
+                               <span>Start: {format(parseISO(task.start_date), 'MMM dd, yyyy HH:mm')}</span>
+                             </div>
+                           ) : null}
                            <div className={`flex items-center gap-1 text-sm ${getStatusColor(status)}`}>
                              <CalendarClock size={12} />
-                             <span>Due: {format(parseISO(task.deadline), 'MMM dd, yyyy HH:mm')}</span>
+                             <span>Due: {task.deadline ? format(parseISO(task.deadline), 'MMM dd, yyyy HH:mm') : 'No deadline'}</span>
                            </div>
                          </div>
                       </div>
@@ -478,13 +482,15 @@ export const TasksPage = ({
                              <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap">{task.description}</p>
                            )}
                            <div className="space-y-1 mt-2">
-                             <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                               <Calendar size={12} />
-                               <span>Start: {format(parseISO(task.start_date), 'MMM dd, yyyy HH:mm')}</span>
-                             </div>
+                             {task.start_date ? (
+                               <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                                 <Calendar size={12} />
+                                 <span>Start: {format(parseISO(task.start_date), 'MMM dd, yyyy HH:mm')}</span>
+                               </div>
+                             ) : null}
                              <div className={`flex items-center gap-1 text-sm ${getStatusColor(status)}`}>
                                <CalendarClock size={12} />
-                               <span>Due: {format(parseISO(task.deadline), 'MMM dd, yyyy HH:mm')}</span>
+                               <span>Due: {task.deadline ? format(parseISO(task.deadline), 'MMM dd, yyyy HH:mm') : 'No deadline'}</span>
                              </div>
                            </div>
                         </div>
