@@ -254,6 +254,7 @@ export const playDeleteSound = async () => {
 };
 
 export const playDuplicateSound = () => {
+  haptic([15, 30, 15]);
   try {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     
