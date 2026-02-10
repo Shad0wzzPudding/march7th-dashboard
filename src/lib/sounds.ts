@@ -1,6 +1,15 @@
 // Sound effects utility using Web Audio API
 import { toast } from "@/hooks/use-toast";
 
+// Haptic feedback utility - vibrates if supported
+const haptic = (pattern: number | number[] = 30) => {
+  try {
+    if (navigator.vibrate) {
+      navigator.vibrate(pattern);
+    }
+  } catch {}
+};
+
 // Shared AudioContext - unlocked once on first user interaction
 let sharedAudioContext: AudioContext | null = null;
 
