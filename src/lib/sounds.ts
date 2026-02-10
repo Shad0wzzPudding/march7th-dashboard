@@ -176,6 +176,7 @@ export const playConfirmSound = () => {
 };
 
 export const playCancelSound = async () => {
+  haptic(25);
   try {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     
