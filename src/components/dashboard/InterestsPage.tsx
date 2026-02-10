@@ -9,7 +9,7 @@ import { Dialog, ResizableDialogContent, DialogHeader, DialogTitle, DialogTrigge
 import { Plus, Edit, Trash2, Pin, PinOff, Clock, GripVertical, Copy } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
-import { playSuccessSound, playCancelSound, playDeleteSound, playDuplicateSound, playPinSound, playUnpinSound } from '@/lib/sounds';
+import { playSuccessSound, playCancelSound, playDeleteSound, playDuplicateSound, playPinSound, playUnpinSound, playUpdateSound } from '@/lib/sounds';
 
 interface InterestsPageProps {
   interests: Interest[];
