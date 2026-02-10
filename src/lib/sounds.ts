@@ -398,6 +398,7 @@ export const playUpdateSound = () => {
 };
 
 export const playNavigationSound = () => {
+  haptic(10);
   try {
     const audioContext = getAudioContext();
     const now = audioContext.currentTime;
