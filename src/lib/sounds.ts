@@ -287,6 +287,7 @@ export const playDuplicateSound = () => {
 };
 
 export const playPinSound = async () => {
+  haptic(30);
   try {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     
