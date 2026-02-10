@@ -141,6 +141,7 @@ export const playMarchSound = () => {
 };
 
 export const playConfirmSound = () => {
+  haptic([10, 15, 10, 15, 10]);
   try {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     
