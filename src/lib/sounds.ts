@@ -215,6 +215,7 @@ export const playCancelSound = async () => {
 };
 
 export const playDeleteSound = async () => {
+  haptic([40, 30, 50]);
   try {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     
