@@ -75,6 +75,7 @@ export const playSuccessSound = () => {
 };
 
 export const playCompletionSound = () => {
+  haptic(40);
   try {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     
