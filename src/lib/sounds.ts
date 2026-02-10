@@ -345,6 +345,39 @@ export const playUnpinSound = () => {
   }
 };
 
+export const playUpdateSound = () => {
+  try {
+    const audioContext = getAudioContext();
+    const now = audioContext.currentTime;
+    
+    // Gentle two-note "swoosh-ding" for updates
+    const osc1 = audioContext.createOscillator();
+    const gain1 = audioContext.createGain();
+    osc1.connect(gain1);
+    gain1.connect(audioContext.destination);
+    osc1.frequency.value = 440; // A4
+    osc1.type = 'sine';
+    gain1.gain.setValueAtTime(0.18, now);
+    gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+    osc1.start(now);
+    osc1.stop(now + 0.1);
+    
+    const osc2 = audioContext.createOscillator();
+    const gain2 = audioContext.createGain();
+    osc2.connect(gain2);
+    gain2.connect(audioContext.destination);
+    osc2.frequency.value = 660; // E5
+    osc2.type = 'sine';
+    gain2.gain.setValueAtTime(0.2, now + 0.08);
+    gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+    osc2.start(now + 0.08);
+    osc2.stop(now + 0.2);
+    
+  } catch (e) {
+    console.log('[playUpdateSound] Audio error:', e);
+  }
+};
+
 export const playNavigationSound = () => {
   try {
     const audioContext = getAudioContext();
