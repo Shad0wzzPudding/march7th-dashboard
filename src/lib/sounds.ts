@@ -325,6 +325,7 @@ export const playPinSound = async () => {
 };
 
 export const playUnpinSound = () => {
+  haptic([20, 20, 20]);
   try {
     const audioContext = getAudioContext();
     const now = audioContext.currentTime;
