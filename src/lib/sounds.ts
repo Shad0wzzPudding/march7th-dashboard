@@ -1,6 +1,15 @@
 // Sound effects utility using Web Audio API
 import { toast } from "@/hooks/use-toast";
 
+// Haptic feedback utility - vibrates if supported
+const haptic = (pattern: number | number[] = 30) => {
+  try {
+    if (navigator.vibrate) {
+      navigator.vibrate(pattern);
+    }
+  } catch {}
+};
+
 // Shared AudioContext - unlocked once on first user interaction
 let sharedAudioContext: AudioContext | null = null;
 
@@ -32,6 +41,7 @@ export const unlockAudio = () => {
 };
 
 export const playSuccessSound = () => {
+  haptic([20, 30, 20]);
   try {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     
@@ -65,6 +75,7 @@ export const playSuccessSound = () => {
 };
 
 export const playCompletionSound = () => {
+  haptic(40);
   try {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     
@@ -97,6 +108,7 @@ export const playCompletionSound = () => {
 };
 
 export const playMarchSound = () => {
+  haptic([15, 20, 15]);
   try {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     
@@ -129,6 +141,7 @@ export const playMarchSound = () => {
 };
 
 export const playConfirmSound = () => {
+  haptic([10, 15, 10, 15, 10]);
   try {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     
@@ -163,6 +176,7 @@ export const playConfirmSound = () => {
 };
 
 export const playCancelSound = async () => {
+  haptic(25);
   try {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     
@@ -201,6 +215,7 @@ export const playCancelSound = async () => {
 };
 
 export const playDeleteSound = async () => {
+  haptic([40, 30, 50]);
   try {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     
@@ -239,6 +254,7 @@ export const playDeleteSound = async () => {
 };
 
 export const playDuplicateSound = () => {
+  haptic([15, 30, 15]);
   try {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     
@@ -271,6 +287,7 @@ export const playDuplicateSound = () => {
 };
 
 export const playPinSound = async () => {
+  haptic(30);
   try {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     
@@ -308,6 +325,7 @@ export const playPinSound = async () => {
 };
 
 export const playUnpinSound = () => {
+  haptic([20, 20, 20]);
   try {
     const audioContext = getAudioContext();
     const now = audioContext.currentTime;
@@ -346,6 +364,7 @@ export const playUnpinSound = () => {
 };
 
 export const playUpdateSound = () => {
+  haptic(25);
   try {
     const audioContext = getAudioContext();
     const now = audioContext.currentTime;
@@ -379,6 +398,7 @@ export const playUpdateSound = () => {
 };
 
 export const playNavigationSound = () => {
+  haptic(10);
   try {
     const audioContext = getAudioContext();
     const now = audioContext.currentTime;
