@@ -137,6 +137,8 @@ export const TasksPage = ({
     });
     if (isCompleting) {
       playCompletionSound();
+    } else {
+      playUpdateSound();
     }
   };
 
