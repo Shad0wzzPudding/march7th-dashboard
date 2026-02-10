@@ -153,43 +153,75 @@ export const NotificationSettings = () => {
   console.log('shouldShowInstallPrompt:', shouldShowInstallPrompt);
 
   // Show install prompt for mobile devices or browsers that support installation
+  const [isInstallCollapsed, setIsInstallCollapsed] = useState(() => {
+    try {
+      return localStorage.getItem('installSectionCollapsed') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const toggleInstallCollapse = () => {
+    setIsInstallCollapsed(prev => {
+      const newValue = !prev;
+      try {
+        localStorage.setItem('installSectionCollapsed', String(newValue));
+      } catch {}
+      return newValue;
+    });
+  };
+
   if (shouldShowInstallPrompt) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Download className="h-5 w-5" />
-            {isIOS ? 'Add to Home Screen' : 'Install App'}
-          </CardTitle>
-          <CardDescription>
-            {isIOS 
-              ? 'To receive notifications on iOS, add this app to your home screen using Safari\'s share menu.'
-              : 'Install the app to your device to receive push notifications even when not browsing.'
-            }
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {isIOS ? (
-              <div className="space-y-2">
-                <p className="text-sm">To enable notifications on iOS:</p>
-                <ol className="text-xs text-muted-foreground space-y-1 list-decimal list-inside">
-                  <li>Open this page in Safari (not Chrome/Firefox)</li>
-                  <li>Tap the share button at the bottom</li>
-                  <li>Select "Add to Home Screen"</li>
-                  <li>Open the app from your home screen</li>
-                  <li>Allow notifications when prompted</li>
-                </ol>
+      <Collapsible open={!isInstallCollapsed} onOpenChange={() => toggleInstallCollapse()}>
+        <Card>
+          <CollapsibleTrigger asChild>
+            <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Download className="h-5 w-5" />
+                  {isIOS ? 'Add to Home Screen' : 'Install App'}
+                </div>
+                {isInstallCollapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+              </CardTitle>
+              {isInstallCollapsed && (
+                <CardDescription>
+                  Tap to expand for installation instructions
+                </CardDescription>
+              )}
+            </CardHeader>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <CardContent className="pt-0">
+              <CardDescription className="mb-4">
+                {isIOS 
+                  ? 'To receive notifications on iOS, add this app to your home screen using Safari\'s share menu.'
+                  : 'Install the app to your device to receive push notifications even when not browsing.'
+                }
+              </CardDescription>
+              <div className="space-y-4">
+                {isIOS ? (
+                  <div className="space-y-2">
+                    <p className="text-sm">To enable notifications on iOS:</p>
+                    <ol className="text-xs text-muted-foreground space-y-1 list-decimal list-inside">
+                      <li>Open this page in Safari (not Chrome/Firefox)</li>
+                      <li>Tap the share button at the bottom</li>
+                      <li>Select "Add to Home Screen"</li>
+                      <li>Open the app from your home screen</li>
+                      <li>Allow notifications when prompted</li>
+                    </ol>
+                  </div>
+                ) : (
+                  <Button onClick={installApp} className="w-full">
+                    <Download className="h-4 w-4 mr-2" />
+                    Install App
+                  </Button>
+                )}
               </div>
-            ) : (
-              <Button onClick={installApp} className="w-full">
-                <Download className="h-4 w-4 mr-2" />
-                Install App
-              </Button>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+            </CardContent>
+          </CollapsibleContent>
+        </Card>
+      </Collapsible>
     );
   }
 
