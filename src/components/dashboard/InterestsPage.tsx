@@ -56,6 +56,7 @@ export const InterestsPage = ({
 
     if (editingInterest) {
       onUpdateInterest({ id: editingInterest.id, ...submissionData });
+      playUpdateSound();
     } else {
       onCreateInterest(submissionData);
       playSuccessSound();

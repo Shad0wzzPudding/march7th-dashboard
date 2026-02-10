@@ -104,6 +104,7 @@ export const EventsPage = ({
 
     if (editingEvent) {
       onUpdateEvent({ id: editingEvent.id, ...submissionData });
+      playUpdateSound();
     } else {
       onCreateEvent(submissionData);
       playSuccessSound();

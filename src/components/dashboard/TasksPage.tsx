@@ -107,6 +107,7 @@ export const TasksPage = ({
 
     if (editingTask) {
       onUpdateTask({ id: editingTask.id, ...submissionData });
+      playUpdateSound();
     } else {
       onCreateTask(submissionData as any);
       playSuccessSound();
