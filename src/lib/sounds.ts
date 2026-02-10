@@ -41,6 +41,7 @@ export const unlockAudio = () => {
 };
 
 export const playSuccessSound = () => {
+  haptic([20, 30, 20]);
   try {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     
