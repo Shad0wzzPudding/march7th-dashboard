@@ -22,9 +22,10 @@ interface HomePageProps {
   activityLog: ActivityLog[];
   onUpdateInterest?: (data: Partial<Interest> & { id: string }) => void;
   onDeleteActivityLog?: (id: string) => void;
+  onRevertActivityLog?: (log: { id: string; action_type: string; item_type: string; item_id?: string; previous_data?: Record<string, any> }) => void;
 }
 
-export const HomePage = ({ interests, tasks, events, activityLog, onUpdateInterest, onDeleteActivityLog }: HomePageProps) => {
+export const HomePage = ({ interests, tasks, events, activityLog, onUpdateInterest, onDeleteActivityLog, onRevertActivityLog }: HomePageProps) => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedItem, setSelectedItem] = useState<{
     id: string;
@@ -111,9 +112,21 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
   const undoTimersRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
 
   const handleActivityLogSwipe = (id: string) => {
+    const log = activityLog.find(l => l.id === id);
+    if (!log) return;
+    
+    // Check if the log entry has the data needed for revert
+    const canRevert = (log.action_type === 'created' && log.item_id) ||
+                      (log.action_type === 'updated' && log.previous_data && log.item_id) ||
+                      (log.action_type === 'deleted' && log.previous_data);
+
     setPendingDeleteIds(prev => new Set(prev).add(id));
     const timer = setTimeout(() => {
-      onDeleteActivityLog?.(id);
+      if (canRevert && onRevertActivityLog) {
+        onRevertActivityLog({ id: log.id, action_type: log.action_type, item_type: log.item_type, item_id: log.item_id, previous_data: log.previous_data });
+      } else {
+        onDeleteActivityLog?.(id);
+      }
       setPendingDeleteIds(prev => {
         const next = new Set(prev);
         next.delete(id);
@@ -951,7 +964,7 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
                     if (!log) return null;
                     return (
                       <div key={`undo-${id}`} className="flex items-center justify-between p-2 rounded border border-pink-300 dark:border-pink-700 bg-gradient-to-r from-pink-50 to-purple-50 dark:from-pink-900/20 dark:to-purple-900/20">
-                        <span className="text-sm text-muted-foreground italic">Removed "{log.item_title}"</span>
+                        <span className="text-sm text-muted-foreground italic">Undoing "{log.item_title}" ({log.action_type})...</span>
                         <Button
                           variant="outline"
                           size="sm"

@@ -442,6 +442,61 @@ export const useDashboardData = () => {
     }
   });
 
+  const revertActivityLog = useMutation({
+    mutationFn: async (log: { id: string; action_type: string; item_type: string; item_id?: string; previous_data?: Record<string, any> }) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      const tableName = log.item_type as 'interests' | 'tasks' | 'events';
+
+      if (log.action_type === 'created' && log.item_id) {
+        // Undo create → delete the item
+        const { error } = await supabase
+          .from(tableName)
+          .delete()
+          .eq('id', log.item_id)
+          .eq('user_id', user.id);
+        if (error) throw error;
+      } else if (log.action_type === 'updated' && log.previous_data && log.item_id) {
+        // Undo update → restore previous data
+        const { id: _id, user_id: _uid, created_at: _ca, updated_at: _ua, ...restoreData } = log.previous_data;
+        const { error } = await supabase
+          .from(tableName)
+          .update(restoreData)
+          .eq('id', log.item_id)
+          .eq('user_id', user.id);
+        if (error) throw error;
+      } else if (log.action_type === 'deleted' && log.previous_data) {
+        // Undo delete → re-insert the item
+        const { error } = await supabase
+          .from(tableName)
+          .insert([log.previous_data as any]);
+        if (error) throw error;
+      } else {
+        throw new Error('Cannot revert this action - missing data');
+      }
+
+      // Delete the activity log entry after successful revert
+      await supabase
+        .from('activity_log')
+        .delete()
+        .eq('id', log.id)
+        .eq('user_id', user.id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['interests'] });
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+      queryClient.invalidateQueries({ queryKey: ['daily_tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['activity_log'] });
+      toast.success('Change reverted successfully!');
+    },
+    onError: (error) => {
+      console.error('Failed to revert change:', error);
+      toast.error('Failed to revert change. The item may have been modified since.');
+    }
+  });
+
   return {
     interests,
     tasks,
@@ -466,6 +521,7 @@ export const useDashboardData = () => {
       deleteEvent,
       clearPastEvents,
       deleteActivityLog,
+      revertActivityLog,
     }
   };
 };
