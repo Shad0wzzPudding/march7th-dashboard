@@ -424,6 +424,24 @@ export const useDashboardData = () => {
     }
   });
 
+  const deleteActivityLog = useMutation({
+    mutationFn: async (id: string) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      const { error } = await supabase
+        .from('activity_log')
+        .delete()
+        .eq('id', id)
+        .eq('user_id', user.id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['activity_log'] });
+    }
+  });
+
   return {
     interests,
     tasks,
@@ -447,6 +465,7 @@ export const useDashboardData = () => {
       updateEvent,
       deleteEvent,
       clearPastEvents,
+      deleteActivityLog,
     }
   };
 };

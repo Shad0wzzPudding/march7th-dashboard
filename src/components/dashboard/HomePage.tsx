@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Star, Calendar as CalendarIcon, CheckCircle2, Circle, ChevronDown, ChevronRight, Pin, Activity, AlertCircle, ChevronUp, CalendarDays, ArrowRight, GripVertical, EyeOff, Eye } from "lucide-react";
+import { Clock, Star, Calendar as CalendarIcon, CheckCircle2, Circle, ChevronDown, ChevronRight, Pin, Activity, AlertCircle, ChevronUp, CalendarDays, ArrowRight, GripVertical, EyeOff, Eye, Undo2 } from "lucide-react";
 import { format, isToday, startOfDay, endOfDay, isSameDay, isAfter, isBefore, parseISO, parseISO as parseDate } from "date-fns";
 import { Interest, Task, Event, ActivityLog } from "@/lib/types";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -14,15 +14,17 @@ import { DraggableInterestCard } from "./DraggableInterestCard";
 import { DraggableSummaryItem } from "./DraggableSummaryItem";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { unlockAudio } from "@/lib/sounds";
+import { SwipeableActivityLogEntry } from "./SwipeableActivityLogEntry";
 interface HomePageProps {
   interests: Interest[];
   tasks: Task[];
   events: Event[];
   activityLog: ActivityLog[];
   onUpdateInterest?: (data: Partial<Interest> & { id: string }) => void;
+  onDeleteActivityLog?: (id: string) => void;
 }
 
-export const HomePage = ({ interests, tasks, events, activityLog, onUpdateInterest }: HomePageProps) => {
+export const HomePage = ({ interests, tasks, events, activityLog, onUpdateInterest, onDeleteActivityLog }: HomePageProps) => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedItem, setSelectedItem] = useState<{
     id: string;
@@ -104,6 +106,35 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
   const [interestDragIndex, setInterestDragIndex] = useState<number | null>(null);
   const [interestDragOverIndex, setInterestDragOverIndex] = useState<number | null>(null);
   
+  // Undo state for activity log entries
+  const [pendingDeleteIds, setPendingDeleteIds] = useState<Set<string>>(new Set());
+  const undoTimersRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
+
+  const handleActivityLogSwipe = (id: string) => {
+    setPendingDeleteIds(prev => new Set(prev).add(id));
+    const timer = setTimeout(() => {
+      onDeleteActivityLog?.(id);
+      setPendingDeleteIds(prev => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+      undoTimersRef.current.delete(id);
+    }, 10000);
+    undoTimersRef.current.set(id, timer);
+  };
+
+  const handleUndoActivityLog = (id: string) => {
+    const timer = undoTimersRef.current.get(id);
+    if (timer) clearTimeout(timer);
+    undoTimersRef.current.delete(id);
+    setPendingDeleteIds(prev => {
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
+  };
+
   const pinnedInterests = interests.filter(interest => interest.is_pinned);
   
   // Sort pinned interests by saved order
@@ -903,25 +934,36 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
           </CardHeader>
           <CollapsibleContent>
             <CardContent>
-              {activityLog.length > 0 ? (
+             {activityLog.length > 0 ? (
                 <div className="space-y-2">
-                  {activityLog.map(log => (
-                    <div key={log.id} className="flex items-center justify-between p-2 bg-gray-100 dark:bg-gray-800 rounded border border-gray-300 dark:border-gray-600">
-                      <div className="flex items-center gap-2">
-                        <Badge 
-                          variant={log.action_type === 'created' ? 'default' : log.action_type === 'updated' ? 'secondary' : 'destructive'}
-                          className="text-xs"
+                  {activityLog
+                    .filter(log => !pendingDeleteIds.has(log.id))
+                    .map(log => (
+                      <SwipeableActivityLogEntry
+                        key={log.id}
+                        log={log}
+                        onDelete={handleActivityLogSwipe}
+                      />
+                    ))}
+                  {/* Undo buttons for pending deletes */}
+                  {Array.from(pendingDeleteIds).map(id => {
+                    const log = activityLog.find(l => l.id === id);
+                    if (!log) return null;
+                    return (
+                      <div key={`undo-${id}`} className="flex items-center justify-between p-2 rounded border border-pink-300 dark:border-pink-700 bg-gradient-to-r from-pink-50 to-purple-50 dark:from-pink-900/20 dark:to-purple-900/20">
+                        <span className="text-sm text-muted-foreground italic">Removed "{log.item_title}"</span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleUndoActivityLog(id)}
+                          className="bg-gradient-to-r from-pink-100 to-purple-100 dark:from-pink-900/30 dark:to-purple-900/30 border-pink-300 dark:border-pink-700 text-pink-600 dark:text-pink-400 hover:from-pink-200 hover:to-purple-200 animate-pulse"
                         >
-                          {log.action_type}
-                        </Badge>
-                        <span className="text-sm font-medium">{log.item_title}</span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">({log.item_type})</span>
+                          <Undo2 size={14} className="mr-1" />
+                          Undo
+                        </Button>
                       </div>
-                      <span className="text-xs text-gray-500 dark:text-gray-400">
-                        {format(parseISO(log.created_at), 'MMM dd, HH:mm')}
-                      </span>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               ) : (
                 <p className="text-gray-500 dark:text-gray-400 text-sm">No recent activity yet!</p>
