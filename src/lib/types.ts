@@ -51,6 +51,8 @@ export interface ActivityLog {
   action_type: 'created' | 'updated' | 'deleted';
   item_type: 'interests' | 'tasks' | 'events';
   item_title: string;
+  item_id?: string;
+  previous_data?: Record<string, any>;
   created_at: string;
 }
 

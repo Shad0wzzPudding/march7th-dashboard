@@ -19,24 +19,30 @@ export type Database = {
           action_type: string
           created_at: string
           id: string
+          item_id: string | null
           item_title: string
           item_type: string
+          previous_data: Json | null
           user_id: string
         }
         Insert: {
           action_type: string
           created_at?: string
           id?: string
+          item_id?: string | null
           item_title: string
           item_type: string
+          previous_data?: Json | null
           user_id: string
         }
         Update: {
           action_type?: string
           created_at?: string
           id?: string
+          item_id?: string | null
           item_title?: string
           item_type?: string
+          previous_data?: Json | null
           user_id?: string
         }
         Relationships: []

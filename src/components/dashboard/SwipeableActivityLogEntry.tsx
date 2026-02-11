@@ -93,7 +93,7 @@ export const SwipeableActivityLogEntry = ({
       >
         <div className="flex items-center gap-2 text-white font-medium text-sm">
           <Undo2 size={16} />
-          <span>Remove</span>
+          <span>Undo</span>
         </div>
       </div>
 
