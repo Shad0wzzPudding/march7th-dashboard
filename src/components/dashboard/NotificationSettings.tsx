@@ -68,7 +68,7 @@ export const NotificationSettings = () => {
       // Force-save the current browser push subscription on the server
       try {
         const registration = await navigator.serviceWorker.ready;
-        let subscription = await registration.pushManager.getSubscription();
+        let subscription = await (registration as any).pushManager.getSubscription();
 
         if (!subscription) {
           // Fetch VAPID key and create a new subscription if none exists
@@ -85,7 +85,7 @@ export const NotificationSettings = () => {
             return outputArray;
           })(vapidData.publicKey);
 
-          subscription = await registration.pushManager.subscribe({
+          subscription = await (registration as any).pushManager.subscribe({
             userVisibleOnly: true,
             applicationServerKey: appServerKey,
           });
