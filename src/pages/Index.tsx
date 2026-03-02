@@ -14,6 +14,7 @@ import { EventsPage } from '@/components/dashboard/EventsPage';
 
 import { Button } from '@/components/ui/button';
 import { ArrowUp } from 'lucide-react';
+import march7thCamera from '@/assets/march7th-camera.webp';
 import type { User, Session } from '@supabase/supabase-js';
 
 const Index = () => {
@@ -217,12 +218,20 @@ const Index = () => {
       <AnimatePresence>
         {showScrollTop && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="fixed bottom-6 right-6 z-50"
+            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 20 }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+            className="fixed bottom-6 right-6 z-50 flex flex-col items-center gap-1"
           >
+            <motion.img
+              src={march7thCamera}
+              alt="March 7th"
+              className="w-12 h-12 object-contain pointer-events-none"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1, duration: 0.25 }}
+            />
             <Button
               variant="default"
               size="icon"
