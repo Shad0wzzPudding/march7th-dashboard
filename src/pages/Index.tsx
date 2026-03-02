@@ -223,10 +223,10 @@ const Index = () => {
               src={march7thCamera}
               alt="March 7th"
               className="fixed bottom-20 right-0 w-16 h-16 object-contain pointer-events-none z-50"
-              initial={{ x: 60, opacity: 0 }}
-              animate={{ x: 8, opacity: 1 }}
-              exit={{ x: 60, opacity: 0 }}
-              transition={{ duration: 0.4, ease: 'easeOut' }}
+              initial={{ x: 60, opacity: 0, scale: 0.8 }}
+              animate={{ x: 8, opacity: 1, scale: 1 }}
+              exit={{ x: 60, opacity: 0, scale: 0.8 }}
+              transition={{ duration: 0.3, ease: 'easeOut' }}
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.8, y: 20 }}
