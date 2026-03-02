@@ -12,6 +12,7 @@ import { TasksPage } from '@/components/dashboard/TasksPage';
 import { EventsPage } from '@/components/dashboard/EventsPage';
 
 import { Button } from '@/components/ui/button';
+import { ArrowUp } from 'lucide-react';
 import type { User, Session } from '@supabase/supabase-js';
 
 const Index = () => {
