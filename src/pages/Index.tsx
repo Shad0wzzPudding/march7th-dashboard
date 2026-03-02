@@ -12,6 +12,7 @@ import { TasksPage } from '@/components/dashboard/TasksPage';
 import { EventsPage } from '@/components/dashboard/EventsPage';
 
 import { Button } from '@/components/ui/button';
+import { ArrowUp } from 'lucide-react';
 import type { User, Session } from '@supabase/supabase-js';
 
 const Index = () => {
@@ -19,6 +20,7 @@ const Index = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showScrollTop, setShowScrollTop] = useState(false);
   const navigate = useNavigate();
   
   useEffect(() => {
@@ -80,6 +82,12 @@ const Index = () => {
       }
     }
   }, [tasks, events, dailyTasks, permission, scheduleNotificationCheck]);
+
+  useEffect(() => {
+    const handleScroll = () => setShowScrollTop(window.scrollY > 300);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleSignOut = async () => {
     try {
@@ -175,6 +183,9 @@ const Index = () => {
     }
   };
 
+
+
+
   return (
     <div className="min-h-screen">
       {/* Top Navigation with User Info */}
@@ -201,6 +212,17 @@ const Index = () => {
           {renderActivePage()}
         </main>
       </div>
+
+      {showScrollTop && (
+        <Button
+          variant="default"
+          size="icon"
+          className="fixed bottom-6 right-6 z-50 rounded-full shadow-lg"
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        >
+          <ArrowUp className="h-5 w-5" />
+        </Button>
+      )}
     </div>
   );
 };
