@@ -217,30 +217,34 @@ const Index = () => {
 
       <AnimatePresence>
         {showScrollTop && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.8, y: 20 }}
-            transition={{ duration: 0.3, ease: 'easeOut' }}
-            className="fixed bottom-6 right-6 z-50 flex flex-col items-center gap-1"
-          >
+          <>
+            {/* March 7th peeking from right edge */}
             <motion.img
               src={march7thCamera}
               alt="March 7th"
-              className="w-12 h-12 object-contain pointer-events-none"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1, duration: 0.25 }}
+              className="fixed bottom-20 right-0 w-16 h-16 object-contain pointer-events-none z-50"
+              initial={{ x: 60, opacity: 0 }}
+              animate={{ x: 8, opacity: 1 }}
+              exit={{ x: 60, opacity: 0 }}
+              transition={{ duration: 0.4, ease: 'easeOut' }}
             />
-            <Button
-              variant="default"
-              size="icon"
-              className="rounded-full shadow-lg"
-              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.8, y: 20 }}
+              transition={{ duration: 0.3, ease: 'easeOut', delay: 0.15 }}
+              className="fixed bottom-6 right-6 z-50"
             >
-              <ArrowUp className="h-5 w-5" />
-            </Button>
-          </motion.div>
+              <Button
+                variant="default"
+                size="icon"
+                className="rounded-full shadow-lg"
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              >
+                <ArrowUp className="h-5 w-5" />
+              </Button>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </div>
