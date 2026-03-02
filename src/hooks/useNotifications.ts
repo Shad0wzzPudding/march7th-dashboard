@@ -86,7 +86,7 @@ export const useNotifications = () => {
     try {
       const registration = await navigator.serviceWorker.ready;
       
-      const existingSubscription = await registration.pushManager.getSubscription();
+      const existingSubscription = await (registration as any).pushManager.getSubscription();
       const { data: { user: currentUser } } = await supabase.auth.getUser();
 if (existingSubscription && currentUser) {
   try {
@@ -126,7 +126,7 @@ if (existingSubscription && currentUser) {
         throw new Error('Failed to fetch VAPID key');
       }
       
-      const subscription = await registration.pushManager.subscribe({
+      const subscription = await (registration as any).pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(vapidData.publicKey)
       });
