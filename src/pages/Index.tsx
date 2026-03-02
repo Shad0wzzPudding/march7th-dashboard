@@ -83,6 +83,12 @@ const Index = () => {
     }
   }, [tasks, events, dailyTasks, permission, scheduleNotificationCheck]);
 
+  useEffect(() => {
+    const handleScroll = () => setShowScrollTop(window.scrollY > 300);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const handleSignOut = async () => {
     try {
       await supabase.auth.signOut();
@@ -177,13 +183,8 @@ const Index = () => {
     }
   };
 
-  const [showScrollTop, setShowScrollTop] = useState(false);
 
-  useEffect(() => {
-    const handleScroll = () => setShowScrollTop(window.scrollY > 300);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+
 
   return (
     <div className="min-h-screen">
