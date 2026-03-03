@@ -15,6 +15,7 @@ import { EventsPage } from '@/components/dashboard/EventsPage';
 import { Button } from '@/components/ui/button';
 import { ArrowUp } from 'lucide-react';
 import march7thCamera from '@/assets/march7th-camera.webp';
+import { playShutterSound } from '@/lib/sounds';
 import type { User, Session } from '@supabase/supabase-js';
 
 const Index = () => {
@@ -266,6 +267,7 @@ const Index = () => {
                 size="icon"
                 className="rounded-full shadow-lg"
                 onClick={() => {
+                  playShutterSound();
                   setShowFlash(true);
                   setTimeout(() => setShowFlash(false), 400);
                   window.scrollTo({ top: 0, behavior: 'smooth' });

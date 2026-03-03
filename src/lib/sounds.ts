@@ -397,6 +397,57 @@ export const playUpdateSound = () => {
   }
 };
 
+export const playShutterSound = () => {
+  haptic([15, 10, 30]);
+  try {
+    const audioContext = getAudioContext();
+    const now = audioContext.currentTime;
+
+    // White noise burst for the "click" of a shutter
+    const bufferSize = audioContext.sampleRate * 0.06;
+    const noiseBuffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+    const output = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      output[i] = (Math.random() * 2 - 1) * 0.4;
+    }
+    const noiseSource = audioContext.createBufferSource();
+    noiseSource.buffer = noiseBuffer;
+    const noiseGain = audioContext.createGain();
+    noiseSource.connect(noiseGain);
+    noiseGain.connect(audioContext.destination);
+    noiseGain.gain.setValueAtTime(0.3, now);
+    noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.06);
+    noiseSource.start(now);
+
+    // Mechanical "clack" tone
+    const osc = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    osc.connect(gain);
+    gain.connect(audioContext.destination);
+    osc.frequency.value = 1200;
+    osc.type = 'square';
+    gain.gain.setValueAtTime(0.12, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.03);
+    osc.start(now);
+    osc.stop(now + 0.03);
+
+    // Soft resonant "ding" after the click
+    const osc2 = audioContext.createOscillator();
+    const gain2 = audioContext.createGain();
+    osc2.connect(gain2);
+    gain2.connect(audioContext.destination);
+    osc2.frequency.value = 2400;
+    osc2.type = 'sine';
+    gain2.gain.setValueAtTime(0.08, now + 0.04);
+    gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+    osc2.start(now + 0.04);
+    osc2.stop(now + 0.12);
+
+  } catch (e) {
+    console.log('[playShutterSound] Audio error:', e);
+  }
+};
+
 export const playNavigationSound = () => {
   haptic(10);
   try {
