@@ -219,13 +219,25 @@ const Index = () => {
       {/* Screen flash overlay */}
       <AnimatePresence>
         {showFlash && (
-          <motion.div
-            className="fixed inset-0 z-[100] pointer-events-none bg-primary/10"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.4, ease: 'easeOut' }}
-          />
+          <>
+            {/* Primary bright flash */}
+            <motion.div
+              className="fixed inset-0 z-[100] pointer-events-none bg-primary/25"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: [0, 1, 0.6, 0] }}
+              transition={{ duration: 0.5, ease: 'easeOut', times: [0, 0.15, 0.4, 1] }}
+            />
+            {/* Secondary radial wave from bottom-right */}
+            <motion.div
+              className="fixed inset-0 z-[100] pointer-events-none"
+              style={{
+                background: 'radial-gradient(circle at 90% 90%, hsl(var(--primary) / 0.3), transparent 70%)',
+              }}
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: [0, 1, 0], scale: [0.5, 1.5, 2] }}
+              transition={{ duration: 0.6, ease: 'easeOut', times: [0, 0.3, 1] }}
+            />
+          </>
         )}
       </AnimatePresence>
 
