@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
 import { NavigationPage } from '@/lib/types';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { useNotifications } from '@/hooks/useNotifications';
@@ -16,6 +17,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowUp } from 'lucide-react';
 import march7thCamera from '@/assets/march7th-camera.webp';
 import { playShutterSound } from '@/lib/sounds';
+import march7thSticker from '@/assets/march7th-camera.webp';
 import type { User, Session } from '@supabase/supabase-js';
 
 const Index = () => {
@@ -299,6 +301,17 @@ const Index = () => {
                   playShutterSound();
                   setShowFlash(true);
                   setTimeout(() => setShowFlash(false), 400);
+                  setTimeout(() => {
+                    toast({
+                      description: (
+                        <div className="flex items-center gap-3">
+                          <img src={march7thSticker} alt="March 7th" className="w-10 h-10 object-contain" />
+                          <span className="text-sm font-medium">📸 Photo captured! March 7th saved the moment~</span>
+                        </div>
+                      ),
+                      duration: 2500,
+                    });
+                  }, 500);
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
               >
