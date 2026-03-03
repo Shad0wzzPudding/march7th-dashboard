@@ -301,12 +301,23 @@ const Index = () => {
                   playShutterSound();
                   setShowFlash(true);
                   setTimeout(() => setShowFlash(false), 400);
+                  const quotes = [
+                    "📸 Photo captured! March 7th saved the moment~",
+                    "📸 Click! Another memory for the collection!",
+                    "📸 Perfect shot! March 7th approves~",
+                    "📸 Captured! This one's going in the album!",
+                    "📸 Say cheese! ...Wait, you already scrolled~",
+                    "📸 Snapshot saved! March 7th never misses!",
+                    "📸 Got it! A picture-perfect moment~",
+                    "📸 One more for the scrapbook!",
+                  ];
+                  const quote = quotes[Math.floor(Math.random() * quotes.length)];
                   setTimeout(() => {
                     toast({
                       description: (
                         <div className="flex items-center gap-3">
                           <img src={march7thSticker} alt="March 7th" className="w-10 h-10 object-contain" />
-                          <span className="text-sm font-medium">📸 Photo captured! March 7th saved the moment~</span>
+                          <span className="text-sm font-medium">{quote}</span>
                         </div>
                       ),
                       duration: 2500,
