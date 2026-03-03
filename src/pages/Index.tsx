@@ -216,6 +216,19 @@ const Index = () => {
         </main>
       </div>
 
+      {/* Screen flash overlay */}
+      <AnimatePresence>
+        {showFlash && (
+          <motion.div
+            className="fixed inset-0 z-[100] pointer-events-none bg-primary/10"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4, ease: 'easeOut' }}
+          />
+        )}
+      </AnimatePresence>
+
       <AnimatePresence>
         {showScrollTop && (
           <>
