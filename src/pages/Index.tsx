@@ -217,7 +217,7 @@ const Index = () => {
         </main>
       </div>
 
-      {/* Screen flash overlay */}
+      {/* Screen flash + viewfinder overlay */}
       <AnimatePresence>
         {showFlash && (
           <>
@@ -238,6 +238,35 @@ const Index = () => {
               animate={{ opacity: [0, 1, 0], scale: [0.5, 1.5, 2] }}
               transition={{ duration: 0.6, ease: 'easeOut', times: [0, 0.3, 1] }}
             />
+            {/* Camera viewfinder overlay */}
+            <motion.div
+              className="fixed inset-0 z-[101] pointer-events-none flex items-center justify-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: [0, 1, 1, 0] }}
+              transition={{ duration: 0.7, ease: 'easeOut', times: [0, 0.1, 0.5, 1] }}
+            >
+              {/* Viewfinder frame */}
+              <motion.div
+                className="relative"
+                style={{ width: '160px', height: '160px' }}
+                initial={{ scale: 1.4, opacity: 0 }}
+                animate={{ scale: [1.4, 1, 0.95], opacity: [0, 1, 0] }}
+                transition={{ duration: 0.7, ease: 'easeOut', times: [0, 0.2, 1] }}
+              >
+                {/* Corner brackets */}
+                <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-primary/80 rounded-tl-sm" />
+                <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-primary/80 rounded-tr-sm" />
+                <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-primary/80 rounded-bl-sm" />
+                <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-primary/80 rounded-br-sm" />
+                {/* Center crosshair */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                  <div className="w-4 h-[2px] bg-primary/60 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+                  <div className="h-4 w-[2px] bg-primary/60 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+                </div>
+                {/* Small circle in center */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full border border-primary/40" />
+              </motion.div>
+            </motion.div>
           </>
         )}
       </AnimatePresence>
