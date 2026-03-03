@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
 import { NavigationPage } from '@/lib/types';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { useNotifications } from '@/hooks/useNotifications';
@@ -16,6 +17,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowUp } from 'lucide-react';
 import march7thCamera from '@/assets/march7th-camera.webp';
 import { playShutterSound } from '@/lib/sounds';
+import march7thSticker from '@/assets/march7th-camera.webp';
 import type { User, Session } from '@supabase/supabase-js';
 
 const Index = () => {
