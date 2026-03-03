@@ -301,6 +301,17 @@ const Index = () => {
                   playShutterSound();
                   setShowFlash(true);
                   setTimeout(() => setShowFlash(false), 400);
+                  setTimeout(() => {
+                    toast({
+                      description: (
+                        <div className="flex items-center gap-3">
+                          <img src={march7thSticker} alt="March 7th" className="w-10 h-10 object-contain" />
+                          <span className="text-sm font-medium">📸 Photo captured! March 7th saved the moment~</span>
+                        </div>
+                      ),
+                      duration: 2500,
+                    });
+                  }, 500);
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
               >
