@@ -23,6 +23,7 @@ const Index = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [showFlash, setShowFlash] = useState(false);
   const navigate = useNavigate();
   
   useEffect(() => {
@@ -215,6 +216,19 @@ const Index = () => {
         </main>
       </div>
 
+      {/* Screen flash overlay */}
+      <AnimatePresence>
+        {showFlash && (
+          <motion.div
+            className="fixed inset-0 z-[100] pointer-events-none bg-primary/10"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4, ease: 'easeOut' }}
+          />
+        )}
+      </AnimatePresence>
+
       <AnimatePresence>
         {showScrollTop && (
           <>
@@ -239,7 +253,11 @@ const Index = () => {
                 variant="default"
                 size="icon"
                 className="rounded-full shadow-lg"
-                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                onClick={() => {
+                  setShowFlash(true);
+                  setTimeout(() => setShowFlash(false), 400);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
               >
                 <ArrowUp className="h-5 w-5" />
               </Button>
