@@ -240,7 +240,11 @@ const Index = () => {
                 variant="default"
                 size="icon"
                 className="rounded-full shadow-lg"
-                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                onClick={() => {
+                  setShowFlash(true);
+                  setTimeout(() => setShowFlash(false), 400);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
               >
                 <ArrowUp className="h-5 w-5" />
               </Button>
