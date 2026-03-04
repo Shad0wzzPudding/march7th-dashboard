@@ -482,6 +482,54 @@ export const playEditSound = () => {
   }
 };
 
+export const playCollapseSound = () => {
+  haptic(10);
+  try {
+    const audioContext = getAudioContext();
+    const now = audioContext.currentTime;
+    
+    // Quick descending "fold" sound
+    const osc = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    osc.connect(gain);
+    gain.connect(audioContext.destination);
+    osc.frequency.setValueAtTime(600, now);
+    osc.frequency.exponentialRampToValueAtTime(400, now + 0.08);
+    osc.type = 'sine';
+    gain.gain.setValueAtTime(0.12, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+    osc.start(now);
+    osc.stop(now + 0.08);
+    
+  } catch (e) {
+    console.log('[playCollapseSound] Audio error:', e);
+  }
+};
+
+export const playExpandSound = () => {
+  haptic(10);
+  try {
+    const audioContext = getAudioContext();
+    const now = audioContext.currentTime;
+    
+    // Quick ascending "unfold" sound
+    const osc = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    osc.connect(gain);
+    gain.connect(audioContext.destination);
+    osc.frequency.setValueAtTime(400, now);
+    osc.frequency.exponentialRampToValueAtTime(600, now + 0.08);
+    osc.type = 'sine';
+    gain.gain.setValueAtTime(0.12, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+    osc.start(now);
+    osc.stop(now + 0.08);
+    
+  } catch (e) {
+    console.log('[playExpandSound] Audio error:', e);
+  }
+};
+
 export const playNavigationSound = () => {
   haptic(10);
   try {

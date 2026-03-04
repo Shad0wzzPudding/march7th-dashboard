@@ -13,7 +13,7 @@ import { SwipeableInterestCard } from "./SwipeableInterestCard";
 import { DraggableInterestCard } from "./DraggableInterestCard";
 import { DraggableSummaryItem } from "./DraggableSummaryItem";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { unlockAudio } from "@/lib/sounds";
+import { unlockAudio, playCollapseSound, playExpandSound } from "@/lib/sounds";
 import { SwipeableActivityLogEntry } from "./SwipeableActivityLogEntry";
 interface HomePageProps {
   interests: Interest[];
@@ -204,8 +204,10 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
       const newSet = new Set(prev);
       if (newSet.has(interestId)) {
         newSet.delete(interestId);
+        playExpandSound();
       } else {
         newSet.add(interestId);
+        playCollapseSound();
       }
       
       // Save to localStorage
@@ -919,6 +921,7 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
       <Collapsible 
         open={!recentChangesCollapsed}
         onOpenChange={(open) => {
+          open ? playExpandSound() : playCollapseSound();
           setRecentChangesCollapsed(!open);
           try {
             localStorage.setItem('recentChangesCollapsed', String(!open));

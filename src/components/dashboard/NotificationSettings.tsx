@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { playCollapseSound, playExpandSound } from '@/lib/sounds';
 
 export const NotificationSettings = () => {
   const { isSupported, permission, requestPermission, ensureSubscribed } = useNotifications();
@@ -23,6 +24,7 @@ export const NotificationSettings = () => {
   const toggleCollapse = () => {
     setIsCollapsed(prev => {
       const newValue = !prev;
+      newValue ? playCollapseSound() : playExpandSound();
       try {
         localStorage.setItem('notificationSettingsCollapsed', String(newValue));
       } catch {}
@@ -164,6 +166,7 @@ export const NotificationSettings = () => {
   const toggleInstallCollapse = () => {
     setIsInstallCollapsed(prev => {
       const newValue = !prev;
+      newValue ? playCollapseSound() : playExpandSound();
       try {
         localStorage.setItem('installSectionCollapsed', String(newValue));
       } catch {}
