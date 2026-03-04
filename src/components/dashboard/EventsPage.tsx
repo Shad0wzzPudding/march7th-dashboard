@@ -4,6 +4,7 @@ import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FormattedTextarea } from '@/components/ui/formatted-textarea';
+import { FormattedText } from '@/components/ui/formatted-text';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, ResizableDialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Plus, Edit, Trash2, Clock, CalendarDays, Copy, Trash, Undo2 } from 'lucide-react';
@@ -297,8 +298,8 @@ export const EventsPage = ({
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <h4 className="font-semibold text-lg">{event.title}</h4>
-                         {event.description && (
-                           <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap">{event.description}</p>
+                          {event.description && (
+                            <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap"><FormattedText>{event.description}</FormattedText></p>
                          )}
                         <div className={`flex items-center gap-1 text-sm mt-2 ${getStatusColor(status)}`}>
                           <Clock size={12} />
@@ -358,8 +359,8 @@ export const EventsPage = ({
                   <CardTitle className="text-lg">{event.title}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                   {event.description && (
-                     <p className="text-sm text-muted-foreground whitespace-pre-wrap">{event.description}</p>
+                    {event.description && (
+                      <p className="text-sm text-muted-foreground whitespace-pre-wrap"><FormattedText>{event.description}</FormattedText></p>
                    )}
                   <div className={`flex items-center gap-1 text-sm ${getStatusColor(status)}`}>
                     <Clock size={12} />
@@ -408,8 +409,8 @@ export const EventsPage = ({
                     <CardTitle className="text-base text-muted-foreground">{event.title}</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                     {event.description && (
-                       <p className="text-sm text-muted-foreground whitespace-pre-wrap">{event.description}</p>
+                      {event.description && (
+                        <p className="text-sm text-muted-foreground whitespace-pre-wrap"><FormattedText>{event.description}</FormattedText></p>
                      )}
                     <div className={`flex items-center gap-1 text-sm ${getStatusColor(status)}`}>
                       <Clock size={12} />
