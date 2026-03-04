@@ -372,9 +372,9 @@ export const TasksPage = ({
                           <h4 className={`font-semibold ${task.is_completed ? 'line-through text-muted-foreground' : ''}`}>
                             {task.title}
                           </h4>
-                           {task.description && (
-                             <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap">{task.description}</p>
-                           )}
+                            {task.description && (
+                              <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap"><FormattedText>{task.description}</FormattedText></p>
+                            )}
                            <div className="space-y-1 mt-2">
                              {task.start_date ? (
                                <div className="flex items-center gap-1 text-sm text-muted-foreground">
@@ -443,9 +443,9 @@ export const TasksPage = ({
                         <h4 className={`font-semibold ${task.is_completed ? 'line-through text-muted-foreground' : ''}`}>
                           {task.title}
                         </h4>
-                         {task.description && (
-                           <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap">{task.description}</p>
-                         )}
+                          {task.description && (
+                            <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap"><FormattedText>{task.description}</FormattedText></p>
+                          )}
                          <div className="space-y-1 mt-2">
                            {task.start_date ? (
                              <div className="flex items-center gap-1 text-sm text-muted-foreground">
@@ -510,9 +510,9 @@ export const TasksPage = ({
                           <h4 className="font-semibold line-through text-muted-foreground">
                             {task.title}
                           </h4>
-                           {task.description && (
-                             <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap">{task.description}</p>
-                           )}
+                            {task.description && (
+                              <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap"><FormattedText>{task.description}</FormattedText></p>
+                            )}
                            <div className="space-y-1 mt-2">
                              {task.start_date ? (
                                <div className="flex items-center gap-1 text-sm text-muted-foreground">
