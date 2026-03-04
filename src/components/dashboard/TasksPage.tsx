@@ -3,7 +3,7 @@ import { Task } from '@/lib/types';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { FormattedTextarea } from '@/components/ui/formatted-textarea';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, ResizableDialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -248,10 +248,10 @@ export const TasksPage = ({
                 onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
                 required
               />
-              <Textarea
+              <FormattedTextarea
                 placeholder="Description (optional)"
                 value={formData.description}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                onChange={(val) => setFormData(prev => ({ ...prev, description: val }))}
               />
               <div className="space-y-2">
                 <label className="text-sm font-medium">Start Date <span className="text-muted-foreground">(optional)</span></label>
