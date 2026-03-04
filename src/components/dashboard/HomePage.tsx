@@ -13,7 +13,7 @@ import { SwipeableInterestCard } from "./SwipeableInterestCard";
 import { DraggableInterestCard } from "./DraggableInterestCard";
 import { DraggableSummaryItem } from "./DraggableSummaryItem";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { unlockAudio } from "@/lib/sounds";
+import { unlockAudio, playCollapseSound, playExpandSound } from "@/lib/sounds";
 import { SwipeableActivityLogEntry } from "./SwipeableActivityLogEntry";
 interface HomePageProps {
   interests: Interest[];
