@@ -3,7 +3,8 @@ import { Interest } from '@/lib/types';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { FormattedTextarea } from '@/components/ui/formatted-textarea';
+import { FormattedText } from '@/components/ui/formatted-text';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, ResizableDialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Plus, Edit, Trash2, Pin, PinOff, Clock, GripVertical, Copy } from 'lucide-react';
@@ -138,10 +139,10 @@ export const InterestsPage = ({
                 onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
                 required
               />
-              <Textarea
+              <FormattedTextarea
                 placeholder="Description (optional)"
                 value={formData.description}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                onChange={(val) => setFormData(prev => ({ ...prev, description: val }))}
               />
               <Input
                 type="datetime-local"
@@ -193,8 +194,8 @@ export const InterestsPage = ({
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                   {interest.description && (
-                     <p className="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap">{interest.description}</p>
+                    {interest.description && (
+                      <p className="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap"><FormattedText>{interest.description}</FormattedText></p>
                    )}
                   {interest.deadline && (
                     <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
@@ -243,8 +244,8 @@ export const InterestsPage = ({
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
-                 {interest.description && (
-                   <p className="text-sm text-muted-foreground whitespace-pre-wrap">{interest.description}</p>
+                  {interest.description && (
+                    <p className="text-sm text-muted-foreground whitespace-pre-wrap"><FormattedText>{interest.description}</FormattedText></p>
                  )}
                 {interest.deadline && (
                   <div className="flex items-center gap-1 text-sm text-muted-foreground">

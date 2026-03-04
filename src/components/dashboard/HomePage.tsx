@@ -14,6 +14,7 @@ import { DraggableInterestCard } from "./DraggableInterestCard";
 import { DraggableSummaryItem } from "./DraggableSummaryItem";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { unlockAudio, playCollapseSound, playExpandSound } from "@/lib/sounds";
+import { FormattedText } from '@/components/ui/formatted-text';
 import { SwipeableActivityLogEntry } from "./SwipeableActivityLogEntry";
 interface HomePageProps {
   interests: Interest[];
@@ -525,8 +526,8 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
                         <p className="font-medium text-sm">{task.title}</p>
                         <Badge variant="destructive" className="text-xs">Deadline</Badge>
                       </div>
-                       {task.description && (
-                         <p className="text-xs text-gray-600 dark:text-gray-300 mt-1 whitespace-pre-wrap">{task.description}</p>
+                        {task.description && (
+                          <p className="text-xs text-gray-600 dark:text-gray-300 mt-1 whitespace-pre-wrap"><FormattedText>{task.description}</FormattedText></p>
                        )}
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                         Due: {format(parseISO(task.deadline), 'HH:mm')}
@@ -540,8 +541,8 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
                         <p className="font-medium text-sm">{task.title}</p>
                         <Badge variant="outline" className="text-xs border-green-500 text-green-700 dark:text-green-300">Starting</Badge>
                       </div>
-                       {task.description && (
-                         <p className="text-xs text-gray-600 dark:text-gray-300 mt-1 whitespace-pre-wrap">{task.description}</p>
+                        {task.description && (
+                          <p className="text-xs text-gray-600 dark:text-gray-300 mt-1 whitespace-pre-wrap"><FormattedText>{task.description}</FormattedText></p>
                        )}
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                         Starts: {format(parseISO(task.start_date), 'HH:mm')}
@@ -562,8 +563,8 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
                   {todayEvents.map(event => (
                     <div key={event.id} className="p-3 bg-card/90 rounded border border-blue-200/40 dark:border-blue-800/40">
                       <p className="font-medium text-sm">{event.title}</p>
-                       {event.description && (
-                         <p className="text-xs text-gray-600 dark:text-gray-300 mt-1 whitespace-pre-wrap">{event.description}</p>
+                        {event.description && (
+                          <p className="text-xs text-gray-600 dark:text-gray-300 mt-1 whitespace-pre-wrap"><FormattedText>{event.description}</FormattedText></p>
                        )}
                       <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 space-y-0.5">
                         <p>Starts: {format(parseISO(event.start_time), 'HH:mm')}</p>
@@ -842,7 +843,7 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
                       
                       <CollapsibleContent>
                         {interest.description && (
-                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 whitespace-pre-wrap">{interest.description}</p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 whitespace-pre-wrap"><FormattedText>{interest.description}</FormattedText></p>
                         )}
                       </CollapsibleContent>
                       
@@ -1020,7 +1021,7 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
             {selectedItem?.description && (
               <div>
                 <h4 className="text-sm font-medium text-muted-foreground mb-1">Description</h4>
-                <p className="text-sm whitespace-pre-wrap">{selectedItem.description}</p>
+                <p className="text-sm whitespace-pre-wrap"><FormattedText>{selectedItem.description}</FormattedText></p>
               </div>
             )}
             

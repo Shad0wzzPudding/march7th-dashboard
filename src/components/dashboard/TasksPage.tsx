@@ -3,7 +3,8 @@ import { Task } from '@/lib/types';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { FormattedTextarea } from '@/components/ui/formatted-textarea';
+import { FormattedText } from '@/components/ui/formatted-text';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, ResizableDialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -248,10 +249,10 @@ export const TasksPage = ({
                 onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
                 required
               />
-              <Textarea
+              <FormattedTextarea
                 placeholder="Description (optional)"
                 value={formData.description}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                onChange={(val) => setFormData(prev => ({ ...prev, description: val }))}
               />
               <div className="space-y-2">
                 <label className="text-sm font-medium">Start Date <span className="text-muted-foreground">(optional)</span></label>
@@ -372,9 +373,9 @@ export const TasksPage = ({
                           <h4 className={`font-semibold ${task.is_completed ? 'line-through text-muted-foreground' : ''}`}>
                             {task.title}
                           </h4>
-                           {task.description && (
-                             <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap">{task.description}</p>
-                           )}
+                            {task.description && (
+                              <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap"><FormattedText>{task.description}</FormattedText></p>
+                            )}
                            <div className="space-y-1 mt-2">
                              {task.start_date ? (
                                <div className="flex items-center gap-1 text-sm text-muted-foreground">
@@ -443,9 +444,9 @@ export const TasksPage = ({
                         <h4 className={`font-semibold ${task.is_completed ? 'line-through text-muted-foreground' : ''}`}>
                           {task.title}
                         </h4>
-                         {task.description && (
-                           <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap">{task.description}</p>
-                         )}
+                          {task.description && (
+                            <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap"><FormattedText>{task.description}</FormattedText></p>
+                          )}
                          <div className="space-y-1 mt-2">
                            {task.start_date ? (
                              <div className="flex items-center gap-1 text-sm text-muted-foreground">
@@ -510,9 +511,9 @@ export const TasksPage = ({
                           <h4 className="font-semibold line-through text-muted-foreground">
                             {task.title}
                           </h4>
-                           {task.description && (
-                             <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap">{task.description}</p>
-                           )}
+                            {task.description && (
+                              <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap"><FormattedText>{task.description}</FormattedText></p>
+                            )}
                            <div className="space-y-1 mt-2">
                              {task.start_date ? (
                                <div className="flex items-center gap-1 text-sm text-muted-foreground">
