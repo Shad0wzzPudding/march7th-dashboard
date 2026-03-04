@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Clock, ChevronDown, ChevronUp, X } from "lucide-react";
 import { format, parseISO } from "date-fns";
+import { FormattedText } from '@/components/ui/formatted-text';
 import { Interest } from "@/lib/types";
 import { playUnpinSound } from "@/lib/sounds";
 
@@ -158,7 +159,7 @@ export const SwipeableInterestCard = ({
             <CollapsibleContent>
               {interest.description && (
                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 whitespace-pre-wrap">
-                  {interest.description}
+                  <FormattedText>{interest.description}</FormattedText>
                 </p>
               )}
             </CollapsibleContent>
