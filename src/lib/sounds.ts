@@ -448,6 +448,40 @@ export const playShutterSound = () => {
   }
 };
 
+export const playEditSound = () => {
+  haptic(20);
+  try {
+    const audioContext = getAudioContext();
+    const now = audioContext.currentTime;
+    
+    // Quick ascending "pencil flick" - two bright tones
+    const osc1 = audioContext.createOscillator();
+    const gain1 = audioContext.createGain();
+    osc1.connect(gain1);
+    gain1.connect(audioContext.destination);
+    osc1.frequency.value = 554.37; // C#5
+    osc1.type = 'sine';
+    gain1.gain.setValueAtTime(0.18, now);
+    gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+    osc1.start(now);
+    osc1.stop(now + 0.08);
+    
+    const osc2 = audioContext.createOscillator();
+    const gain2 = audioContext.createGain();
+    osc2.connect(gain2);
+    gain2.connect(audioContext.destination);
+    osc2.frequency.value = 739.99; // F#5
+    osc2.type = 'sine';
+    gain2.gain.setValueAtTime(0.2, now + 0.06);
+    gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.14);
+    osc2.start(now + 0.06);
+    osc2.stop(now + 0.14);
+    
+  } catch (e) {
+    console.log('[playEditSound] Audio error:', e);
+  }
+};
+
 export const playNavigationSound = () => {
   haptic(10);
   try {

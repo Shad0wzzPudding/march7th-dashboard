@@ -10,7 +10,7 @@ import { Plus, Edit, Trash2, Clock, CalendarDays, Copy, Trash, Undo2 } from 'luc
 import { format, parseISO, isAfter, isBefore, isToday } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { MarchConfirmDialog } from './MarchConfirmDialog';
-import { playSuccessSound, playCancelSound, playDeleteSound, playDuplicateSound, playUpdateSound } from '@/lib/sounds';
+import { playSuccessSound, playCancelSound, playDeleteSound, playDuplicateSound, playUpdateSound, playEditSound } from '@/lib/sounds';
 
 interface EventsPageProps {
   events: Event[];
@@ -115,6 +115,7 @@ export const EventsPage = ({
   };
 
   const handleEdit = (event: Event) => {
+    playEditSound();
     setEditingEvent(event);
     setFormData({
       title: event.title,
