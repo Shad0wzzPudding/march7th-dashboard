@@ -2,7 +2,7 @@ import { useRef, useState, useCallback, KeyboardEvent } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { FormattedText } from '@/components/ui/formatted-text';
 import { Button } from '@/components/ui/button';
-import { List, Strikethrough, Eye, EyeOff } from 'lucide-react';
+import { List, Strikethrough } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface FormattedTextareaProps {
@@ -15,7 +15,6 @@ interface FormattedTextareaProps {
 export const FormattedTextarea = ({ value, onChange, placeholder, className }: FormattedTextareaProps) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [autoBullet, setAutoBullet] = useState(false);
-  const [showPreview, setShowPreview] = useState(false);
 
   const handleKeyDown = useCallback((e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (!autoBullet || e.key !== 'Enter') return;
@@ -154,33 +153,20 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
         >
           <Strikethrough size={14} />
         </Button>
-        <Button
-          type="button"
-          variant={showPreview ? 'default' : 'outline'}
-          size="sm"
-          onClick={() => setShowPreview(!showPreview)}
-          className="h-7 px-2 text-xs gap-1 ml-auto"
-          title="Toggle preview"
-        >
-          {showPreview ? <EyeOff size={14} /> : <Eye size={14} />}
-        </Button>
       </div>
-      {showPreview && value ? (
-        <div
-          className={cn("min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm whitespace-pre-wrap", className)}
-          onClick={() => setShowPreview(false)}
-        >
+      <Textarea
+        ref={textareaRef}
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onKeyDown={handleKeyDown}
+        className={cn(className)}
+      />
+      {value && value.includes('~~') && (
+        <div className="rounded-md border border-dashed border-muted-foreground/30 bg-muted/30 px-3 py-2 text-sm whitespace-pre-wrap">
+          <p className="text-[10px] text-muted-foreground mb-1">Preview</p>
           <FormattedText>{value}</FormattedText>
         </div>
-      ) : (
-        <Textarea
-          ref={textareaRef}
-          placeholder={placeholder}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          onKeyDown={handleKeyDown}
-          className={cn(className)}
-        />
       )}
     </div>
   );
