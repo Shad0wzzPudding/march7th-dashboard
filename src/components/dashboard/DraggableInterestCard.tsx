@@ -5,6 +5,7 @@ import { Clock, ChevronDown, ChevronUp, X, GripVertical } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { Interest } from "@/lib/types";
 import { playUnpinSound } from "@/lib/sounds";
+import { FormattedText } from '@/components/ui/formatted-text';
 
 interface DraggableInterestCardProps {
   interest: Interest;
@@ -244,7 +245,7 @@ export const DraggableInterestCard = ({
               <CollapsibleContent>
                 {interest.description && (
                   <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 whitespace-pre-wrap">
-                    {interest.description}
+                    <FormattedText>{interest.description}</FormattedText>
                   </p>
                 )}
               </CollapsibleContent>
