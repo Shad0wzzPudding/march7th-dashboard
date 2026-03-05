@@ -1,6 +1,8 @@
 import { useRef, useState, useCallback, KeyboardEvent } from 'react';
 import { Textarea } from '@/components/ui/textarea';
+import { FormattedText } from '@/components/ui/formatted-text';
 import { Button } from '@/components/ui/button';
+import { List, Strikethrough, Eye, EyeOff } from 'lucide-react';
 import { List, Strikethrough } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
