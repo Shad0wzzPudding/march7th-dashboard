@@ -15,6 +15,7 @@ interface FormattedTextareaProps {
 export const FormattedTextarea = ({ value, onChange, placeholder, className }: FormattedTextareaProps) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [autoBullet, setAutoBullet] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
 
   const handleKeyDown = useCallback((e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (!autoBullet || e.key !== 'Enter') return;
@@ -153,15 +154,34 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
         >
           <Strikethrough size={14} />
         </Button>
+        <Button
+          type="button"
+          variant={showPreview ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setShowPreview(!showPreview)}
+          className="h-7 px-2 text-xs gap-1 ml-auto"
+          title="Toggle preview"
+        >
+          {showPreview ? <EyeOff size={14} /> : <Eye size={14} />}
+        </Button>
       </div>
-      <Textarea
-        ref={textareaRef}
-        placeholder={placeholder}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        onKeyDown={handleKeyDown}
-        className={cn(className)}
-      />
+      {showPreview && value ? (
+        <div
+          className={cn("min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm whitespace-pre-wrap", className)}
+          onClick={() => setShowPreview(false)}
+        >
+          <FormattedText>{value}</FormattedText>
+        </div>
+      ) : (
+        <Textarea
+          ref={textareaRef}
+          placeholder={placeholder}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onKeyDown={handleKeyDown}
+          className={cn(className)}
+        />
+      )}
     </div>
   );
 };
