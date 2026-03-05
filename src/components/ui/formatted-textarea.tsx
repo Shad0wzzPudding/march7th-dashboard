@@ -41,16 +41,14 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
       return;
     }
 
-    // If current line starts with bullet, add bullet to new line
-    if (currentLine.trimStart().startsWith('•')) {
-      e.preventDefault();
-      const newValue = textBefore + '\n• ' + textAfter;
-      onChange(newValue);
-      setTimeout(() => {
-        const pos = selectionStart + 3;
-        textarea.setSelectionRange(pos, pos);
-      }, 0);
-    }
+    // Auto-bullet: add bullet to every new line when enabled
+    e.preventDefault();
+    const newValue = textBefore + '\n• ' + textAfter;
+    onChange(newValue);
+    setTimeout(() => {
+      const pos = selectionStart + 3;
+      textarea.setSelectionRange(pos, pos);
+    }, 0);
   }, [autoBullet, value, onChange]);
 
   const insertBullet = useCallback(() => {
