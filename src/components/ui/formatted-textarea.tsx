@@ -271,6 +271,42 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
     });
   }, [value, onChange]);
 
+  const wrapSelection = useCallback((marker: string) => {
+    const el = editorRef.current;
+    if (!el) return;
+    
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0 || sel.isCollapsed) return;
+    
+    const selText = sel.toString();
+    const cursorPos = saveCursor(el);
+    const selStart = cursorPos;
+    const selEnd = selStart + selText.length;
+    
+    const before = value.slice(0, selStart);
+    const selected = value.slice(selStart, selEnd);
+    const after = value.slice(selEnd);
+    const mLen = marker.length;
+    
+    let newValue: string;
+    
+    if (selected.startsWith(marker) && selected.endsWith(marker)) {
+      const unwrapped = selected.slice(mLen, -mLen);
+      newValue = before + unwrapped + after;
+    } else {
+      newValue = before + marker + selected + marker + after;
+    }
+    
+    onChange(newValue);
+    isUpdatingRef.current = true;
+    requestAnimationFrame(() => {
+      el.innerHTML = toHTML(newValue);
+      restoreCursor(el, selStart);
+      el.focus();
+      isUpdatingRef.current = false;
+    });
+  }, [value, onChange]);
+
   const handlePaste = useCallback((e: React.ClipboardEvent) => {
     e.preventDefault();
     const text = e.clipboardData.getData('text/plain');
