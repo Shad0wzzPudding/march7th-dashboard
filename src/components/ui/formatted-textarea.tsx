@@ -108,6 +108,41 @@ const restoreCursor = (el: HTMLElement, pos: number) => {
   walk(el);
 };
 
+/**
+ * Map a visible text offset to the corresponding offset in the raw marker string.
+ */
+const visibleToRaw = (raw: string, visiblePos: number): number => {
+  let vi = 0;
+  let ri = 0;
+  while (ri < raw.length && vi < visiblePos) {
+    // Check for **
+    if (raw[ri] === '*' && raw[ri + 1] === '*') {
+      ri += 2;
+      continue;
+    }
+    // Check for ~~ 
+    if (raw[ri] === '~' && raw[ri + 1] === '~') {
+      ri += 2;
+      continue;
+    }
+    // Check for lone * (italic)
+    if (raw[ri] === '*' && raw[ri - 1] !== '*' && raw[ri + 1] !== '*') {
+      ri += 1;
+      continue;
+    }
+    vi++;
+    ri++;
+  }
+  // Skip any trailing markers at this position
+  while (ri < raw.length) {
+    if (raw[ri] === '*' && raw[ri + 1] === '*') { ri += 2; continue; }
+    if (raw[ri] === '~' && raw[ri + 1] === '~') { ri += 2; continue; }
+    if (raw[ri] === '*' && (ri === 0 || raw[ri - 1] !== '*') && (ri + 1 >= raw.length || raw[ri + 1] !== '*')) { ri += 1; continue; }
+    break;
+  }
+  return ri;
+};
+
 export const FormattedTextarea = ({ value, onChange, placeholder, className }: FormattedTextareaProps) => {
   const editorRef = useRef<HTMLDivElement>(null);
   const [autoBullet, setAutoBullet] = useState(false);
