@@ -1,6 +1,6 @@
 import { useRef, useState, useCallback, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { List, Strikethrough } from 'lucide-react';
+import { List, Strikethrough, Bold, Italic } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface FormattedTextareaProps {
@@ -15,14 +15,16 @@ interface FormattedTextareaProps {
  */
 const toHTML = (text: string): string => {
   if (!text) return '';
-  // Escape HTML entities
   let html = text
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
-  // Replace ~~text~~ with <s> tags
+  // Bold **text** (must come before italic)
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong class="font-bold">$1</strong>');
+  // Italic *text* (not **)
+  html = html.replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '<em class="italic">$1</em>');
+  // Strikethrough ~~text~~
   html = html.replace(/~~([\s\S]+?)~~/g, '<s class="line-through opacity-60">$1</s>');
-  // Replace newlines with <br>
   html = html.replace(/\n/g, '<br>');
   return html;
 };
@@ -43,8 +45,15 @@ const toPlainText = (el: HTMLDivElement): string => {
         text += '~~';
         node.childNodes.forEach(walk);
         text += '~~';
+      } else if (tag === 'strong' || tag === 'b') {
+        text += '**';
+        node.childNodes.forEach(walk);
+        text += '**';
+      } else if (tag === 'em' || tag === 'i') {
+        text += '*';
+        node.childNodes.forEach(walk);
+        text += '*';
       } else if (tag === 'div' || tag === 'p') {
-        // Divs/paragraphs inserted by contentEditable = newline
         if (text.length > 0 && !text.endsWith('\n')) {
           text += '\n';
         }
