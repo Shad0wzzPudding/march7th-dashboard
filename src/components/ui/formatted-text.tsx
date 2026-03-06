@@ -1,4 +1,5 @@
-import { Fragment } from 'react';
+import React, { Fragment } from 'react';
+import { cloneElement, isValidElement } from 'react';
 
 interface FormattedTextProps {
   children: string;
@@ -25,9 +26,10 @@ export const FormattedText = ({ children, className }: FormattedTextProps) => {
           </span>
         ];
       }
-      return renderBoldItalic(part).map((node, j) => 
-        typeof node === 'string' ? <span key={`t-${i}-${j}`}>{node}</span> : { ...node, key: `t-${i}-${j}` }
-      );
+      return renderBoldItalic(part).map((node, j) => {
+        if (isValidElement(node)) return cloneElement(node, { key: `t-${i}-${j}` });
+        return <span key={`t-${i}-${j}`}>{node}</span>;
+      });
     });
   };
 
@@ -38,9 +40,10 @@ export const FormattedText = ({ children, className }: FormattedTextProps) => {
       if (part.startsWith('**') && part.endsWith('**') && part.length > 4) {
         return [<strong key={`b-${i}`} className="font-bold">{renderItalic(part.slice(2, -2))}</strong>];
       }
-      return renderItalic(part).map((node, j) =>
-        typeof node === 'string' ? <span key={`bi-${i}-${j}`}>{node}</span> : { ...node, key: `bi-${i}-${j}` }
-      );
+      return renderItalic(part).map((node, j) => {
+        if (isValidElement(node)) return cloneElement(node, { key: `bi-${i}-${j}` });
+        return <span key={`bi-${i}-${j}`}>{node}</span>;
+      });
     });
   };
 
