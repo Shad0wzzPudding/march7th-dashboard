@@ -271,36 +271,33 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
     const sel = window.getSelection();
     if (!sel || sel.rangeCount === 0 || sel.isCollapsed) return;
     
-    const selText = sel.toString();
-    const cursorPos = saveCursor(el);
-    const selStart = cursorPos;
-    const selEnd = selStart + selText.length;
+    const visStart = saveCursor(el);
+    const visEnd = visStart + sel.toString().length;
     
-    const before = value.slice(0, selStart);
-    const selected = value.slice(selStart, selEnd);
-    const after = value.slice(selEnd);
+    const rawStart = visibleToRaw(value, visStart);
+    const rawEnd = visibleToRaw(value, visEnd);
+    
+    const before = value.slice(0, rawStart);
+    const selected = value.slice(rawStart, rawEnd);
+    const after = value.slice(rawEnd);
     
     let newValue: string;
-    let newEnd: number;
+    const marker = '~~';
     
-    if (selected.startsWith('~~') && selected.endsWith('~~')) {
-      const unwrapped = selected.slice(2, -2);
-      newValue = before + unwrapped + after;
-      newEnd = selStart + unwrapped.length;
+    // Check if already wrapped (markers just outside the selection)
+    const alreadyWrapped = before.endsWith(marker) && after.startsWith(marker);
+    
+    if (alreadyWrapped) {
+      newValue = before.slice(0, -marker.length) + selected + after.slice(marker.length);
     } else {
-      newValue = before + '~~' + selected + '~~' + after;
-      newEnd = selEnd + 4;
+      newValue = before + marker + selected + marker + after;
     }
     
     onChange(newValue);
     isUpdatingRef.current = true;
     requestAnimationFrame(() => {
       el.innerHTML = toHTML(newValue);
-      // Select the formatted text
-      const newSel = window.getSelection();
-      if (newSel) {
-        restoreCursor(el, selStart);
-      }
+      restoreCursor(el, visStart);
       el.focus();
       isUpdatingRef.current = false;
     });
@@ -313,21 +310,24 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
     const sel = window.getSelection();
     if (!sel || sel.rangeCount === 0 || sel.isCollapsed) return;
     
-    const selText = sel.toString();
-    const cursorPos = saveCursor(el);
-    const selStart = cursorPos;
-    const selEnd = selStart + selText.length;
+    const visStart = saveCursor(el);
+    const visEnd = visStart + sel.toString().length;
     
-    const before = value.slice(0, selStart);
-    const selected = value.slice(selStart, selEnd);
-    const after = value.slice(selEnd);
+    const rawStart = visibleToRaw(value, visStart);
+    const rawEnd = visibleToRaw(value, visEnd);
+    
+    const before = value.slice(0, rawStart);
+    const selected = value.slice(rawStart, rawEnd);
+    const after = value.slice(rawEnd);
     const mLen = marker.length;
     
     let newValue: string;
     
-    if (selected.startsWith(marker) && selected.endsWith(marker)) {
-      const unwrapped = selected.slice(mLen, -mLen);
-      newValue = before + unwrapped + after;
+    // Check if already wrapped (markers just outside the selection)
+    const alreadyWrapped = before.endsWith(marker) && after.startsWith(marker);
+    
+    if (alreadyWrapped) {
+      newValue = before.slice(0, -mLen) + selected + after.slice(mLen);
     } else {
       newValue = before + marker + selected + marker + after;
     }
@@ -336,7 +336,7 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
     isUpdatingRef.current = true;
     requestAnimationFrame(() => {
       el.innerHTML = toHTML(newValue);
-      restoreCursor(el, selStart);
+      restoreCursor(el, visStart);
       el.focus();
       isUpdatingRef.current = false;
     });
