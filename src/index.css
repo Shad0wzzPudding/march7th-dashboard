@@ -177,3 +177,10 @@
     filter: none !important;
   }
 }
+
+/* ContentEditable placeholder */
+[contenteditable]:empty::before {
+  content: attr(data-placeholder);
+  color: hsl(var(--muted-foreground));
+  pointer-events: none;
+}
