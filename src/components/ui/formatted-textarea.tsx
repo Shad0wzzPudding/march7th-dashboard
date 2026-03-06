@@ -360,6 +360,26 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
         >
           <Strikethrough size={14} />
         </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => wrapSelection('**')}
+          className="h-7 px-2 text-xs gap-1"
+          title="Bold selected text"
+        >
+          <Bold size={14} />
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => wrapSelection('*')}
+          className="h-7 px-2 text-xs gap-1"
+          title="Italic selected text"
+        >
+          <Italic size={14} />
+        </Button>
       </div>
       <div className="relative">
         <div
