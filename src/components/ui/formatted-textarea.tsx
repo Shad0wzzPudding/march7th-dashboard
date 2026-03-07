@@ -277,7 +277,7 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
     const visEnd = visStart + sel.toString().length;
     
     const rawStart = visibleToRaw(value, visStart);
-    const rawEnd = visibleToRaw(value, visEnd);
+    const rawEnd = visibleToRaw(value, visEnd, false);
     
     const before = value.slice(0, rawStart);
     const selected = value.slice(rawStart, rawEnd);
@@ -316,7 +316,7 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
     const visEnd = visStart + sel.toString().length;
     
     const rawStart = visibleToRaw(value, visStart);
-    const rawEnd = visibleToRaw(value, visEnd);
+    const rawEnd = visibleToRaw(value, visEnd, false);
     
     const before = value.slice(0, rawStart);
     const selected = value.slice(rawStart, rawEnd);
