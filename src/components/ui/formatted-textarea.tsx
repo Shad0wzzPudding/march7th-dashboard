@@ -190,7 +190,8 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
       if (!el) return;
       
       const plainText = toPlainText(el);
-      const cursorPos = saveCursor(el);
+      const visCursorPos = saveCursor(el);
+      const cursorPos = visibleToRaw(plainText, visCursorPos);
       const textBefore = plainText.slice(0, cursorPos);
       const textAfter = plainText.slice(cursorPos);
       
