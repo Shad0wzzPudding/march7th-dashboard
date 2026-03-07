@@ -396,7 +396,7 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
           type="button"
           variant="outline"
           size="sm"
-          onClick={toggleStrikethrough}
+          onClick={() => applyFormatToggle('~~')}
           className="h-7 px-2 text-xs gap-1"
           title="Strikethrough selected text"
         >
@@ -406,7 +406,7 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
           type="button"
           variant="outline"
           size="sm"
-          onClick={() => wrapSelection('**')}
+          onClick={() => applyFormatToggle('**')}
           className="h-7 px-2 text-xs gap-1"
           title="Bold selected text"
         >
@@ -416,7 +416,7 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
           type="button"
           variant="outline"
           size="sm"
-          onClick={() => wrapSelection('*')}
+          onClick={() => applyFormatToggle('*')}
           className="h-7 px-2 text-xs gap-1"
           title="Italic selected text"
         >
