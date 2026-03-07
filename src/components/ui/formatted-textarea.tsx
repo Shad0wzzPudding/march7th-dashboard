@@ -217,7 +217,7 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
         isUpdatingRef.current = true;
         requestAnimationFrame(() => {
           el.innerHTML = toHTML(newValue);
-          restoreCursor(el, cursorPos + 3);
+          restoreCursor(el, visCursorPos + 3);
           isUpdatingRef.current = false;
         });
         return;
@@ -229,7 +229,7 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
       isUpdatingRef.current = true;
       requestAnimationFrame(() => {
         el.innerHTML = toHTML(newValue);
-        restoreCursor(el, cursorPos + 1);
+        restoreCursor(el, visCursorPos + 1);
         isUpdatingRef.current = false;
       });
     }
@@ -239,7 +239,8 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
     const el = editorRef.current;
     if (!el) return;
     
-    const cursorPos = saveCursor(el);
+    const visCursorPos = saveCursor(el);
+    const cursorPos = visibleToRaw(value, visCursorPos);
     const textBefore = value.slice(0, cursorPos);
     const textAfter = value.slice(cursorPos);
     
