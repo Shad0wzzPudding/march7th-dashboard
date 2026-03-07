@@ -252,10 +252,10 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
     
     if (currentLine.length === 0 || cursorPos === 0) {
       newValue = textBefore + '• ' + textAfter;
-      newPos = cursorPos + 2;
+      newPos = visCursorPos + 2;
     } else {
       newValue = textBefore + '\n• ' + textAfter;
-      newPos = cursorPos + 3;
+      newPos = visCursorPos + 3;
     }
     
     onChange(newValue);
