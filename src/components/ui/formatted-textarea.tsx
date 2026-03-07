@@ -190,7 +190,8 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
       if (!el) return;
       
       const plainText = toPlainText(el);
-      const cursorPos = saveCursor(el);
+      const visCursorPos = saveCursor(el);
+      const cursorPos = visibleToRaw(plainText, visCursorPos);
       const textBefore = plainText.slice(0, cursorPos);
       const textAfter = plainText.slice(cursorPos);
       
@@ -216,7 +217,7 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
         isUpdatingRef.current = true;
         requestAnimationFrame(() => {
           el.innerHTML = toHTML(newValue);
-          restoreCursor(el, cursorPos + 3);
+          restoreCursor(el, visCursorPos + 3);
           isUpdatingRef.current = false;
         });
         return;
@@ -228,7 +229,7 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
       isUpdatingRef.current = true;
       requestAnimationFrame(() => {
         el.innerHTML = toHTML(newValue);
-        restoreCursor(el, cursorPos + 1);
+        restoreCursor(el, visCursorPos + 1);
         isUpdatingRef.current = false;
       });
     }
@@ -238,7 +239,8 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
     const el = editorRef.current;
     if (!el) return;
     
-    const cursorPos = saveCursor(el);
+    const visCursorPos = saveCursor(el);
+    const cursorPos = visibleToRaw(value, visCursorPos);
     const textBefore = value.slice(0, cursorPos);
     const textAfter = value.slice(cursorPos);
     
@@ -250,10 +252,10 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
     
     if (currentLine.length === 0 || cursorPos === 0) {
       newValue = textBefore + '• ' + textAfter;
-      newPos = cursorPos + 2;
+      newPos = visCursorPos + 2;
     } else {
       newValue = textBefore + '\n• ' + textAfter;
-      newPos = cursorPos + 3;
+      newPos = visCursorPos + 3;
     }
     
     onChange(newValue);
@@ -350,9 +352,10 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
     const el = editorRef.current;
     if (!el) return;
     
-    const cursorPos = saveCursor(el);
-    const newValue = value.slice(0, cursorPos) + text + value.slice(cursorPos);
-    const newPos = cursorPos + text.length;
+    const visCursorPos = saveCursor(el);
+    const rawCursorPos = visibleToRaw(value, visCursorPos);
+    const newValue = value.slice(0, rawCursorPos) + text + value.slice(rawCursorPos);
+    const newPos = visCursorPos + text.length;
     
     onChange(newValue);
     isUpdatingRef.current = true;
