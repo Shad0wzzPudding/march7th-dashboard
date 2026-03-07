@@ -268,83 +268,85 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
     });
   }, [value, onChange]);
 
-  const toggleStrikethrough = useCallback(() => {
-    const el = editorRef.current;
-    if (!el) return;
-    
+  const restoreSelection = useCallback((el: HTMLElement, visStart: number, visEnd: number) => {
     const sel = window.getSelection();
-    if (!sel || sel.rangeCount === 0 || sel.isCollapsed) return;
+    if (!sel) return;
     
-    const visStart = saveCursor(el);
-    const visEnd = visStart + sel.toString().length;
+    // First set cursor at start
+    restoreCursor(el, visStart);
+    if (visStart === visEnd) return;
     
-    const rawStart = visibleToRaw(value, visStart);
-    const rawEnd = visibleToRaw(value, visEnd, false);
+    // Extend selection to end
+    const startRange = sel.getRangeAt(0);
+    const startNode = startRange.startContainer;
+    const startOffset = startRange.startOffset;
     
-    const before = value.slice(0, rawStart);
-    const selected = value.slice(rawStart, rawEnd);
-    const after = value.slice(rawEnd);
+    // Set cursor at end to find that position
+    restoreCursor(el, visEnd);
+    const endRange = sel.getRangeAt(0);
+    const endNode = endRange.startContainer;
+    const endOffset = endRange.startOffset;
     
-    let newValue: string;
-    const marker = '~~';
-    
-    // Check if already wrapped (markers just outside the selection)
-    const alreadyWrapped = before.endsWith(marker) && after.startsWith(marker);
-    
-    if (alreadyWrapped) {
-      newValue = before.slice(0, -marker.length) + selected + after.slice(marker.length);
-    } else {
-      newValue = before + marker + selected + marker + after;
-    }
-    
-    onChange(newValue);
-    isUpdatingRef.current = true;
-    requestAnimationFrame(() => {
-      el.innerHTML = toHTML(newValue);
-      restoreCursor(el, visStart);
-      el.focus();
-      isUpdatingRef.current = false;
-    });
-  }, [value, onChange]);
+    // Create selection from start to end
+    const range = document.createRange();
+    range.setStart(startNode, startOffset);
+    range.setEnd(endNode, endOffset);
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }, []);
 
-  const wrapSelection = useCallback((marker: string) => {
+  const applyFormatToggle = useCallback((marker: string) => {
     const el = editorRef.current;
     if (!el) return;
     
     const sel = window.getSelection();
     if (!sel || sel.rangeCount === 0 || sel.isCollapsed) return;
     
+    const selectedText = sel.toString();
     const visStart = saveCursor(el);
-    const visEnd = visStart + sel.toString().length;
-    
-    const rawStart = visibleToRaw(value, visStart);
-    const rawEnd = visibleToRaw(value, visEnd, false);
-    
-    const before = value.slice(0, rawStart);
-    const selected = value.slice(rawStart, rawEnd);
-    const after = value.slice(rawEnd);
+    const visEnd = visStart + selectedText.length;
     const mLen = marker.length;
     
+    // Get the visible text (no markers) to work with
+    const visibleText = toPlainText(el).replace(/\*\*/g, '').replace(/(?<!\*)\*(?!\*)/g, '').replace(/~~/g, '');
+    
+    // Instead of complex mapping, find the selected content in raw value
+    // by stripping markers from the selected portion
+    const rawStart = visibleToRaw(value, visStart);
+    const rawEnd = visibleToRaw(value, visEnd, false);
+    
+    const before = value.slice(0, rawStart);
+    const selected = value.slice(rawStart, rawEnd);
+    const after = value.slice(rawEnd);
+    
     let newValue: string;
+    let newVisEnd: number;
     
-    // Check if already wrapped (markers just outside the selection)
-    const alreadyWrapped = before.endsWith(marker) && after.startsWith(marker);
+    // Check if already wrapped - markers just outside selection
+    const wrappedOutside = before.endsWith(marker) && after.startsWith(marker);
+    // Check if already wrapped - markers inside selection
+    const wrappedInside = selected.startsWith(marker) && selected.endsWith(marker) && selected.length > mLen * 2;
     
-    if (alreadyWrapped) {
+    if (wrappedOutside) {
       newValue = before.slice(0, -mLen) + selected + after.slice(mLen);
+      newVisEnd = visEnd;
+    } else if (wrappedInside) {
+      newValue = before + selected.slice(mLen, -mLen) + after;
+      newVisEnd = visEnd;
     } else {
       newValue = before + marker + selected + marker + after;
+      newVisEnd = visEnd;
     }
     
     onChange(newValue);
     isUpdatingRef.current = true;
     requestAnimationFrame(() => {
       el.innerHTML = toHTML(newValue);
-      restoreCursor(el, visStart);
+      restoreSelection(el, visStart, newVisEnd);
       el.focus();
       isUpdatingRef.current = false;
     });
-  }, [value, onChange]);
+  }, [value, onChange, restoreSelection]);
 
   const handlePaste = useCallback((e: React.ClipboardEvent) => {
     e.preventDefault();
