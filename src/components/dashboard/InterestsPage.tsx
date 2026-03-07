@@ -6,10 +6,14 @@ import { Input } from '@/components/ui/input';
 import { FormattedTextarea } from '@/components/ui/formatted-textarea';
 import { FormattedText } from '@/components/ui/formatted-text';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, ResizableDialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Edit, Trash2, Pin, PinOff, Clock, GripVertical, Copy } from 'lucide-react';
+import { Plus, Edit, Trash2, Pin, PinOff, Clock, GripVertical, Copy, CheckSquare } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
+import { useMultiSelect } from '@/hooks/useMultiSelect';
+import { MultiSelectActionBar } from './MultiSelectActionBar';
+import { MarchConfirmDialog } from './MarchConfirmDialog';
 import { playSuccessSound, playCancelSound, playDeleteSound, playDuplicateSound, playPinSound, playUnpinSound, playUpdateSound, playEditSound } from '@/lib/sounds';
 
 interface InterestsPageProps {
@@ -28,6 +32,7 @@ export const InterestsPage = ({
   const { toast } = useToast();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingInterest, setEditingInterest] = useState<Interest | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -35,6 +40,8 @@ export const InterestsPage = ({
     is_pinned: false,
     sort_order: 0
   });
+
+  const { selectedIds, selectedCount, isSelecting, toggle, selectAll, clearSelection, enterSelectMode, isSelected } = useMultiSelect<Interest>();
 
   const resetForm = () => {
     setFormData({
@@ -107,70 +114,140 @@ export const InterestsPage = ({
     });
   };
 
+  // Batch actions
+  const handleBatchCopy = () => {
+    const selected = interests.filter(i => selectedIds.has(i.id));
+    selected.forEach(interest => {
+      onCreateInterest({
+        title: interest.title,
+        description: interest.description,
+        deadline: interest.deadline,
+        is_pinned: false,
+        sort_order: 0
+      });
+    });
+    playDuplicateSound();
+    toast({ title: `${selected.length} interest(s) duplicated` });
+    clearSelection();
+  };
+
+  const handleBatchDelete = () => {
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmBatchDelete = () => {
+    selectedIds.forEach(id => onDeleteInterest(id));
+    playDeleteSound();
+    toast({ title: `${selectedCount} interest(s) deleted` });
+    clearSelection();
+    setShowDeleteConfirm(false);
+  };
+
+  const handleBatchUnpin = () => {
+    const selected = interests.filter(i => selectedIds.has(i.id) && i.is_pinned);
+    selected.forEach(interest => {
+      onUpdateInterest({ id: interest.id, is_pinned: false });
+    });
+    playUnpinSound();
+    toast({ title: `${selected.length} interest(s) unpinned` });
+    clearSelection();
+  };
+
+  const handleCardClick = (interest: Interest) => {
+    if (isSelecting) {
+      toggle(interest.id);
+    }
+  };
+
   const pinnedInterests = interests.filter(i => i.is_pinned);
   const unpinnedInterests = interests.filter(i => !i.is_pinned);
 
+  // Check if any selected interests are pinned (for showing unpin action)
+  const hasSelectedPinned = interests.some(i => selectedIds.has(i.id) && i.is_pinned);
+
   return (
     <div className="space-y-6 animate-fade-in">
+      <MarchConfirmDialog
+        open={showDeleteConfirm}
+        onOpenChange={setShowDeleteConfirm}
+        onConfirm={confirmBatchDelete}
+        title={`Delete ${selectedCount} interest(s)?`}
+        description="This will permanently delete the selected interests."
+        confirmText="Yes, delete them!"
+        cancelText="Wait, no!"
+      />
+
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-main-focus">
           My Interests
         </h2>
-        <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-          <DialogTrigger asChild>
-            <Button 
-              onClick={resetForm} 
-              className="bg-main-focus hover:bg-main-focus/80 text-white"
+        <div className="flex items-center gap-2">
+          {!isSelecting && interests.length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={enterSelectMode}
             >
-              <Plus size={16} className="mr-2" />
-              Add Interest
+              <CheckSquare size={14} className="mr-2" />
+              Select
             </Button>
-          </DialogTrigger>
-          <ResizableDialogContent>
-            <DialogHeader>
-              <DialogTitle>
-                {editingInterest ? 'Edit Interest' : 'Create New Interest'}
-              </DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <Input
-                placeholder="Interest title"
-                value={formData.title}
-                onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                required
-              />
-              <FormattedTextarea
-                placeholder="Description (optional)"
-                value={formData.description}
-                onChange={(val) => setFormData(prev => ({ ...prev, description: val }))}
-              />
-              <Input
-                type="datetime-local"
-                placeholder="Deadline (optional)"
-                value={formData.deadline}
-                onChange={(e) => setFormData(prev => ({ ...prev, deadline: e.target.value }))}
-              />
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="is_pinned"
-                  checked={formData.is_pinned}
-                  onChange={(e) => setFormData(prev => ({ ...prev, is_pinned: e.target.checked }))}
-                  className="rounded"
+          )}
+          <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+            <DialogTrigger asChild>
+              <Button 
+                onClick={resetForm} 
+                className="bg-main-focus hover:bg-main-focus/80 text-white"
+              >
+                <Plus size={16} className="mr-2" />
+                Add Interest
+              </Button>
+            </DialogTrigger>
+            <ResizableDialogContent>
+              <DialogHeader>
+                <DialogTitle>
+                  {editingInterest ? 'Edit Interest' : 'Create New Interest'}
+                </DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <Input
+                  placeholder="Interest title"
+                  value={formData.title}
+                  onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                  required
                 />
-                <label htmlFor="is_pinned" className="text-sm">Pin to main focus</label>
-              </div>
-              <div className="flex gap-2">
-                <Button type="submit" className="flex-1">
-                  {editingInterest ? 'Update' : 'Create'}
-                </Button>
-                <Button type="button" variant="outline" onClick={() => { playCancelSound(); setIsCreateOpen(false); }}>
-                  Cancel
-                </Button>
-              </div>
-            </form>
-          </ResizableDialogContent>
-        </Dialog>
+                <FormattedTextarea
+                  placeholder="Description (optional)"
+                  value={formData.description}
+                  onChange={(val) => setFormData(prev => ({ ...prev, description: val }))}
+                />
+                <Input
+                  type="datetime-local"
+                  placeholder="Deadline (optional)"
+                  value={formData.deadline}
+                  onChange={(e) => setFormData(prev => ({ ...prev, deadline: e.target.value }))}
+                />
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="is_pinned"
+                    checked={formData.is_pinned}
+                    onChange={(e) => setFormData(prev => ({ ...prev, is_pinned: e.target.checked }))}
+                    className="rounded"
+                  />
+                  <label htmlFor="is_pinned" className="text-sm">Pin to main focus</label>
+                </div>
+                <div className="flex gap-2">
+                  <Button type="submit" className="flex-1">
+                    {editingInterest ? 'Update' : 'Create'}
+                  </Button>
+                  <Button type="button" variant="outline" onClick={() => { playCancelSound(); setIsCreateOpen(false); }}>
+                    Cancel
+                  </Button>
+                </div>
+              </form>
+            </ResizableDialogContent>
+          </Dialog>
+        </div>
       </div>
 
       {/* Pinned Interests */}
@@ -182,10 +259,26 @@ export const InterestsPage = ({
           </h3>
           <div className="grid gap-4 md:grid-cols-2">
             {pinnedInterests.map((interest) => (
-              <Card key={interest.id} className="bg-main-focus/20 border-main-focus/40">
+              <Card 
+                key={interest.id} 
+                className={`bg-main-focus/20 border-main-focus/40 transition-all ${
+                  isSelecting ? 'cursor-pointer' : ''
+                } ${isSelected(interest.id) ? 'ring-2 ring-main-focus shadow-lg' : ''}`}
+                onClick={() => handleCardClick(interest)}
+              >
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
-                    <CardTitle className="text-lg text-main-focus">{interest.title}</CardTitle>
+                    <div className="flex items-start gap-3">
+                      {isSelecting && (
+                        <Checkbox
+                          checked={isSelected(interest.id)}
+                          onCheckedChange={() => toggle(interest.id)}
+                          onClick={(e) => e.stopPropagation()}
+                          className="mt-1"
+                        />
+                      )}
+                      <CardTitle className="text-lg text-main-focus">{interest.title}</CardTitle>
+                    </div>
                     <div className="flex items-center gap-1">
                       <Badge variant="secondary" className="bg-main-focus/20 text-main-focus">
                         <Pin size={12} />
@@ -203,9 +296,78 @@ export const InterestsPage = ({
                       {format(parseISO(interest.deadline), 'MMM dd, yyyy HH:mm')}
                     </div>
                   )}
+                  {!isSelecting && (
+                    <div className="flex items-center gap-2 pt-2">
+                      <Button size="sm" variant="outline" onClick={() => handlePin(interest)}>
+                        <PinOff size={12} />
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => handleCopy(interest)}>
+                        <Copy size={12} />
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => handleEdit(interest)}>
+                        <Edit size={12} />
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        onClick={() => { playDeleteSound(); onDeleteInterest(interest.id); }}
+                        className="text-destructive hover:text-destructive"
+                      >
+                        <Trash2 size={12} />
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Unpinned Interests */}
+      <div>
+        <h3 className="text-lg font-semibold text-gray-600 dark:text-gray-400 mb-3">
+          All Interests ({unpinnedInterests.length})
+        </h3>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {unpinnedInterests.map((interest) => (
+            <Card 
+              key={interest.id} 
+              className={`hover:shadow-md transition-all ${
+                isSelecting ? 'cursor-pointer' : ''
+              } ${isSelected(interest.id) ? 'ring-2 ring-main-focus shadow-lg' : ''}`}
+              onClick={() => handleCardClick(interest)}
+            >
+              <CardHeader className="pb-3">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start gap-3">
+                    {isSelecting && (
+                      <Checkbox
+                        checked={isSelected(interest.id)}
+                        onCheckedChange={() => toggle(interest.id)}
+                        onClick={(e) => e.stopPropagation()}
+                        className="mt-1"
+                      />
+                    )}
+                    <CardTitle className="text-lg">{interest.title}</CardTitle>
+                  </div>
+                  {!isSelecting && <GripVertical size={16} className="text-gray-400 cursor-grab" />}
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                  {interest.description && (
+                    <p className="text-sm text-muted-foreground whitespace-pre-wrap"><FormattedText>{interest.description}</FormattedText></p>
+                 )}
+                {interest.deadline && (
+                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                    <Clock size={12} />
+                    {format(parseISO(interest.deadline), 'MMM dd, yyyy HH:mm')}
+                  </div>
+                )}
+                {!isSelecting && (
                   <div className="flex items-center gap-2 pt-2">
                     <Button size="sm" variant="outline" onClick={() => handlePin(interest)}>
-                      <PinOff size={12} />
+                      <Pin size={12} />
                     </Button>
                     <Button size="sm" variant="outline" onClick={() => handleCopy(interest)}>
                       <Copy size={12} />
@@ -222,56 +384,7 @@ export const InterestsPage = ({
                       <Trash2 size={12} />
                     </Button>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Unpinned Interests */}
-      <div>
-        <h3 className="text-lg font-semibold text-gray-600 dark:text-gray-400 mb-3">
-          All Interests ({unpinnedInterests.length})
-        </h3>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {unpinnedInterests.map((interest) => (
-            <Card key={interest.id} className="hover:shadow-md transition-shadow">
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <CardTitle className="text-lg">{interest.title}</CardTitle>
-                  <GripVertical size={16} className="text-gray-400 cursor-grab" />
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                  {interest.description && (
-                    <p className="text-sm text-muted-foreground whitespace-pre-wrap"><FormattedText>{interest.description}</FormattedText></p>
-                 )}
-                {interest.deadline && (
-                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                    <Clock size={12} />
-                    {format(parseISO(interest.deadline), 'MMM dd, yyyy HH:mm')}
-                  </div>
                 )}
-                <div className="flex items-center gap-2 pt-2">
-                  <Button size="sm" variant="outline" onClick={() => handlePin(interest)}>
-                    <Pin size={12} />
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => handleCopy(interest)}>
-                    <Copy size={12} />
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => handleEdit(interest)}>
-                    <Edit size={12} />
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    onClick={() => { playDeleteSound(); onDeleteInterest(interest.id); }}
-                    className="text-destructive hover:text-destructive"
-                  >
-                    <Trash2 size={12} />
-                  </Button>
-                </div>
               </CardContent>
             </Card>
           ))}
@@ -289,6 +402,16 @@ export const InterestsPage = ({
           </CardContent>
         </Card>
       )}
+
+      <MultiSelectActionBar
+        selectedCount={selectedCount}
+        onCopy={handleBatchCopy}
+        onDelete={handleBatchDelete}
+        onUnpin={hasSelectedPinned ? handleBatchUnpin : undefined}
+        onCancel={clearSelection}
+        onSelectAll={() => selectAll(interests)}
+        totalCount={interests.length}
+      />
     </div>
   );
 };

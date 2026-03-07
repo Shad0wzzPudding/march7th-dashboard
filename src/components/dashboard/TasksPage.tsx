@@ -8,9 +8,11 @@ import { FormattedText } from '@/components/ui/formatted-text';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, ResizableDialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Edit, Trash2, Clock, CheckCircle2, Circle, Calendar, CalendarClock, Copy, Trash, Undo2, X } from 'lucide-react';
+import { Plus, Edit, Trash2, Clock, CheckCircle2, Circle, Calendar, CalendarClock, Copy, Trash, Undo2, X, CheckSquare } from 'lucide-react';
 import { format, parseISO, isAfter, isBefore } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
+import { useMultiSelect } from '@/hooks/useMultiSelect';
+import { MultiSelectActionBar } from './MultiSelectActionBar';
 import { MarchConfirmDialog } from './MarchConfirmDialog';
 import { playSuccessSound, playCompletionSound, playCancelSound, playDeleteSound, playDuplicateSound, playUpdateSound, playEditSound } from '@/lib/sounds';
 
@@ -34,6 +36,7 @@ export const TasksPage = ({
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [clearedTasks, setClearedTasks] = useState<Task[]>([]);
   const [showUndo, setShowUndo] = useState(false);
   const [formData, setFormData] = useState({
@@ -43,6 +46,8 @@ export const TasksPage = ({
     deadline: '',
     is_completed: false
   });
+
+  const { selectedIds, selectedCount, isSelecting, toggle, selectAll, clearSelection, enterSelectMode, isSelected } = useMultiSelect<Task>();
 
   // Hide undo button after 10 seconds
   useEffect(() => {
@@ -68,7 +73,6 @@ export const TasksPage = ({
   };
 
   const handleUndo = () => {
-    // Re-create the cleared tasks
     clearedTasks.forEach(task => {
       onCreateTask({
         title: task.title,
@@ -159,6 +163,41 @@ export const TasksPage = ({
     });
   };
 
+  // Batch actions
+  const handleBatchCopy = () => {
+    const selected = tasks.filter(t => selectedIds.has(t.id));
+    selected.forEach(task => {
+      onCreateTask({
+        title: task.title,
+        description: task.description,
+        start_date: task.start_date,
+        deadline: task.deadline,
+        is_completed: false
+      });
+    });
+    playDuplicateSound();
+    toast({ title: `${selected.length} task(s) duplicated` });
+    clearSelection();
+  };
+
+  const handleBatchDelete = () => {
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmBatchDelete = () => {
+    selectedIds.forEach(id => onDeleteTask(id));
+    playDeleteSound();
+    toast({ title: `${selectedCount} task(s) deleted` });
+    clearSelection();
+    setShowDeleteConfirm(false);
+  };
+
+  const handleCardClick = (task: Task) => {
+    if (isSelecting) {
+      toggle(task.id);
+    }
+  };
+
   const now = new Date();
   const pendingTasks = tasks.filter(task => !task.is_completed);
   const completedTasks = tasks.filter(task => task.is_completed);
@@ -188,9 +227,89 @@ export const TasksPage = ({
     }
   };
 
+  const renderTaskCard = (task: Task, showBadge?: string) => {
+    const status = getTaskStatus(task);
+    return (
+      <Card 
+        key={task.id} 
+        className={`${getBorderColor(status)} transition-all ${
+          isSelecting ? 'cursor-pointer' : ''
+        } ${isSelected(task.id) ? 'ring-2 ring-upcoming-events shadow-lg' : ''}`}
+        onClick={() => handleCardClick(task)}
+      >
+        <CardContent className="p-4">
+          <div className="flex items-start justify-between">
+            <div className="flex items-start gap-3 flex-1">
+              {isSelecting ? (
+                <Checkbox
+                  checked={isSelected(task.id)}
+                  onCheckedChange={() => toggle(task.id)}
+                  onClick={(e) => e.stopPropagation()}
+                  className="mt-1"
+                />
+              ) : (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => handleToggleComplete(task)}
+                  className="mt-1 p-0 h-6 w-6"
+                >
+                   {task.is_completed ? 
+                     <CheckCircle2 size={20} className="text-emerald-400" /> : 
+                     <Circle size={20} className="text-gray-400" />
+                   }
+                </Button>
+              )}
+              <div className="flex-1">
+                <h4 className={`font-semibold ${task.is_completed ? 'line-through text-muted-foreground' : ''}`}>
+                  {task.title}
+                </h4>
+                  {task.description && (
+                    <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap"><FormattedText>{task.description}</FormattedText></p>
+                  )}
+                 <div className="space-y-1 mt-2">
+                   {task.start_date ? (
+                     <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                       <Calendar size={12} />
+                       <span>Start: {format(parseISO(task.start_date), 'MMM dd, yyyy HH:mm')}</span>
+                     </div>
+                   ) : null}
+                   <div className={`flex items-center gap-1 text-sm ${getStatusColor(status)}`}>
+                     <CalendarClock size={12} />
+                     <span>Due: {task.deadline ? format(parseISO(task.deadline), 'MMM dd, yyyy HH:mm') : 'No deadline'}</span>
+                   </div>
+                 </div>
+              </div>
+            </div>
+            {!isSelecting && (
+              <div className="flex items-center gap-2">
+                {showBadge === 'overdue' && <Badge variant="destructive" className="text-xs">Overdue</Badge>}
+                {showBadge === 'completed' && <Badge className="text-xs bg-emerald-100 dark:bg-emerald-900 text-emerald-600 dark:text-emerald-300">Completed</Badge>}
+                <Button size="sm" variant="outline" onClick={() => handleCopy(task)}>
+                  <Copy size={12} />
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => handleEdit(task)}>
+                  <Edit size={12} />
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  onClick={() => { playDeleteSound(); onDeleteTask(task.id); }}
+                  className="text-destructive hover:text-destructive"
+                >
+                  <Trash2 size={12} />
+                </Button>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* March Confirmation Dialog */}
+      {/* March Confirmation Dialogs */}
       <MarchConfirmDialog
         open={showClearConfirm}
         onOpenChange={setShowClearConfirm}
@@ -198,6 +317,15 @@ export const TasksPage = ({
         title="Clear all completed tasks?"
         description="This will permanently delete all your completed tasks. But don't worry, you'll have 10 seconds to undo!"
         confirmText="Yep, clear them!"
+        cancelText="Wait, no!"
+      />
+      <MarchConfirmDialog
+        open={showDeleteConfirm}
+        onOpenChange={setShowDeleteConfirm}
+        onConfirm={confirmBatchDelete}
+        title={`Delete ${selectedCount} task(s)?`}
+        description="This will permanently delete the selected tasks."
+        confirmText="Yes, delete them!"
         cancelText="Wait, no!"
       />
 
@@ -224,6 +352,16 @@ export const TasksPage = ({
             >
               <Trash size={16} className="mr-2" />
               Clear Completed
+            </Button>
+          )}
+          {!isSelecting && tasks.length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={enterSelectMode}
+            >
+              <CheckSquare size={14} className="mr-2" />
+              Select
             </Button>
           )}
           <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
@@ -351,67 +489,7 @@ export const TasksPage = ({
             Overdue Tasks ({overdueTasks.length})
           </h3>
           <div className="space-y-3">
-            {overdueTasks.map((task) => {
-              const status = getTaskStatus(task);
-              return (
-                <Card key={task.id} className={getBorderColor(status)}>
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start gap-3 flex-1">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleToggleComplete(task)}
-                          className="mt-1 p-0 h-6 w-6"
-                        >
-                           {task.is_completed ? 
-                             <CheckCircle2 size={20} className="text-emerald-400" /> : 
-                             <Circle size={20} className="text-gray-400" />
-                           }
-                        </Button>
-                        <div className="flex-1">
-                          <h4 className={`font-semibold ${task.is_completed ? 'line-through text-muted-foreground' : ''}`}>
-                            {task.title}
-                          </h4>
-                            {task.description && (
-                              <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap"><FormattedText>{task.description}</FormattedText></p>
-                            )}
-                           <div className="space-y-1 mt-2">
-                             {task.start_date ? (
-                               <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                                 <Calendar size={12} />
-                                 <span>Start: {format(parseISO(task.start_date), 'MMM dd, yyyy HH:mm')}</span>
-                               </div>
-                             ) : null}
-                             <div className={`flex items-center gap-1 text-sm ${getStatusColor(status)}`}>
-                               <CalendarClock size={12} />
-                               <span>Due: {task.deadline ? format(parseISO(task.deadline), 'MMM dd, yyyy HH:mm') : 'No deadline'}</span>
-                             </div>
-                           </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="destructive" className="text-xs">Overdue</Badge>
-                        <Button size="sm" variant="outline" onClick={() => handleCopy(task)}>
-                          <Copy size={12} />
-                        </Button>
-                        <Button size="sm" variant="outline" onClick={() => handleEdit(task)}>
-                          <Edit size={12} />
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
-                          onClick={() => { playDeleteSound(); onDeleteTask(task.id); }}
-                          className="text-destructive hover:text-destructive"
-                        >
-                          <Trash2 size={12} />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
+            {overdueTasks.map((task) => renderTaskCard(task, 'overdue'))}
           </div>
         </div>
       )}
@@ -422,66 +500,7 @@ export const TasksPage = ({
           Upcoming Tasks ({upcomingTasks.length})
         </h3>
         <div className="space-y-3">
-          {upcomingTasks.map((task) => {
-            const status = getTaskStatus(task);
-            return (
-              <Card key={task.id} className={getBorderColor(status)}>
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-3 flex-1">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleToggleComplete(task)}
-                        className="mt-1 p-0 h-6 w-6"
-                      >
-                         {task.is_completed ? 
-                           <CheckCircle2 size={20} className="text-emerald-400" /> : 
-                           <Circle size={20} className="text-gray-400" />
-                         }
-                      </Button>
-                      <div className="flex-1">
-                        <h4 className={`font-semibold ${task.is_completed ? 'line-through text-muted-foreground' : ''}`}>
-                          {task.title}
-                        </h4>
-                          {task.description && (
-                            <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap"><FormattedText>{task.description}</FormattedText></p>
-                          )}
-                         <div className="space-y-1 mt-2">
-                           {task.start_date ? (
-                             <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                               <Calendar size={12} />
-                               <span>Start: {format(parseISO(task.start_date), 'MMM dd, yyyy HH:mm')}</span>
-                             </div>
-                           ) : null}
-                           <div className={`flex items-center gap-1 text-sm ${getStatusColor(status)}`}>
-                             <CalendarClock size={12} />
-                             <span>Due: {task.deadline ? format(parseISO(task.deadline), 'MMM dd, yyyy HH:mm') : 'No deadline'}</span>
-                           </div>
-                         </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button size="sm" variant="outline" onClick={() => handleCopy(task)}>
-                        <Copy size={12} />
-                      </Button>
-                      <Button size="sm" variant="outline" onClick={() => handleEdit(task)}>
-                        <Edit size={12} />
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        onClick={() => { playDeleteSound(); onDeleteTask(task.id); }}
-                        className="text-destructive hover:text-destructive"
-                      >
-                        <Trash2 size={12} />
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+          {upcomingTasks.map((task) => renderTaskCard(task))}
         </div>
       </div>
 
@@ -492,66 +511,7 @@ export const TasksPage = ({
             Completed Tasks ({completedTasks.length})
           </h3>
           <div className="space-y-3">
-            {completedTasks.map((task) => {
-              const status = getTaskStatus(task);
-              return (
-                <Card key={task.id} className={getBorderColor(status)}>
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start gap-3 flex-1">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleToggleComplete(task)}
-                          className="mt-1 p-0 h-6 w-6"
-                        >
-                           <CheckCircle2 size={20} className="text-emerald-400" />
-                        </Button>
-                        <div className="flex-1">
-                          <h4 className="font-semibold line-through text-muted-foreground">
-                            {task.title}
-                          </h4>
-                            {task.description && (
-                              <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap"><FormattedText>{task.description}</FormattedText></p>
-                            )}
-                           <div className="space-y-1 mt-2">
-                             {task.start_date ? (
-                               <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                                 <Calendar size={12} />
-                                 <span>Start: {format(parseISO(task.start_date), 'MMM dd, yyyy HH:mm')}</span>
-                               </div>
-                             ) : null}
-                             <div className={`flex items-center gap-1 text-sm ${getStatusColor(status)}`}>
-                               <CalendarClock size={12} />
-                               <span>Due: {task.deadline ? format(parseISO(task.deadline), 'MMM dd, yyyy HH:mm') : 'No deadline'}</span>
-                             </div>
-                           </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge className="text-xs bg-emerald-100 dark:bg-emerald-900 text-emerald-600 dark:text-emerald-300">
-                          Completed
-                        </Badge>
-                        <Button size="sm" variant="outline" onClick={() => handleCopy(task)}>
-                          <Copy size={12} />
-                        </Button>
-                        <Button size="sm" variant="outline" onClick={() => handleEdit(task)}>
-                          <Edit size={12} />
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
-                          onClick={() => { playDeleteSound(); onDeleteTask(task.id); }}
-                          className="text-destructive hover:text-destructive"
-                        >
-                          <Trash2 size={12} />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
+            {completedTasks.map((task) => renderTaskCard(task, 'completed'))}
           </div>
         </div>
       )}
@@ -567,6 +527,15 @@ export const TasksPage = ({
           </CardContent>
         </Card>
       )}
+
+      <MultiSelectActionBar
+        selectedCount={selectedCount}
+        onCopy={handleBatchCopy}
+        onDelete={handleBatchDelete}
+        onCancel={clearSelection}
+        onSelectAll={() => selectAll(tasks)}
+        totalCount={tasks.length}
+      />
     </div>
   );
 };
