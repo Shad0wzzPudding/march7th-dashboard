@@ -6,10 +6,13 @@ import { Input } from '@/components/ui/input';
 import { FormattedTextarea } from '@/components/ui/formatted-textarea';
 import { FormattedText } from '@/components/ui/formatted-text';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, ResizableDialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Edit, Trash2, Clock, CalendarDays, Copy, Trash, Undo2 } from 'lucide-react';
+import { Plus, Edit, Trash2, Clock, CalendarDays, Copy, Trash, Undo2, CheckSquare } from 'lucide-react';
 import { format, parseISO, isAfter, isBefore, isToday } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
+import { useMultiSelect } from '@/hooks/useMultiSelect';
+import { MultiSelectActionBar } from './MultiSelectActionBar';
 import { MarchConfirmDialog } from './MarchConfirmDialog';
 import { playSuccessSound, playCancelSound, playDeleteSound, playDuplicateSound, playUpdateSound, playEditSound } from '@/lib/sounds';
 
@@ -32,6 +35,7 @@ export const EventsPage = ({
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [clearedEvents, setClearedEvents] = useState<Event[]>([]);
   const [showUndo, setShowUndo] = useState(false);
   const [formData, setFormData] = useState({
@@ -40,6 +44,8 @@ export const EventsPage = ({
     start_time: '',
     deadline: ''
   });
+
+  const { selectedIds, selectedCount, isSelecting, toggle, selectAll, clearSelection, enterSelectMode, isSelected } = useMultiSelect<Event>();
 
   const now = new Date();
   const pastEvents = events.filter(event => isBefore(parseISO(event.start_time), now) && !isToday(parseISO(event.start_time)));
@@ -67,7 +73,6 @@ export const EventsPage = ({
   };
 
   const handleUndo = () => {
-    // Re-create the cleared events
     clearedEvents.forEach(event => {
       onCreateEvent({
         title: event.title,
@@ -141,6 +146,40 @@ export const EventsPage = ({
     });
   };
 
+  // Batch actions
+  const handleBatchCopy = () => {
+    const selected = events.filter(e => selectedIds.has(e.id));
+    selected.forEach(event => {
+      onCreateEvent({
+        title: event.title,
+        description: event.description,
+        start_time: event.start_time,
+        deadline: event.deadline
+      });
+    });
+    playDuplicateSound();
+    toast({ title: `${selected.length} event(s) duplicated` });
+    clearSelection();
+  };
+
+  const handleBatchDelete = () => {
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmBatchDelete = () => {
+    selectedIds.forEach(id => onDeleteEvent(id));
+    playDeleteSound();
+    toast({ title: `${selectedCount} event(s) deleted` });
+    clearSelection();
+    setShowDeleteConfirm(false);
+  };
+
+  const handleCardClick = (event: Event) => {
+    if (isSelecting) {
+      toggle(event.id);
+    }
+  };
+
   const todayEvents = events.filter(event => isToday(parseISO(event.start_time)));
   const upcomingEvents = events.filter(event => isAfter(parseISO(event.start_time), now) && !isToday(parseISO(event.start_time)));
 
@@ -167,9 +206,123 @@ export const EventsPage = ({
     }
   };
 
+  const renderEventCard = (event: Event, variant: 'today' | 'upcoming' | 'past') => {
+    const status = getEventStatus(event);
+    return (
+      <Card 
+        key={event.id} 
+        className={`${getBorderColor(status)} transition-all ${
+          isSelecting ? 'cursor-pointer' : ''
+        } ${isSelected(event.id) ? 'ring-2 ring-events-theme shadow-lg' : ''}`}
+        onClick={() => handleCardClick(event)}
+      >
+        {variant === 'today' ? (
+          <CardContent className="p-4">
+            <div className="flex items-start justify-between">
+              <div className="flex items-start gap-3 flex-1">
+                {isSelecting && (
+                  <Checkbox
+                    checked={isSelected(event.id)}
+                    onCheckedChange={() => toggle(event.id)}
+                    onClick={(e) => e.stopPropagation()}
+                    className="mt-1"
+                  />
+                )}
+                <div className="flex-1">
+                  <h4 className="font-semibold text-lg">{event.title}</h4>
+                    {event.description && (
+                      <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap"><FormattedText>{event.description}</FormattedText></p>
+                   )}
+                  <div className={`flex items-center gap-1 text-sm mt-2 ${getStatusColor(status)}`}>
+                    <Clock size={12} />
+                    {format(parseISO(event.start_time), 'HH:mm')} - Today
+                    {event.deadline && (
+                      <span className="ml-2 text-xs text-muted-foreground">
+                        • Deadline: {format(parseISO(event.deadline), 'HH:mm')}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+              {!isSelecting && (
+                <div className="flex items-center gap-2">
+                  <Badge className="text-xs bg-amber-100 dark:bg-amber-900 text-amber-600 dark:text-amber-300">
+                    Today
+                  </Badge>
+                  <Button size="sm" variant="outline" onClick={() => handleCopy(event)}>
+                    <Copy size={12} />
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => handleEdit(event)}>
+                    <Edit size={12} />
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    onClick={() => { playDeleteSound(); onDeleteEvent(event.id); }}
+                    className="text-destructive hover:text-destructive"
+                  >
+                    <Trash2 size={12} />
+                  </Button>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        ) : (
+          <>
+            <CardHeader className="pb-3">
+              <div className="flex items-start gap-3">
+                {isSelecting && (
+                  <Checkbox
+                    checked={isSelected(event.id)}
+                    onCheckedChange={() => toggle(event.id)}
+                    onClick={(e) => e.stopPropagation()}
+                    className="mt-1"
+                  />
+                )}
+                <CardTitle className={`text-${variant === 'past' ? 'base text-muted-foreground' : 'lg'}`}>{event.title}</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+                {event.description && (
+                  <p className="text-sm text-muted-foreground whitespace-pre-wrap"><FormattedText>{event.description}</FormattedText></p>
+               )}
+              <div className={`flex items-center gap-1 text-sm ${getStatusColor(status)}`}>
+                <Clock size={12} />
+                {format(parseISO(event.start_time), 'MMM dd, yyyy HH:mm')}
+                {event.deadline && (
+                  <span className="ml-2 text-xs text-muted-foreground">
+                    • Deadline: {format(parseISO(event.deadline), 'MMM dd, HH:mm')}
+                  </span>
+                )}
+              </div>
+              {!isSelecting && (
+                <div className="flex items-center gap-2 pt-2">
+                  <Button size="sm" variant="outline" onClick={() => handleCopy(event)}>
+                    <Copy size={12} />
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => handleEdit(event)}>
+                    <Edit size={12} />
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    onClick={() => { playDeleteSound(); onDeleteEvent(event.id); }}
+                    className="text-destructive hover:text-destructive"
+                  >
+                    <Trash2 size={12} />
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </>
+        )}
+      </Card>
+    );
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* March Confirmation Dialog */}
+      {/* March Confirmation Dialogs */}
       <MarchConfirmDialog
         open={showClearConfirm}
         onOpenChange={setShowClearConfirm}
@@ -177,6 +330,15 @@ export const EventsPage = ({
         title="Clear all past events?"
         description="This will permanently delete all your past events. But don't worry, you'll have 10 seconds to undo!"
         confirmText="Yep, clear them!"
+        cancelText="Wait, no!"
+      />
+      <MarchConfirmDialog
+        open={showDeleteConfirm}
+        onOpenChange={setShowDeleteConfirm}
+        onConfirm={confirmBatchDelete}
+        title={`Delete ${selectedCount} event(s)?`}
+        description="This will permanently delete the selected events."
+        confirmText="Yes, delete them!"
         cancelText="Wait, no!"
       />
 
@@ -203,6 +365,16 @@ export const EventsPage = ({
             >
               <Trash size={16} className="mr-2" />
               Clear Past
+            </Button>
+          )}
+          {!isSelecting && events.length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={enterSelectMode}
+            >
+              <CheckSquare size={14} className="mr-2" />
+              Select
             </Button>
           )}
           <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
@@ -290,51 +462,7 @@ export const EventsPage = ({
         </h3>
         {todayEvents.length > 0 ? (
           <div className="space-y-3">
-            {todayEvents.map((event) => {
-              const status = getEventStatus(event);
-              return (
-                <Card key={event.id} className={getBorderColor(status)}>
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-lg">{event.title}</h4>
-                          {event.description && (
-                            <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap"><FormattedText>{event.description}</FormattedText></p>
-                         )}
-                        <div className={`flex items-center gap-1 text-sm mt-2 ${getStatusColor(status)}`}>
-                          <Clock size={12} />
-                          {format(parseISO(event.start_time), 'HH:mm')} - Today
-                          {event.deadline && (
-                            <span className="ml-2 text-xs text-muted-foreground">
-                              • Deadline: {format(parseISO(event.deadline), 'HH:mm')}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge className="text-xs bg-amber-100 dark:bg-amber-900 text-amber-600 dark:text-amber-300">
-                          Today
-                        </Badge>
-                        <Button size="sm" variant="outline" onClick={() => handleCopy(event)}>
-                          <Copy size={12} />
-                        </Button>
-                        <Button size="sm" variant="outline" onClick={() => handleEdit(event)}>
-                          <Edit size={12} />
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
-                          onClick={() => { playDeleteSound(); onDeleteEvent(event.id); }}
-                          className="text-destructive hover:text-destructive"
-                        >
-                          <Trash2 size={12} />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
+            {todayEvents.map((event) => renderEventCard(event, 'today'))}
           </div>
         ) : (
           <Card className="text-center py-8">
@@ -351,46 +479,7 @@ export const EventsPage = ({
           Upcoming Events ({upcomingEvents.length})
         </h3>
         <div className="grid gap-4 md:grid-cols-2">
-          {upcomingEvents.map((event) => {
-            const status = getEventStatus(event);
-            return (
-              <Card key={event.id} className={getBorderColor(status)}>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg">{event.title}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                    {event.description && (
-                      <p className="text-sm text-muted-foreground whitespace-pre-wrap"><FormattedText>{event.description}</FormattedText></p>
-                   )}
-                  <div className={`flex items-center gap-1 text-sm ${getStatusColor(status)}`}>
-                    <Clock size={12} />
-                    {format(parseISO(event.start_time), 'MMM dd, yyyy HH:mm')}
-                    {event.deadline && (
-                      <span className="ml-2 text-xs text-muted-foreground">
-                        • Deadline: {format(parseISO(event.deadline), 'MMM dd, HH:mm')}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2 pt-2">
-                    <Button size="sm" variant="outline" onClick={() => handleCopy(event)}>
-                      <Copy size={12} />
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={() => handleEdit(event)}>
-                      <Edit size={12} />
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      onClick={() => { playDeleteSound(); onDeleteEvent(event.id); }}
-                      className="text-destructive hover:text-destructive"
-                    >
-                      <Trash2 size={12} />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+          {upcomingEvents.map((event) => renderEventCard(event, 'upcoming'))}
         </div>
       </div>
 
@@ -401,46 +490,7 @@ export const EventsPage = ({
             Past Events ({pastEvents.length})
           </h3>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {pastEvents.slice(0, 6).map((event) => {
-              const status = getEventStatus(event);
-              return (
-                <Card key={event.id} className={getBorderColor(status)}>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-base text-muted-foreground">{event.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                      {event.description && (
-                        <p className="text-sm text-muted-foreground whitespace-pre-wrap"><FormattedText>{event.description}</FormattedText></p>
-                     )}
-                    <div className={`flex items-center gap-1 text-sm ${getStatusColor(status)}`}>
-                      <Clock size={12} />
-                      {format(parseISO(event.start_time), 'MMM dd, yyyy HH:mm')}
-                      {event.deadline && (
-                        <span className="ml-2 text-xs text-muted-foreground">
-                          • Deadline: {format(parseISO(event.deadline), 'MMM dd, HH:mm')}
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2 pt-2">
-                      <Button size="sm" variant="outline" onClick={() => handleCopy(event)}>
-                        <Copy size={12} />
-                      </Button>
-                      <Button size="sm" variant="outline" onClick={() => handleEdit(event)}>
-                        <Edit size={12} />
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        onClick={() => { playDeleteSound(); onDeleteEvent(event.id); }}
-                        className="text-destructive hover:text-destructive"
-                      >
-                        <Trash2 size={12} />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
+            {pastEvents.slice(0, 6).map((event) => renderEventCard(event, 'past'))}
           </div>
           {pastEvents.length > 6 && (
             <p className="text-sm text-muted-foreground text-center mt-4">
@@ -461,6 +511,15 @@ export const EventsPage = ({
           </CardContent>
         </Card>
       )}
+
+      <MultiSelectActionBar
+        selectedCount={selectedCount}
+        onCopy={handleBatchCopy}
+        onDelete={handleBatchDelete}
+        onCancel={clearSelection}
+        onSelectAll={() => selectAll(events)}
+        totalCount={events.length}
+      />
     </div>
   );
 };
