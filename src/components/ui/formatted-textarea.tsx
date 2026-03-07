@@ -111,7 +111,7 @@ const restoreCursor = (el: HTMLElement, pos: number) => {
 /**
  * Map a visible text offset to the corresponding offset in the raw marker string.
  */
-const visibleToRaw = (raw: string, visiblePos: number): number => {
+const visibleToRaw = (raw: string, visiblePos: number, skipTrailingMarkers = true): number => {
   let vi = 0;
   let ri = 0;
   while (ri < raw.length && vi < visiblePos) {
@@ -133,12 +133,14 @@ const visibleToRaw = (raw: string, visiblePos: number): number => {
     vi++;
     ri++;
   }
-  // Skip any trailing markers at this position
-  while (ri < raw.length) {
-    if (raw[ri] === '*' && raw[ri + 1] === '*') { ri += 2; continue; }
-    if (raw[ri] === '~' && raw[ri + 1] === '~') { ri += 2; continue; }
-    if (raw[ri] === '*' && (ri === 0 || raw[ri - 1] !== '*') && (ri + 1 >= raw.length || raw[ri + 1] !== '*')) { ri += 1; continue; }
-    break;
+  // Only skip trailing markers for start positions, not end positions
+  if (skipTrailingMarkers) {
+    while (ri < raw.length) {
+      if (raw[ri] === '*' && raw[ri + 1] === '*') { ri += 2; continue; }
+      if (raw[ri] === '~' && raw[ri + 1] === '~') { ri += 2; continue; }
+      if (raw[ri] === '*' && (ri === 0 || raw[ri - 1] !== '*') && (ri + 1 >= raw.length || raw[ri + 1] !== '*')) { ri += 1; continue; }
+      break;
+    }
   }
   return ri;
 };
@@ -275,7 +277,7 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
     const visEnd = visStart + sel.toString().length;
     
     const rawStart = visibleToRaw(value, visStart);
-    const rawEnd = visibleToRaw(value, visEnd);
+    const rawEnd = visibleToRaw(value, visEnd, false);
     
     const before = value.slice(0, rawStart);
     const selected = value.slice(rawStart, rawEnd);
@@ -314,7 +316,7 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
     const visEnd = visStart + sel.toString().length;
     
     const rawStart = visibleToRaw(value, visStart);
-    const rawEnd = visibleToRaw(value, visEnd);
+    const rawEnd = visibleToRaw(value, visEnd, false);
     
     const before = value.slice(0, rawStart);
     const selected = value.slice(rawStart, rawEnd);
