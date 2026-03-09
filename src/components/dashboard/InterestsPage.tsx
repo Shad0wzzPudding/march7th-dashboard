@@ -143,6 +143,16 @@ export const InterestsPage = ({
     setShowDeleteConfirm(false);
   };
 
+  const handleBatchPin = () => {
+    const selected = interests.filter(i => selectedIds.has(i.id) && !i.is_pinned);
+    selected.forEach(interest => {
+      onUpdateInterest({ id: interest.id, is_pinned: true });
+    });
+    playPinSound();
+    toast({ title: `${selected.length} interest(s) pinned` });
+    clearSelection();
+  };
+
   const handleBatchUnpin = () => {
     const selected = interests.filter(i => selectedIds.has(i.id) && i.is_pinned);
     selected.forEach(interest => {
@@ -162,8 +172,9 @@ export const InterestsPage = ({
   const pinnedInterests = interests.filter(i => i.is_pinned);
   const unpinnedInterests = interests.filter(i => !i.is_pinned);
 
-  // Check if any selected interests are pinned (for showing unpin action)
+  // Check if any selected interests are pinned/unpinned (for showing pin/unpin actions)
   const hasSelectedPinned = interests.some(i => selectedIds.has(i.id) && i.is_pinned);
+  const hasSelectedUnpinned = interests.some(i => selectedIds.has(i.id) && !i.is_pinned);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -407,6 +418,7 @@ export const InterestsPage = ({
         selectedCount={selectedCount}
         onCopy={handleBatchCopy}
         onDelete={handleBatchDelete}
+        onPin={hasSelectedUnpinned ? handleBatchPin : undefined}
         onUnpin={hasSelectedPinned ? handleBatchUnpin : undefined}
         onCancel={clearSelection}
         onSelectAll={() => selectAll(interests)}
