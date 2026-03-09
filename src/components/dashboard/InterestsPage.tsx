@@ -418,6 +418,7 @@ export const InterestsPage = ({
         selectedCount={selectedCount}
         onCopy={handleBatchCopy}
         onDelete={handleBatchDelete}
+        onPin={hasSelectedUnpinned ? handleBatchPin : undefined}
         onUnpin={hasSelectedPinned ? handleBatchUnpin : undefined}
         onCancel={clearSelection}
         onSelectAll={() => selectAll(interests)}

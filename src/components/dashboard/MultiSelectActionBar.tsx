@@ -60,6 +60,18 @@ export const MultiSelectActionBar = ({
             Copy
           </Button>
 
+          {onPin && (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={onPin}
+              className="text-xs text-main-focus hover:text-main-focus/80"
+            >
+              <Pin size={14} className="mr-1" />
+              Pin
+            </Button>
+          )}
+
           {onUnpin && (
             <Button
               size="sm"
