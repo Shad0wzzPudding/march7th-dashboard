@@ -1,11 +1,12 @@
 import { Button } from '@/components/ui/button';
-import { Copy, Trash2, PinOff, X, CheckSquare } from 'lucide-react';
+import { Copy, Trash2, Pin, PinOff, X, CheckSquare } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface MultiSelectActionBarProps {
   selectedCount: number;
   onCopy: () => void;
   onDelete: () => void;
+  onPin?: () => void;
   onUnpin?: () => void;
   onCancel: () => void;
   onSelectAll: () => void;
