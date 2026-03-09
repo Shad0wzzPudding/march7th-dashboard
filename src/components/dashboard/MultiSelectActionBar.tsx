@@ -17,6 +17,7 @@ export const MultiSelectActionBar = ({
   selectedCount,
   onCopy,
   onDelete,
+  onPin,
   onUnpin,
   onCancel,
   onSelectAll,
