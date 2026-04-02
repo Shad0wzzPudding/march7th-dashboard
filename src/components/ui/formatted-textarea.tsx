@@ -189,11 +189,29 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
       const el = editorRef.current;
       if (!el) return;
       
-      const plainText = toPlainText(el);
-      const visCursorPos = saveCursor(el);
-      const cursorPos = visibleToRaw(plainText, visCursorPos);
-      const textBefore = plainText.slice(0, cursorPos);
-      const textAfter = plainText.slice(cursorPos);
+      // Split the DOM at cursor to get before/after text accurately
+      const range = sel.getRangeAt(0);
+      
+      // Clone content before cursor
+      const beforeRange = document.createRange();
+      beforeRange.selectNodeContents(el);
+      beforeRange.setEnd(range.startContainer, range.startOffset);
+      const beforeFrag = beforeRange.cloneContents();
+      const beforeDiv = document.createElement('div');
+      beforeDiv.appendChild(beforeFrag);
+      const textBefore = toPlainText(beforeDiv as HTMLDivElement);
+      
+      // Clone content after cursor
+      const afterRange = document.createRange();
+      afterRange.selectNodeContents(el);
+      afterRange.setStart(range.startContainer, range.startOffset);
+      const afterFrag = afterRange.cloneContents();
+      const afterDiv = document.createElement('div');
+      afterDiv.appendChild(afterFrag);
+      const textAfter = toPlainText(afterDiv as HTMLDivElement);
+      
+      // Calculate visible position for cursor restore
+      const visBeforeLen = textBefore.replace(/\*\*/g, '').replace(/(?<!\*)\*(?!\*)/g, '').replace(/~~/g, '').length;
       
       if (autoBullet) {
         const lastNewline = textBefore.lastIndexOf('\n');
@@ -204,9 +222,10 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
           const newValue = textBefore.slice(0, lastNewline === -1 ? 0 : lastNewline) + '\n' + textAfter;
           onChange(newValue);
           isUpdatingRef.current = true;
+          const newVisPos = textBefore.slice(0, lastNewline === -1 ? 0 : lastNewline).replace(/\*\*/g, '').replace(/(?<!\*)\*(?!\*)/g, '').replace(/~~/g, '').length + 1;
           requestAnimationFrame(() => {
             el.innerHTML = toHTML(newValue);
-            restoreCursor(el, (lastNewline === -1 ? 0 : lastNewline) + 1);
+            restoreCursor(el, newVisPos);
             isUpdatingRef.current = false;
           });
           return;
@@ -217,7 +236,7 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
         isUpdatingRef.current = true;
         requestAnimationFrame(() => {
           el.innerHTML = toHTML(newValue);
-          restoreCursor(el, visCursorPos + 3);
+          restoreCursor(el, visBeforeLen + 3);
           isUpdatingRef.current = false;
         });
         return;
@@ -229,7 +248,7 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
       isUpdatingRef.current = true;
       requestAnimationFrame(() => {
         el.innerHTML = toHTML(newValue);
-        restoreCursor(el, visCursorPos + 1);
+        restoreCursor(el, visBeforeLen + 1);
         isUpdatingRef.current = false;
       });
     }
