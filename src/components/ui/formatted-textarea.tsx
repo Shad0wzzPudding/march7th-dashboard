@@ -224,11 +224,11 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
     
     isUpdatingRef.current = true;
     const plainText = toPlainText(el);
+    const pos = saveCursor(el);
     onChange(plainText);
     
     // Re-render with formatting after a tick
     requestAnimationFrame(() => {
-      const pos = saveCursor(el);
       el.innerHTML = toHTML(plainText);
       restoreCursor(el, pos);
       isUpdatingRef.current = false;
