@@ -96,19 +96,19 @@ const setCaretAt = (sel: Selection, node: Node, offset: number) => {
 };
 
 const setCaretBeforeNode = (sel: Selection, node: Node) => {
-  const parent = node.parentNode;
-  if (!parent) return;
-
-  const index = Array.from(parent.childNodes).indexOf(node as ChildNode);
-  setCaretAt(sel, parent, Math.max(index, 0));
+  const range = document.createRange();
+  range.setStartBefore(node);
+  range.collapse(true);
+  sel.removeAllRanges();
+  sel.addRange(range);
 };
 
 const setCaretAfterNode = (sel: Selection, node: Node) => {
-  const parent = node.parentNode;
-  if (!parent) return;
-
-  const index = Array.from(parent.childNodes).indexOf(node as ChildNode);
-  setCaretAt(sel, parent, index + 1);
+  const range = document.createRange();
+  range.setStartAfter(node);
+  range.collapse(true);
+  sel.removeAllRanges();
+  sel.addRange(range);
 };
 
 const restoreCursor = (el: HTMLElement, pos: number) => {
@@ -116,6 +116,7 @@ const restoreCursor = (el: HTMLElement, pos: number) => {
   if (!sel) return;
   
   let currentPos = 0;
+  let lastBreakNode: Node | null = null;
   const walk = (node: Node): boolean => {
     if (node.nodeType === Node.TEXT_NODE) {
       const len = (node.textContent || '').length;
@@ -128,6 +129,7 @@ const restoreCursor = (el: HTMLElement, pos: number) => {
     }
 
     if (node.nodeType === Node.ELEMENT_NODE && (node as HTMLElement).tagName.toLowerCase() === 'br') {
+      lastBreakNode = node;
       if (pos === currentPos) {
         setCaretBeforeNode(sel, node);
         return true;
@@ -152,6 +154,11 @@ const restoreCursor = (el: HTMLElement, pos: number) => {
   };
   
   if (walk(el)) return;
+
+  if (pos === currentPos && lastBreakNode) {
+    setCaretAfterNode(sel, lastBreakNode);
+    return;
+  }
 
   setCaretAt(sel, el, el.childNodes.length);
 };
@@ -273,6 +280,7 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
            const newVisPos = toVisibleText(textBefore.slice(0, lastNewline === -1 ? 0 : lastNewline)).length + 1;
           requestAnimationFrame(() => {
             el.innerHTML = toHTML(newValue);
+            el.focus();
             restoreCursor(el, newVisPos);
             isUpdatingRef.current = false;
           });
@@ -284,6 +292,7 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
         isUpdatingRef.current = true;
         requestAnimationFrame(() => {
           el.innerHTML = toHTML(newValue);
+          el.focus();
           restoreCursor(el, visBeforeLen + 3);
           isUpdatingRef.current = false;
         });
@@ -296,6 +305,7 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
       isUpdatingRef.current = true;
       requestAnimationFrame(() => {
         el.innerHTML = toHTML(newValue);
+        el.focus();
         restoreCursor(el, visBeforeLen + 1);
         isUpdatingRef.current = false;
       });
