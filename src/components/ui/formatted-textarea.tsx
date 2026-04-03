@@ -96,7 +96,7 @@ const setCaretBeforeNode = (sel: Selection, node: Node) => {
   const parent = node.parentNode;
   if (!parent) return;
 
-  const index = Array.from(parent.childNodes).indexOf(node);
+  const index = Array.from(parent.childNodes).indexOf(node as ChildNode);
   setCaretAt(sel, parent, Math.max(index, 0));
 };
 
@@ -104,7 +104,7 @@ const setCaretAfterNode = (sel: Selection, node: Node) => {
   const parent = node.parentNode;
   if (!parent) return;
 
-  const index = Array.from(parent.childNodes).indexOf(node);
+  const index = Array.from(parent.childNodes).indexOf(node as ChildNode);
   setCaretAt(sel, parent, index + 1);
 };
 
