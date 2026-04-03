@@ -73,11 +73,39 @@ const toPlainText = (el: HTMLDivElement): string => {
 const saveCursor = (el: HTMLElement): number => {
   const sel = window.getSelection();
   if (!sel || sel.rangeCount === 0) return 0;
+
   const range = sel.getRangeAt(0);
   const preRange = range.cloneRange();
   preRange.selectNodeContents(el);
   preRange.setEnd(range.startContainer, range.startOffset);
-  return preRange.toString().length;
+
+  const temp = document.createElement('div');
+  temp.appendChild(preRange.cloneContents());
+  return toPlainText(temp).length;
+};
+
+const setCaretAt = (sel: Selection, node: Node, offset: number) => {
+  const range = document.createRange();
+  range.setStart(node, offset);
+  range.collapse(true);
+  sel.removeAllRanges();
+  sel.addRange(range);
+};
+
+const setCaretBeforeNode = (sel: Selection, node: Node) => {
+  const parent = node.parentNode;
+  if (!parent) return;
+
+  const index = Array.from(parent.childNodes).indexOf(node);
+  setCaretAt(sel, parent, Math.max(index, 0));
+};
+
+const setCaretAfterNode = (sel: Selection, node: Node) => {
+  const parent = node.parentNode;
+  if (!parent) return;
+
+  const index = Array.from(parent.childNodes).indexOf(node);
+  setCaretAt(sel, parent, index + 1);
 };
 
 const restoreCursor = (el: HTMLElement, pos: number) => {
@@ -88,24 +116,41 @@ const restoreCursor = (el: HTMLElement, pos: number) => {
   const walk = (node: Node): boolean => {
     if (node.nodeType === Node.TEXT_NODE) {
       const len = (node.textContent || '').length;
-      if (currentPos + len >= pos) {
-        const range = document.createRange();
-        range.setStart(node, pos - currentPos);
-        range.collapse(true);
-        sel.removeAllRanges();
-        sel.addRange(range);
+      if (pos <= currentPos + len) {
+        setCaretAt(sel, node, Math.max(0, pos - currentPos));
         return true;
       }
       currentPos += len;
-    } else {
+      return false;
+    }
+
+    if (node.nodeType === Node.ELEMENT_NODE && (node as HTMLElement).tagName.toLowerCase() === 'br') {
+      if (pos === currentPos) {
+        setCaretBeforeNode(sel, node);
+        return true;
+      }
+
+      currentPos += 1;
+      if (pos === currentPos) {
+        setCaretAfterNode(sel, node);
+        return true;
+      }
+
+      return false;
+    }
+
+    if (node.nodeType === Node.ELEMENT_NODE) {
       for (const child of Array.from(node.childNodes)) {
         if (walk(child)) return true;
       }
     }
+
     return false;
   };
   
-  walk(el);
+  if (walk(el)) return;
+
+  setCaretAt(sel, el, el.childNodes.length);
 };
 
 /**
