@@ -409,7 +409,20 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
       newValue = before + selected.slice(mLen, -mLen) + after;
       newVisEnd = visEnd;
     } else {
-      newValue = before + marker + selected + marker + after;
+      // Apply formatting per-line so multi-line selections work correctly
+      const lines = selected.split('\n');
+      if (lines.length > 1) {
+        // Check if all lines are already wrapped individually
+        const allWrapped = lines.every(line => 
+          line.startsWith(marker) && line.endsWith(marker) && line.length > mLen * 2
+        );
+        const formattedLines = allWrapped
+          ? lines.map(line => line.slice(mLen, -mLen))
+          : lines.map(line => line.trim() ? marker + line + marker : line);
+        newValue = before + formattedLines.join('\n') + after;
+      } else {
+        newValue = before + marker + selected + marker + after;
+      }
       newVisEnd = visEnd;
     }
     
