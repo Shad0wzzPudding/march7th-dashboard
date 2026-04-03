@@ -67,6 +67,9 @@ const toPlainText = (el: HTMLDivElement): string => {
   return text;
 };
 
+const toVisibleText = (text: string): string =>
+  text.replace(/\*\*/g, '').replace(/(?<!\*)\*(?!\*)/g, '').replace(/~~/g, '');
+
 /**
  * Save and restore cursor position in contentEditable.
  */
@@ -81,7 +84,7 @@ const saveCursor = (el: HTMLElement): number => {
 
   const temp = document.createElement('div');
   temp.appendChild(preRange.cloneContents());
-  return toPlainText(temp).length;
+  return toVisibleText(toPlainText(temp)).length;
 };
 
 const setCaretAt = (sel: Selection, node: Node, offset: number) => {
@@ -256,7 +259,7 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
       const textAfter = toPlainText(afterDiv as HTMLDivElement);
       
       // Calculate visible position for cursor restore
-      const visBeforeLen = textBefore.replace(/\*\*/g, '').replace(/(?<!\*)\*(?!\*)/g, '').replace(/~~/g, '').length;
+       const visBeforeLen = toVisibleText(textBefore).length;
       
       if (autoBullet) {
         const lastNewline = textBefore.lastIndexOf('\n');
@@ -267,7 +270,7 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
           const newValue = textBefore.slice(0, lastNewline === -1 ? 0 : lastNewline) + '\n' + textAfter;
           onChange(newValue);
           isUpdatingRef.current = true;
-          const newVisPos = textBefore.slice(0, lastNewline === -1 ? 0 : lastNewline).replace(/\*\*/g, '').replace(/(?<!\*)\*(?!\*)/g, '').replace(/~~/g, '').length + 1;
+           const newVisPos = toVisibleText(textBefore.slice(0, lastNewline === -1 ? 0 : lastNewline)).length + 1;
           requestAnimationFrame(() => {
             el.innerHTML = toHTML(newValue);
             restoreCursor(el, newVisPos);
@@ -372,8 +375,6 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
     const mLen = marker.length;
     
     // Get the visible text (no markers) to work with
-    const visibleText = toPlainText(el).replace(/\*\*/g, '').replace(/(?<!\*)\*(?!\*)/g, '').replace(/~~/g, '');
-    
     // Instead of complex mapping, find the selected content in raw value
     // by stripping markers from the selected portion
     const rawStart = visibleToRaw(value, visStart);
