@@ -200,6 +200,28 @@ const visibleToRaw = (raw: string, visiblePos: number, skipTrailingMarkers = tru
   return ri;
 };
 
+const expandRawRangeForLineMarkers = (raw: string, start: number, end: number, marker: string) => {
+  const markerLength = marker.length;
+  let nextStart = start;
+  let nextEnd = end;
+
+  const hasLeadingMarker = nextStart >= markerLength && raw.slice(nextStart - markerLength, nextStart) === marker;
+  const leadingBoundaryIndex = nextStart - markerLength - 1;
+
+  if (hasLeadingMarker && (leadingBoundaryIndex < 0 || raw[leadingBoundaryIndex] === '\n')) {
+    nextStart -= markerLength;
+  }
+
+  const hasTrailingMarker = raw.slice(nextEnd, nextEnd + markerLength) === marker;
+  const trailingBoundaryIndex = nextEnd + markerLength;
+
+  if (hasTrailingMarker && (trailingBoundaryIndex >= raw.length || raw[trailingBoundaryIndex] === '\n')) {
+    nextEnd += markerLength;
+  }
+
+  return { start: nextStart, end: nextEnd };
+};
+
 export const FormattedTextarea = ({ value, onChange, placeholder, className }: FormattedTextareaProps) => {
   const editorRef = useRef<HTMLDivElement>(null);
   const [autoBullet, setAutoBullet] = useState(false);
@@ -387,8 +409,11 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
     // Get the visible text (no markers) to work with
     // Instead of complex mapping, find the selected content in raw value
     // by stripping markers from the selected portion
-    const rawStart = visibleToRaw(value, visStart);
-    const rawEnd = visibleToRaw(value, visEnd, false);
+    const initialRawStart = visibleToRaw(value, visStart);
+    const initialRawEnd = visibleToRaw(value, visEnd, false);
+    const { start: rawStart, end: rawEnd } = selectedText.includes('\n')
+      ? expandRawRangeForLineMarkers(value, initialRawStart, initialRawEnd, marker)
+      : { start: initialRawStart, end: initialRawEnd };
     
     const before = value.slice(0, rawStart);
     const selected = value.slice(rawStart, rawEnd);
