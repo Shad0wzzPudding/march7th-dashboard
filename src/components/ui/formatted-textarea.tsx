@@ -411,9 +411,18 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
     // by stripping markers from the selected portion
     const initialRawStart = visibleToRaw(value, visStart);
     const initialRawEnd = visibleToRaw(value, visEnd, false);
-    const { start: rawStart, end: rawEnd } = selectedText.includes('\n')
-      ? expandRawRangeForLineMarkers(value, initialRawStart, initialRawEnd, marker)
-      : { start: initialRawStart, end: initialRawEnd };
+    let rawStart = initialRawStart;
+    let rawEnd = initialRawEnd;
+    
+    if (selectedText.includes('\n')) {
+      // Expand to full line boundaries so we don't cut through existing markers
+      while (rawStart > 0 && value[rawStart - 1] !== '\n') rawStart--;
+      while (rawEnd < value.length && value[rawEnd] !== '\n') rawEnd++;
+    } else {
+      const expanded = expandRawRangeForLineMarkers(value, initialRawStart, initialRawEnd, marker);
+      rawStart = expanded.start;
+      rawEnd = expanded.end;
+    }
     
     const before = value.slice(0, rawStart);
     const selected = value.slice(rawStart, rawEnd);
