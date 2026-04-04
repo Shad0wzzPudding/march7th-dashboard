@@ -412,12 +412,23 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
       // Apply formatting per-line so multi-line selections work correctly
       const lines = selected.split('\n');
       if (lines.length > 1) {
-        // Check if all lines are already wrapped individually
-        const allWrapped = lines.every(line => 
-          line.startsWith(marker) && line.endsWith(marker) && line.length > mLen * 2
-        );
+        // Check if all non-empty lines are already wrapped individually
+        const nonEmptyLines = lines.filter(line => line.trim());
+        const allWrapped = nonEmptyLines.length > 0 && nonEmptyLines.every(line => {
+          const trimmed = line.trim();
+          return trimmed.startsWith(marker) && trimmed.endsWith(marker) && trimmed.length > mLen * 2;
+        });
         const formattedLines = allWrapped
-          ? lines.map(line => line.slice(mLen, -mLen))
+          ? lines.map(line => {
+              if (!line.trim()) return line;
+              // Find and remove first and last occurrence of marker
+              const firstIdx = line.indexOf(marker);
+              const lastIdx = line.lastIndexOf(marker);
+              if (firstIdx !== -1 && lastIdx !== firstIdx) {
+                return line.slice(0, firstIdx) + line.slice(firstIdx + mLen, lastIdx) + line.slice(lastIdx + mLen);
+              }
+              return line;
+            })
           : lines.map(line => line.trim() ? marker + line + marker : line);
         newValue = before + formattedLines.join('\n') + after;
       } else {
