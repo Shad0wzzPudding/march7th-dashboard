@@ -467,10 +467,9 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
     let newValue: string;
     let newVisEnd: number;
     
-    // Check if already wrapped - markers just outside selection
-    const wrappedOutside = before.endsWith(marker) && after.startsWith(marker);
-    // Check if already wrapped - markers inside selection
-    const wrappedInside = selected.startsWith(marker) && selected.endsWith(marker) && selected.length > mLen * 2;
+    // Use format-aware detection that distinguishes * from **
+    const wrappedOutside = hasSpecificFormat(marker + selected + marker, marker) && before.endsWith(marker) && after.startsWith(marker);
+    const wrappedInside = hasSpecificFormat(selected, marker);
     
     if (wrappedOutside) {
       newValue = before.slice(0, -mLen) + selected + after.slice(mLen);
@@ -481,30 +480,20 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
     } else {
       // Apply formatting per-line so multi-line selections work correctly
       const lines = selected.split('\n');
+      
+      const toggleLine = (line: string) => {
+        if (!line.trim()) return line;
+
+        if (hasSpecificFormat(line, marker)) {
+          // Remove exactly mLen stars from each side
+          return line.slice(mLen, -mLen);
+        }
+
+        return marker + line + marker;
+      };
+
       if (lines.length > 1) {
-        const isLineWrapped = (line: string) => {
-          const trimmed = line.trim();
-          return trimmed.startsWith(marker) && trimmed.endsWith(marker) && trimmed.length > mLen * 2;
-        };
-
-        const toggleLine = (line: string) => {
-          if (!line.trim()) return line;
-
-          if (isLineWrapped(line)) {
-            const firstIdx = line.indexOf(marker);
-            const lastIdx = line.lastIndexOf(marker);
-            if (firstIdx !== -1 && lastIdx !== firstIdx) {
-              return line.slice(0, firstIdx) + line.slice(firstIdx + mLen, lastIdx) + line.slice(lastIdx + mLen);
-            }
-            return line;
-          }
-
-          return marker + line + marker;
-        };
-
-        const formattedLines = lines.map(line => {
-          return toggleLine(line);
-        });
+        const formattedLines = lines.map(toggleLine);
         newValue = before + formattedLines.join('\n') + after;
       } else {
         newValue = before + marker + selected + marker + after;
