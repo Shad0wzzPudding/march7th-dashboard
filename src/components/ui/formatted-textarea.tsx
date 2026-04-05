@@ -70,7 +70,7 @@ const toPlainText = (el: HTMLDivElement): string => {
 };
 
 const toVisibleText = (text: string): string =>
-  text.replace(/\*\*/g, '').replace(/(?<!\*)\*(?!\*)/g, '').replace(/~~/g, '');
+  text.replace(/\*+/g, '').replace(/~~/g, '');
 
 /**
  * Save and restore cursor position in contentEditable.
