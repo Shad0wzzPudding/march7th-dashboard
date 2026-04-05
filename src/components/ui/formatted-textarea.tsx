@@ -200,6 +200,39 @@ const visibleToRaw = (raw: string, visiblePos: number, skipTrailingMarkers = tru
   return ri;
 };
 
+const countEdgeStars = (text: string, side: 'start' | 'end'): number => {
+  let count = 0;
+  if (side === 'start') {
+    for (let i = 0; i < text.length && text[i] === '*'; i++) count++;
+  } else {
+    for (let i = text.length - 1; i >= 0 && text[i] === '*'; i--) count++;
+  }
+  return count;
+};
+
+/**
+ * Check if text has a specific format applied, distinguishing * from **.
+ * italic (*): present when edge star count is odd (1, 3)
+ * bold (**): present when edge star count >= 2
+ */
+const hasSpecificFormat = (text: string, marker: string): boolean => {
+  const trimmed = text.trim();
+  if (!trimmed) return false;
+  
+  if (marker === '~~') {
+    return trimmed.startsWith('~~') && trimmed.endsWith('~~') && trimmed.length > 4;
+  }
+  
+  const leading = countEdgeStars(trimmed, 'start');
+  const trailing = countEdgeStars(trimmed, 'end');
+  const minStars = Math.min(leading, trailing);
+  if (trimmed.length <= minStars * 2) return false;
+  
+  if (marker === '**') return minStars >= 2;
+  if (marker === '*') return minStars % 2 === 1;
+  return false;
+};
+
 const expandRawRangeForLineMarkers = (raw: string, start: number, end: number, marker: string) => {
   const markerLength = marker.length;
   let nextStart = start;
