@@ -200,6 +200,39 @@ const visibleToRaw = (raw: string, visiblePos: number, skipTrailingMarkers = tru
   return ri;
 };
 
+const countEdgeStars = (text: string, side: 'start' | 'end'): number => {
+  let count = 0;
+  if (side === 'start') {
+    for (let i = 0; i < text.length && text[i] === '*'; i++) count++;
+  } else {
+    for (let i = text.length - 1; i >= 0 && text[i] === '*'; i--) count++;
+  }
+  return count;
+};
+
+/**
+ * Check if text has a specific format applied, distinguishing * from **.
+ * italic (*): present when edge star count is odd (1, 3)
+ * bold (**): present when edge star count >= 2
+ */
+const hasSpecificFormat = (text: string, marker: string): boolean => {
+  const trimmed = text.trim();
+  if (!trimmed) return false;
+  
+  if (marker === '~~') {
+    return trimmed.startsWith('~~') && trimmed.endsWith('~~') && trimmed.length > 4;
+  }
+  
+  const leading = countEdgeStars(trimmed, 'start');
+  const trailing = countEdgeStars(trimmed, 'end');
+  const minStars = Math.min(leading, trailing);
+  if (trimmed.length <= minStars * 2) return false;
+  
+  if (marker === '**') return minStars >= 2;
+  if (marker === '*') return minStars % 2 === 1;
+  return false;
+};
+
 const expandRawRangeForLineMarkers = (raw: string, start: number, end: number, marker: string) => {
   const markerLength = marker.length;
   let nextStart = start;
@@ -434,10 +467,9 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
     let newValue: string;
     let newVisEnd: number;
     
-    // Check if already wrapped - markers just outside selection
-    const wrappedOutside = before.endsWith(marker) && after.startsWith(marker);
-    // Check if already wrapped - markers inside selection
-    const wrappedInside = selected.startsWith(marker) && selected.endsWith(marker) && selected.length > mLen * 2;
+    // Use format-aware detection that distinguishes * from **
+    const wrappedOutside = hasSpecificFormat(marker + selected + marker, marker) && before.endsWith(marker) && after.startsWith(marker);
+    const wrappedInside = hasSpecificFormat(selected, marker);
     
     if (wrappedOutside) {
       newValue = before.slice(0, -mLen) + selected + after.slice(mLen);
@@ -448,30 +480,20 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
     } else {
       // Apply formatting per-line so multi-line selections work correctly
       const lines = selected.split('\n');
+      
+      const toggleLine = (line: string) => {
+        if (!line.trim()) return line;
+
+        if (hasSpecificFormat(line, marker)) {
+          // Remove exactly mLen stars from each side
+          return line.slice(mLen, -mLen);
+        }
+
+        return marker + line + marker;
+      };
+
       if (lines.length > 1) {
-        const isLineWrapped = (line: string) => {
-          const trimmed = line.trim();
-          return trimmed.startsWith(marker) && trimmed.endsWith(marker) && trimmed.length > mLen * 2;
-        };
-
-        const toggleLine = (line: string) => {
-          if (!line.trim()) return line;
-
-          if (isLineWrapped(line)) {
-            const firstIdx = line.indexOf(marker);
-            const lastIdx = line.lastIndexOf(marker);
-            if (firstIdx !== -1 && lastIdx !== firstIdx) {
-              return line.slice(0, firstIdx) + line.slice(firstIdx + mLen, lastIdx) + line.slice(lastIdx + mLen);
-            }
-            return line;
-          }
-
-          return marker + line + marker;
-        };
-
-        const formattedLines = lines.map(line => {
-          return toggleLine(line);
-        });
+        const formattedLines = lines.map(toggleLine);
         newValue = before + formattedLines.join('\n') + after;
       } else {
         newValue = before + marker + selected + marker + after;
