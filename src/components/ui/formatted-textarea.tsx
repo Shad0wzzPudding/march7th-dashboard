@@ -19,6 +19,8 @@ const toHTML = (text: string): string => {
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
+  // Bold+Italic ***text*** (must come before bold and italic)
+  html = html.replace(/\*\*\*(.+?)\*\*\*/g, '<strong class="font-bold"><em class="italic">$1</em></strong>');
   // Bold **text** (must come before italic)
   html = html.replace(/\*\*(.+?)\*\*/g, '<strong class="font-bold">$1</strong>');
   // Italic *text* (not **)
