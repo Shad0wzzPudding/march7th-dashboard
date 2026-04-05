@@ -70,7 +70,7 @@ const toPlainText = (el: HTMLDivElement): string => {
 };
 
 const toVisibleText = (text: string): string =>
-  text.replace(/\*\*/g, '').replace(/(?<!\*)\*(?!\*)/g, '').replace(/~~/g, '');
+  text.replace(/\*+/g, '').replace(/~~/g, '');
 
 /**
  * Save and restore cursor position in contentEditable.
@@ -172,19 +172,16 @@ const visibleToRaw = (raw: string, visiblePos: number, skipTrailingMarkers = tru
   let vi = 0;
   let ri = 0;
   while (ri < raw.length && vi < visiblePos) {
-    // Check for **
-    if (raw[ri] === '*' && raw[ri + 1] === '*') {
-      ri += 2;
+    // Skip any consecutive * markers (*, **, ***)
+    if (raw[ri] === '*') {
+      let j = ri;
+      while (j < raw.length && raw[j] === '*') j++;
+      ri = j;
       continue;
     }
-    // Check for ~~ 
+    // Check for ~~
     if (raw[ri] === '~' && raw[ri + 1] === '~') {
       ri += 2;
-      continue;
-    }
-    // Check for lone * (italic)
-    if (raw[ri] === '*' && raw[ri - 1] !== '*' && raw[ri + 1] !== '*') {
-      ri += 1;
       continue;
     }
     vi++;
@@ -193,9 +190,13 @@ const visibleToRaw = (raw: string, visiblePos: number, skipTrailingMarkers = tru
   // Only skip trailing markers for start positions, not end positions
   if (skipTrailingMarkers) {
     while (ri < raw.length) {
-      if (raw[ri] === '*' && raw[ri + 1] === '*') { ri += 2; continue; }
+      if (raw[ri] === '*') {
+        let j = ri;
+        while (j < raw.length && raw[j] === '*') j++;
+        ri = j;
+        continue;
+      }
       if (raw[ri] === '~' && raw[ri + 1] === '~') { ri += 2; continue; }
-      if (raw[ri] === '*' && (ri === 0 || raw[ri - 1] !== '*') && (ri + 1 >= raw.length || raw[ri + 1] !== '*')) { ri += 1; continue; }
       break;
     }
   }
