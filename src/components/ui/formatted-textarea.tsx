@@ -417,7 +417,10 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
     if (selectedText.includes('\n')) {
       // Expand to full line boundaries so we don't cut through existing markers
       while (rawStart > 0 && value[rawStart - 1] !== '\n') rawStart--;
-      while (rawEnd < value.length && value[rawEnd] !== '\n') rawEnd++;
+      // Only expand rawEnd if we're not already at a line boundary
+      if (rawEnd > 0 && value[rawEnd - 1] !== '\n') {
+        while (rawEnd < value.length && value[rawEnd] !== '\n') rawEnd++;
+      }
     } else {
       const expanded = expandRawRangeForLineMarkers(value, initialRawStart, initialRawEnd, marker);
       rawStart = expanded.start;
