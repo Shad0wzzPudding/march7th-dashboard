@@ -89,6 +89,27 @@ const saveCursor = (el: HTMLElement): number => {
   return toVisibleText(toPlainText(temp)).length;
 };
 
+const getVisibleOffset = (el: HTMLElement, container: Node, offset: number): number => {
+  const range = document.createRange();
+  range.selectNodeContents(el);
+  range.setEnd(container, offset);
+
+  const temp = document.createElement('div');
+  temp.appendChild(range.cloneContents());
+  return toVisibleText(toPlainText(temp)).length;
+};
+
+const getSelectionVisibleRange = (el: HTMLElement): { start: number; end: number } | null => {
+  const sel = window.getSelection();
+  if (!sel || sel.rangeCount === 0) return null;
+
+  const range = sel.getRangeAt(0);
+  return {
+    start: getVisibleOffset(el, range.startContainer, range.startOffset),
+    end: getVisibleOffset(el, range.endContainer, range.endOffset),
+  };
+};
+
 const setCaretAt = (sel: Selection, node: Node, offset: number) => {
   const range = document.createRange();
   range.setStart(node, offset);
@@ -234,6 +255,50 @@ const hasSpecificFormat = (text: string, marker: string): boolean => {
   if (marker === '**') return minStars >= 2;
   if (marker === '*') return minStars % 2 === 1;
   return false;
+};
+
+const toggleStarMarkerOnText = (text: string, markerLength: number): string => {
+  const leadingWhitespace = text.match(/^\s*/)?.[0] ?? '';
+  const trailingWhitespace = text.match(/\s*$/)?.[0] ?? '';
+  const core = text.slice(leadingWhitespace.length, text.length - trailingWhitespace.length);
+
+  if (!core) return text;
+
+  const leadingStars = countEdgeStars(core, 'start');
+  const trailingStars = countEdgeStars(core, 'end');
+  const surroundingStars = Math.min(leadingStars, trailingStars);
+  const unwrappedCore = core.slice(leadingStars, core.length - trailingStars);
+
+  const isActive = markerLength === 1
+    ? surroundingStars % 2 === 1
+    : surroundingStars >= 2;
+
+  const nextStarCount = markerLength === 1
+    ? Math.max(0, surroundingStars + (isActive ? -1 : 1))
+    : Math.max(0, surroundingStars + (isActive ? -2 : 2));
+
+  return `${leadingWhitespace}${'*'.repeat(nextStarCount)}${unwrappedCore}${'*'.repeat(nextStarCount)}${trailingWhitespace}`;
+};
+
+const toggleStarMarkerAroundSelection = (
+  before: string,
+  selected: string,
+  after: string,
+  markerLength: number,
+): string => {
+  const leadingStars = countEdgeStars(before, 'end');
+  const trailingStars = countEdgeStars(after, 'start');
+  const surroundingStars = Math.min(leadingStars, trailingStars);
+
+  const isActive = markerLength === 1
+    ? surroundingStars % 2 === 1
+    : surroundingStars >= 2;
+
+  const nextStarCount = markerLength === 1
+    ? Math.max(0, surroundingStars + (isActive ? -1 : 1))
+    : Math.max(0, surroundingStars + (isActive ? -2 : 2));
+
+  return `${before.slice(0, before.length - leadingStars)}${'*'.repeat(nextStarCount)}${selected}${'*'.repeat(nextStarCount)}${after.slice(trailingStars)}`;
 };
 
 const expandRawRangeForLineMarkers = (raw: string, start: number, end: number, marker: string) => {
@@ -436,28 +501,28 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
     
     const sel = window.getSelection();
     if (!sel || sel.rangeCount === 0 || sel.isCollapsed) return;
-    
-    const selectedText = sel.toString();
-    const visStart = saveCursor(el);
-    const visEnd = visStart + selectedText.length;
+
+    const visibleRange = getSelectionVisibleRange(el);
+    if (!visibleRange || visibleRange.start === visibleRange.end) return;
+
+    const visStart = visibleRange.start;
+    const visEnd = visibleRange.end;
     const mLen = marker.length;
     
-    // Get the visible text (no markers) to work with
-    // Instead of complex mapping, find the selected content in raw value
-    // by stripping markers from the selected portion
     const initialRawStart = visibleToRaw(value, visStart);
     const initialRawEnd = visibleToRaw(value, visEnd, false);
     let rawStart = initialRawStart;
     let rawEnd = initialRawEnd;
+    const isMultiLineSelection = value.slice(initialRawStart, initialRawEnd).includes('\n');
     
-    if (selectedText.includes('\n')) {
+    if (isMultiLineSelection) {
       // Expand to full line boundaries so we don't cut through existing markers
       while (rawStart > 0 && value[rawStart - 1] !== '\n') rawStart--;
       // Only expand rawEnd if we're not already at a line boundary
       if (rawEnd > 0 && value[rawEnd - 1] !== '\n') {
         while (rawEnd < value.length && value[rawEnd] !== '\n') rawEnd++;
       }
-    } else {
+    } else if (marker === '~~') {
       const expanded = expandRawRangeForLineMarkers(value, initialRawStart, initialRawEnd, marker);
       rawStart = expanded.start;
       rawEnd = expanded.end;
@@ -469,39 +534,52 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
     
     let newValue: string;
     let newVisEnd: number;
-    
-    // Use format-aware detection that distinguishes * from **
-    const wrappedOutside = hasSpecificFormat(marker + selected + marker, marker) && before.endsWith(marker) && after.startsWith(marker);
-    const wrappedInside = hasSpecificFormat(selected, marker);
-    
-    if (wrappedOutside) {
-      newValue = before.slice(0, -mLen) + selected + after.slice(mLen);
-      newVisEnd = visEnd;
-    } else if (wrappedInside) {
-      newValue = before + selected.slice(mLen, -mLen) + after;
-      newVisEnd = visEnd;
-    } else {
-      // Apply formatting per-line so multi-line selections work correctly
-      const lines = selected.split('\n');
-      
-      const toggleLine = (line: string) => {
-        if (!line.trim()) return line;
 
-        if (hasSpecificFormat(line, marker)) {
-          // Remove exactly mLen stars from each side
-          return line.slice(mLen, -mLen);
-        }
+    if (marker === '*' || marker === '**') {
+      if (isMultiLineSelection) {
+        const formattedLines = selected.split('\n').map((line) => {
+          if (!line.trim()) return line;
+          return toggleStarMarkerOnText(line, mLen);
+        });
 
-        return marker + line + marker;
-      };
-
-      if (lines.length > 1) {
-        const formattedLines = lines.map(toggleLine);
         newValue = before + formattedLines.join('\n') + after;
       } else {
-        newValue = before + marker + selected + marker + after;
+        newValue = toggleStarMarkerAroundSelection(before, selected, after, mLen);
       }
       newVisEnd = visEnd;
+    } else {
+      const wrappedOutside = hasSpecificFormat(marker + selected + marker, marker) && before.endsWith(marker) && after.startsWith(marker);
+      const wrappedInside = hasSpecificFormat(selected, marker);
+
+      if (wrappedOutside) {
+        newValue = before.slice(0, -mLen) + selected + after.slice(mLen);
+        newVisEnd = visEnd;
+      } else if (wrappedInside) {
+        newValue = before + selected.slice(mLen, -mLen) + after;
+        newVisEnd = visEnd;
+      } else {
+        // Apply formatting per-line so multi-line selections work correctly
+        const lines = selected.split('\n');
+        
+        const toggleLine = (line: string) => {
+          if (!line.trim()) return line;
+
+          if (hasSpecificFormat(line, marker)) {
+            // Remove exactly mLen stars from each side
+            return line.slice(mLen, -mLen);
+          }
+
+          return marker + line + marker;
+        };
+
+        if (lines.length > 1) {
+          const formattedLines = lines.map(toggleLine);
+          newValue = before + formattedLines.join('\n') + after;
+        } else {
+          newValue = before + marker + selected + marker + after;
+        }
+        newVisEnd = visEnd;
+      }
     }
     
     onChange(newValue);
