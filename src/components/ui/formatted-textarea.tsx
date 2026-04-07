@@ -138,6 +138,30 @@ const setCaretAfterNode = (sel: Selection, node: Node) => {
   sel.addRange(range);
 };
 
+const placeCursorAfterNthBr = (el: HTMLElement, n: number) => {
+  const sel = window.getSelection();
+  if (!sel) return;
+  let count = 0;
+  const walk = (node: Node): boolean => {
+    if (node.nodeType === Node.ELEMENT_NODE && (node as HTMLElement).tagName.toLowerCase() === 'br') {
+      count++;
+      if (count === n) {
+        setCaretAfterNode(sel, node);
+        return true;
+      }
+    }
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      for (const child of Array.from(node.childNodes)) {
+        if (walk(child)) return true;
+      }
+    }
+    return false;
+  };
+  if (!walk(el)) {
+    setCaretAt(sel, el, el.childNodes.length);
+  }
+};
+
 const restoreCursor = (el: HTMLElement, pos: number) => {
   const sel = window.getSelection();
   if (!sel) return;
