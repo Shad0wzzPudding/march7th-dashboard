@@ -74,7 +74,7 @@ const toPlainText = (el: HTMLDivElement): string => {
 };
 
 const toVisibleText = (text: string): string =>
-  text.replace(/\*+/g, '').replace(/~~/g, '');
+  text.replace(/\*{1,3}(?=\S)(.+?)(?<=\S)\*{1,3}/g, '$1').replace(/~~(?=\S)(.+?)(?<=\S)~~/g, '$1');
 
 /**
  * Save and restore cursor position in contentEditable.
@@ -392,8 +392,8 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
       afterDiv.appendChild(afterFrag);
       const textAfter = toPlainText(afterDiv as HTMLDivElement);
       
-      // Calculate visible position for cursor restore
-       const visBeforeLen = toVisibleText(textBefore).length;
+      // Count newlines in textBefore to find cursor target
+      const newlineCount = (textBefore.match(/\n/g) || []).length;
       
       if (autoBullet) {
         const lastNewline = textBefore.lastIndexOf('\n');
@@ -404,11 +404,10 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
           const newValue = textBefore.slice(0, lastNewline === -1 ? 0 : lastNewline) + '\n' + textAfter;
           onChange(newValue);
           isUpdatingRef.current = true;
-           const newVisPos = toVisibleText(textBefore.slice(0, lastNewline === -1 ? 0 : lastNewline)).length + 1;
           requestAnimationFrame(() => {
             el.innerHTML = toHTML(newValue);
             el.focus();
-            restoreCursor(el, newVisPos);
+            placeCursorAfterNthBr(el, newlineCount);
             isUpdatingRef.current = false;
           });
           return;
@@ -420,7 +419,7 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
         requestAnimationFrame(() => {
           el.innerHTML = toHTML(newValue);
           el.focus();
-          restoreCursor(el, visBeforeLen + 3);
+          placeCursorAfterNthBr(el, newlineCount + 1);
           isUpdatingRef.current = false;
         });
         return;
@@ -433,7 +432,7 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
       requestAnimationFrame(() => {
         el.innerHTML = toHTML(newValue);
         el.focus();
-        restoreCursor(el, visBeforeLen + 1);
+        placeCursorAfterNthBr(el, newlineCount + 1);
         isUpdatingRef.current = false;
       });
     }
