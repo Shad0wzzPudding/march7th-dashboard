@@ -28,6 +28,10 @@ const toHTML = (text: string): string => {
   // Strikethrough ~~text~~
   html = html.replace(/~~([\s\S]+?)~~/g, '<s class="line-through opacity-60">$1</s>');
   html = html.replace(/\n/g, '<br>');
+  // Trailing <br> is invisible in contentEditable; add an extra one so the cursor can land there
+  if (html.endsWith('<br>')) {
+    html += '<br>';
+  }
   return html;
 };
 
