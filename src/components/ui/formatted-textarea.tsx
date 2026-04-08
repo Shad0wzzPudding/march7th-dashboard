@@ -641,7 +641,7 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
 
   return (
     <div className="space-y-1">
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1 flex-wrap">
         <Button
           type="button"
           variant={autoBullet ? 'default' : 'outline'}
@@ -669,7 +669,7 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
           size="sm"
           onClick={() => applyFormatToggle('~~')}
           className="h-7 px-2 text-xs gap-1"
-          title="Strikethrough selected text"
+          title="Strikethrough: ~~text~~"
         >
           <Strikethrough size={14} />
         </Button>
@@ -679,7 +679,7 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
           size="sm"
           onClick={() => applyFormatToggle('**')}
           className="h-7 px-2 text-xs gap-1"
-          title="Bold selected text"
+          title="Bold: **text**"
         >
           <Bold size={14} />
         </Button>
@@ -689,10 +689,13 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
           size="sm"
           onClick={() => applyFormatToggle('*')}
           className="h-7 px-2 text-xs gap-1"
-          title="Italic selected text"
+          title="Italic: *text*"
         >
           <Italic size={14} />
         </Button>
+        <span className="text-[10px] text-muted-foreground ml-1">
+          *italic* · **bold** · ~~strike~~
+        </span>
       </div>
       <div className="relative">
         <div
