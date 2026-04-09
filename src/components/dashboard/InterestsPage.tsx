@@ -273,11 +273,12 @@ export const InterestsPage = ({
             {pinnedInterests.map((interest) => (
               <Card 
                 key={interest.id} 
-                className={`bg-main-focus/20 border-main-focus/40 transition-all ${
-                  isSelecting ? 'cursor-pointer border-2 border-dashed border-primary/60' : ''
-                } ${isSelected(interest.id) ? 'ring-2 ring-main-focus shadow-lg border-solid' : ''}`}
+                className={`bg-main-focus/20 border-main-focus/40 transition-all relative overflow-visible ${
+                  isSelecting ? 'cursor-pointer' : ''
+                } ${isSelected(interest.id) ? 'ring-2 ring-main-focus shadow-lg' : ''}`}
                 onClick={() => handleCardClick(interest)}
               >
+                <SelectionCorners visible={isSelecting} />
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-3">
@@ -345,10 +346,12 @@ export const InterestsPage = ({
           {unpinnedInterests.map((interest) => (
             <Card 
               key={interest.id} 
-              className={`hover:shadow-md transition-all ${
-                isSelecting ? 'cursor-pointer border-2 border-dashed border-primary/60' : ''
-              } ${isSelected(interest.id) ? 'ring-2 ring-main-focus shadow-lg border-solid' : ''}`}
+              className={`hover:shadow-md transition-all relative overflow-visible ${
+                isSelecting ? 'cursor-pointer' : ''
+              } ${isSelected(interest.id) ? 'ring-2 ring-main-focus shadow-lg' : ''}`}
               onClick={() => handleCardClick(interest)}
+            >
+              <SelectionCorners visible={isSelecting} />
             >
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
