@@ -14,7 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useMultiSelect } from '@/hooks/useMultiSelect';
 import { MultiSelectActionBar } from './MultiSelectActionBar';
 import { MarchConfirmDialog } from './MarchConfirmDialog';
-import { SelectionCorners } from './SelectionCorners';
+import { SelectionCorners, SelectModeOverlay } from './SelectionCorners';
 import { playSuccessSound, playCancelSound, playDeleteSound, playDuplicateSound, playPinSound, playUnpinSound, playUpdateSound, playEditSound } from '@/lib/sounds';
 
 interface InterestsPageProps {
