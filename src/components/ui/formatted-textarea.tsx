@@ -355,7 +355,7 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
   const editorRef = useRef<HTMLDivElement>(null);
   const [autoBullet, setAutoBullet] = useState(false);
   const isUpdatingRef = useRef(false);
-
+  const applyFormatToggleRef = useRef<(marker: string) => void>(() => {});
   // Sync external value changes into contentEditable
   useEffect(() => {
     const el = editorRef.current;
@@ -387,6 +387,23 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
   }, [onChange]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
+    // Keyboard shortcuts for formatting
+    if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key === 'b') {
+      e.preventDefault();
+      applyFormatToggleRef.current('**');
+      return;
+    }
+    if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key === 'i') {
+      e.preventDefault();
+      applyFormatToggleRef.current('*');
+      return;
+    }
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 's' || e.key === 'S')) {
+      e.preventDefault();
+      applyFormatToggleRef.current('~~');
+      return;
+    }
+
     if (e.key === 'Enter') {
       e.preventDefault();
       const sel = window.getSelection();
@@ -618,6 +635,8 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
       isUpdatingRef.current = false;
     });
   }, [value, onChange, restoreSelection]);
+
+  applyFormatToggleRef.current = applyFormatToggle;
 
   const handlePaste = useCallback((e: React.ClipboardEvent) => {
     e.preventDefault();
