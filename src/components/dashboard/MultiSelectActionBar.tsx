@@ -65,7 +65,7 @@ export const MultiSelectActionBar = ({
               size="sm"
               variant="ghost"
               onClick={onPin}
-              className="text-xs text-main-focus hover:text-main-focus/80"
+              className="text-xs text-upcoming-events hover:text-upcoming-events/80"
             >
               <Pin size={14} className="mr-1" />
               Pin
