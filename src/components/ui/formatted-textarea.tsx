@@ -387,6 +387,23 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
   }, [onChange]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
+    // Keyboard shortcuts for formatting
+    if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key === 'b') {
+      e.preventDefault();
+      applyFormatToggle('**');
+      return;
+    }
+    if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key === 'i') {
+      e.preventDefault();
+      applyFormatToggle('*');
+      return;
+    }
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 's' || e.key === 'S')) {
+      e.preventDefault();
+      applyFormatToggle('~~');
+      return;
+    }
+
     if (e.key === 'Enter') {
       e.preventDefault();
       const sel = window.getSelection();
