@@ -352,7 +352,6 @@ export const InterestsPage = ({
               onClick={() => handleCardClick(interest)}
             >
               <SelectionCorners visible={isSelecting} />
-            >
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-3">
