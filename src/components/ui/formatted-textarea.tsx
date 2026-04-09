@@ -355,7 +355,7 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
   const editorRef = useRef<HTMLDivElement>(null);
   const [autoBullet, setAutoBullet] = useState(false);
   const isUpdatingRef = useRef(false);
-
+  const applyFormatToggleRef = useRef<(marker: string) => void>(() => {});
   // Sync external value changes into contentEditable
   useEffect(() => {
     const el = editorRef.current;
