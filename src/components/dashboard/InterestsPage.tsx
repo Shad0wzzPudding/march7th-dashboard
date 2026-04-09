@@ -179,6 +179,7 @@ export const InterestsPage = ({
 
   return (
     <div className="space-y-6 animate-fade-in">
+      <SelectModeOverlay visible={isSelecting} />
       <MarchConfirmDialog
         open={showDeleteConfirm}
         onOpenChange={setShowDeleteConfirm}
