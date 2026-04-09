@@ -636,7 +636,7 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
     });
   }, [value, onChange, restoreSelection]);
 
-  const handlePaste = useCallback((e: React.ClipboardEvent) => {
+  applyFormatToggleRef.current = applyFormatToggle;
     e.preventDefault();
     const text = e.clipboardData.getData('text/plain');
     const el = editorRef.current;
