@@ -390,17 +390,17 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
     // Keyboard shortcuts for formatting
     if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key === 'b') {
       e.preventDefault();
-      applyFormatToggle('**');
+      applyFormatToggleRef.current('**');
       return;
     }
     if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key === 'i') {
       e.preventDefault();
-      applyFormatToggle('*');
+      applyFormatToggleRef.current('*');
       return;
     }
     if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 's' || e.key === 'S')) {
       e.preventDefault();
-      applyFormatToggle('~~');
+      applyFormatToggleRef.current('~~');
       return;
     }
 
