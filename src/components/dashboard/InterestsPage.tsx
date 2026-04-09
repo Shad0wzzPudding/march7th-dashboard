@@ -273,8 +273,8 @@ export const InterestsPage = ({
               <Card 
                 key={interest.id} 
                 className={`bg-main-focus/20 border-main-focus/40 transition-all ${
-                  isSelecting ? 'cursor-pointer' : ''
-                } ${isSelected(interest.id) ? 'ring-2 ring-main-focus shadow-lg' : ''}`}
+                  isSelecting ? 'cursor-pointer border-2 border-dashed border-primary/60' : ''
+                } ${isSelected(interest.id) ? 'ring-2 ring-main-focus shadow-lg border-solid' : ''}`}
                 onClick={() => handleCardClick(interest)}
               >
                 <CardHeader className="pb-3">
@@ -345,8 +345,8 @@ export const InterestsPage = ({
             <Card 
               key={interest.id} 
               className={`hover:shadow-md transition-all ${
-                isSelecting ? 'cursor-pointer' : ''
-              } ${isSelected(interest.id) ? 'ring-2 ring-main-focus shadow-lg' : ''}`}
+                isSelecting ? 'cursor-pointer border-2 border-dashed border-primary/60' : ''
+              } ${isSelected(interest.id) ? 'ring-2 ring-main-focus shadow-lg border-solid' : ''}`}
               onClick={() => handleCardClick(interest)}
             >
               <CardHeader className="pb-3">
