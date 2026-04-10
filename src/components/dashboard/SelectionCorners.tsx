@@ -7,16 +7,8 @@ interface SelectionCornersProps {
 export const SelectionCorners = ({ visible }: SelectionCornersProps) => {
   if (!visible) return null;
 
-  const cornerSize = "w-5 h-5";
-  const base = "absolute pointer-events-none z-10 border-primary";
-
   return (
-    <>
-      <span className={`${base} ${cornerSize} top-0 left-0 border-t-2 border-l-2 rounded-tl-lg`} />
-      <span className={`${base} ${cornerSize} top-0 right-0 border-t-2 border-r-2 rounded-tr-lg`} />
-      <span className={`${base} ${cornerSize} bottom-0 left-0 border-b-2 border-l-2 rounded-bl-lg`} />
-      <span className={`${base} ${cornerSize} bottom-0 right-0 border-b-2 border-r-2 rounded-br-lg`} />
-    </>
+    <span className="absolute inset-0 border-2 border-dashed border-primary/60 rounded-lg pointer-events-none z-10" />
   );
 };
 
