@@ -199,7 +199,7 @@ export const InterestsPage = ({
             <Button
               variant="outline"
               size="sm"
-              onClick={enterSelectMode}
+              onClick={() => { playSelectModeSound(); enterSelectMode(); }}
             >
               <CheckSquare size={14} className="mr-2" />
               Select
