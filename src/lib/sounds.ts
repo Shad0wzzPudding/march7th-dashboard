@@ -552,3 +552,31 @@ export const playNavigationSound = () => {
     console.log('[playNavigationSound] Audio error:', e);
   }
 };
+
+export const playSelectModeSound = () => {
+  haptic([10, 20, 10]);
+  try {
+    const audioContext = getAudioContext();
+    const now = audioContext.currentTime;
+
+    // Camera autofocus "beep-beep" — two short high-pitched tones
+    const playTone = (freq: number, start: number, dur: number) => {
+      const osc = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      osc.connect(gain);
+      gain.connect(audioContext.destination);
+      osc.frequency.value = freq;
+      osc.type = 'sine';
+      gain.gain.setValueAtTime(0.2, start);
+      gain.gain.exponentialRampToValueAtTime(0.01, start + dur);
+      osc.start(start);
+      osc.stop(start + dur);
+    };
+
+    playTone(1760, now, 0.06);          // A6
+    playTone(1760, now + 0.09, 0.06);   // A6 (repeat)
+
+  } catch (e) {
+    console.log('[playSelectModeSound] Audio error:', e);
+  }
+};
