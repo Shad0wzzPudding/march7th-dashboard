@@ -19,7 +19,7 @@ import { playSuccessSound, playCancelSound, playDeleteSound, playDuplicateSound,
 
 interface InterestsPageProps {
   interests: Interest[];
-  onCreateInterest: (data: Omit<Interest, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => void;
+  onCreateInterest: (data: Omit<Interest, 'id' | 'user_id' | 'created_at' | 'updated_at'> & { __duplicate?: boolean; __silent?: boolean }) => void;
   onUpdateInterest: (data: Partial<Interest> & { id: string }) => void;
   onDeleteInterest: (id: string) => void;
 }
