@@ -131,23 +131,26 @@ export const useDashboardData = () => {
 
   // Mutations
   const createInterest = useMutation({
-    mutationFn: async (data: Omit<Interest, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+    mutationFn: async (
+      data: Omit<Interest, 'id' | 'user_id' | 'created_at' | 'updated_at'> & { __duplicate?: boolean; __silent?: boolean }
+    ) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
-
+      const { __duplicate, __silent, ...insertData } = data;
       const { data: result, error } = await supabase
         .from('interests')
-        .insert([{ ...data, user_id: user.id }])
+        .insert([{ ...insertData, user_id: user.id }])
         .select()
         .single();
       
       if (error) throw error;
-      return result;
+      return { result, __duplicate, __silent };
     },
-    onSuccess: () => {
+    onSuccess: ({ __duplicate, __silent }) => {
       queryClient.invalidateQueries({ queryKey: ['interests'] });
       queryClient.invalidateQueries({ queryKey: ['activity_log'] });
-      toast.success('Interest created successfully!');
+      if (__silent) return;
+      toast.success(__duplicate ? 'Interest duplicated!' : 'Interest created successfully!');
     },
     onError: (error) => {
       console.error('Failed to create interest:', error);
@@ -207,20 +210,24 @@ export const useDashboardData = () => {
   });
 
   const createTask = useMutation({
-    mutationFn: async (data: Omit<Task, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+    mutationFn: async (
+      data: Omit<Task, 'id' | 'user_id' | 'created_at' | 'updated_at'> & { __duplicate?: boolean; __silent?: boolean }
+    ) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
-
+      const { __duplicate, __silent, ...insertData } = data;
       const { error } = await supabase
         .from('tasks')
-        .insert([{ ...data, user_id: user.id }]);
+        .insert([{ ...insertData, user_id: user.id }]);
       
       if (error) throw error;
+      return { __duplicate, __silent };
     },
-    onSuccess: () => {
+    onSuccess: (meta) => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
       queryClient.invalidateQueries({ queryKey: ['activity_log'] });
-      toast.success('Task created successfully!');
+      if (meta?.__silent) return;
+      toast.success(meta?.__duplicate ? 'Task duplicated!' : 'Task created successfully!');
     }
   });
 
@@ -346,20 +353,24 @@ export const useDashboardData = () => {
   });
 
   const createEvent = useMutation({
-    mutationFn: async (data: Omit<Event, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+    mutationFn: async (
+      data: Omit<Event, 'id' | 'user_id' | 'created_at' | 'updated_at'> & { __duplicate?: boolean; __silent?: boolean }
+    ) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
-
+      const { __duplicate, __silent, ...insertData } = data;
       const { error } = await supabase
         .from('events')
-        .insert([{ ...data, user_id: user.id }]);
+        .insert([{ ...insertData, user_id: user.id }]);
       
       if (error) throw error;
+      return { __duplicate, __silent };
     },
-    onSuccess: () => {
+    onSuccess: (meta) => {
       queryClient.invalidateQueries({ queryKey: ['events'] });
       queryClient.invalidateQueries({ queryKey: ['activity_log'] });
-      toast.success('Event created successfully!');
+      if (meta?.__silent) return;
+      toast.success(meta?.__duplicate ? 'Event duplicated!' : 'Event created successfully!');
     }
   });
 
