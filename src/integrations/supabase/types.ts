@@ -90,6 +90,7 @@ export type Database = {
           description: string | null
           id: string
           start_time: string
+          tag_ids: string[]
           title: string
           updated_at: string
           user_id: string
@@ -100,6 +101,7 @@ export type Database = {
           description?: string | null
           id?: string
           start_time: string
+          tag_ids?: string[]
           title: string
           updated_at?: string
           user_id: string
@@ -110,6 +112,7 @@ export type Database = {
           description?: string | null
           id?: string
           start_time?: string
+          tag_ids?: string[]
           title?: string
           updated_at?: string
           user_id?: string
@@ -124,6 +127,7 @@ export type Database = {
           id: string
           is_pinned: boolean
           sort_order: number
+          tag_ids: string[]
           title: string
           updated_at: string
           user_id: string
@@ -135,6 +139,7 @@ export type Database = {
           id?: string
           is_pinned?: boolean
           sort_order?: number
+          tag_ids?: string[]
           title: string
           updated_at?: string
           user_id: string
@@ -146,6 +151,7 @@ export type Database = {
           id?: string
           is_pinned?: boolean
           sort_order?: number
+          tag_ids?: string[]
           title?: string
           updated_at?: string
           user_id?: string
@@ -176,6 +182,33 @@ export type Database = {
         }
         Relationships: []
       }
+      tags: {
+        Row: {
+          color: string
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       tasks: {
         Row: {
           created_at: string
@@ -184,6 +217,7 @@ export type Database = {
           id: string
           is_completed: boolean
           start_date: string | null
+          tag_ids: string[]
           title: string
           updated_at: string
           user_id: string
@@ -195,6 +229,7 @@ export type Database = {
           id?: string
           is_completed?: boolean
           start_date?: string | null
+          tag_ids?: string[]
           title: string
           updated_at?: string
           user_id: string
@@ -206,6 +241,7 @@ export type Database = {
           id?: string
           is_completed?: boolean
           start_date?: string | null
+          tag_ids?: string[]
           title?: string
           updated_at?: string
           user_id?: string

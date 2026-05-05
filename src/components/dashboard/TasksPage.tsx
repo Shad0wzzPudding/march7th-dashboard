@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Task } from '@/lib/types';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,9 @@ import { useMultiSelect } from '@/hooks/useMultiSelect';
 import { MultiSelectActionBar } from './MultiSelectActionBar';
 import { MarchConfirmDialog } from './MarchConfirmDialog';
 import { playSuccessSound, playCompletionSound, playCancelSound, playDeleteSound, playDuplicateSound, playUpdateSound, playEditSound } from '@/lib/sounds';
+import { TagPicker, TagChip } from './TagPicker';
+import { SortAndFilterBar, SortOption, sortItems, filterByTags } from './SortAndFilterBar';
+import { useTags } from '@/hooks/useTags';
 
 interface TasksPageProps {
   tasks: Task[];
@@ -44,8 +47,13 @@ export const TasksPage = ({
     description: '',
     start_date: '',
     deadline: '',
-    is_completed: false
+    is_completed: false,
+    tag_ids: [] as string[],
   });
+  const [sort, setSort] = useState<SortOption>('deadline_asc');
+  const [filterTagIds, setFilterTagIds] = useState<string[]>([]);
+  const { tags } = useTags();
+  const tagsById = useMemo(() => Object.fromEntries(tags.map((t) => [t.id, t])), [tags]);
 
   const { selectedIds, selectedCount, isSelecting, toggle, selectAll, clearSelection, enterSelectMode, isSelected } = useMultiSelect<Task>();
 
@@ -96,7 +104,8 @@ export const TasksPage = ({
       description: '',
       start_date: '',
       deadline: '',
-      is_completed: false
+      is_completed: false,
+      tag_ids: [],
     });
     setEditingTask(null);
   };
@@ -130,7 +139,8 @@ export const TasksPage = ({
       description: task.description || '',
       start_date: task.start_date ? format(parseISO(task.start_date), "yyyy-MM-dd'T'HH:mm") : '',
       deadline: task.deadline ? format(parseISO(task.deadline), "yyyy-MM-dd'T'HH:mm") : '',
-      is_completed: task.is_completed
+      is_completed: task.is_completed,
+      tag_ids: task.tag_ids || [],
     });
     setIsCreateOpen(true);
   };
@@ -155,6 +165,7 @@ export const TasksPage = ({
       start_date: task.start_date,
       deadline: task.deadline,
       is_completed: false,
+      tag_ids: task.tag_ids || [],
       __duplicate: true,
     });
     playDuplicateSound();
@@ -170,6 +181,7 @@ export const TasksPage = ({
         start_date: task.start_date,
         deadline: task.deadline,
         is_completed: false,
+        tag_ids: task.tag_ids || [],
         __duplicate: true,
         __silent: idx !== selected.length - 1,
       });
@@ -197,8 +209,12 @@ export const TasksPage = ({
   };
 
   const now = new Date();
-  const pendingTasks = tasks.filter(task => !task.is_completed);
-  const completedTasks = tasks.filter(task => task.is_completed);
+  const visibleTasks = useMemo(
+    () => sortItems(filterByTags(tasks, filterTagIds), sort, tagsById),
+    [tasks, filterTagIds, sort, tagsById]
+  );
+  const pendingTasks = visibleTasks.filter(task => !task.is_completed);
+  const completedTasks = visibleTasks.filter(task => task.is_completed);
   
   const overdueTasks = pendingTasks.filter(task => task.deadline && isBefore(parseISO(task.deadline), now));
   const upcomingTasks = pendingTasks.filter(task => !task.deadline || isAfter(parseISO(task.deadline), now));
@@ -277,6 +293,11 @@ export const TasksPage = ({
                      <span>Due: {task.deadline ? format(parseISO(task.deadline), 'MMM dd, yyyy HH:mm') : 'No deadline'}</span>
                    </div>
                  </div>
+                 {task.tag_ids && task.tag_ids.length > 0 && (
+                   <div className="flex flex-wrap gap-1 mt-2">
+                     {task.tag_ids.map(id => tagsById[id] && <TagChip key={id} tag={tagsById[id]} />)}
+                   </div>
+                 )}
               </div>
             </div>
             {!isSelecting && (
@@ -444,6 +465,13 @@ export const TasksPage = ({
                 />
                 <label htmlFor="is_completed" className="text-sm">Mark as completed</label>
               </div>
+              <div>
+                <label className="text-sm font-medium mb-1 block">Tags</label>
+                <TagPicker
+                  selected={formData.tag_ids}
+                  onChange={(ids) => setFormData(prev => ({ ...prev, tag_ids: ids }))}
+                />
+              </div>
               <div className="flex gap-2">
                 <Button type="submit" className="flex-1">
                   {editingTask ? 'Update' : 'Create'}
@@ -479,6 +507,16 @@ export const TasksPage = ({
           </CardContent>
         </Card>
       </div>
+
+      {tasks.length > 0 && (
+        <SortAndFilterBar
+          sort={sort}
+          onSortChange={setSort}
+          filterTagIds={filterTagIds}
+          onFilterChange={setFilterTagIds}
+          showCompleted
+        />
+      )}
 
       {/* Overdue Tasks */}
       {overdueTasks.length > 0 && (

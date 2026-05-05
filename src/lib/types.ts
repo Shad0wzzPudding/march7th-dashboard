@@ -6,6 +6,7 @@ export interface Interest {
   deadline?: string;
   is_pinned: boolean;
   sort_order: number;
+  tag_ids?: string[];
   created_at: string;
   updated_at: string;
 }
@@ -18,6 +19,7 @@ export interface Task {
   start_date?: string;
   deadline?: string;
   is_completed: boolean;
+  tag_ids?: string[];
   created_at: string;
   updated_at: string;
 }
@@ -41,6 +43,7 @@ export interface Event {
   description?: string;
   start_time: string;
   deadline?: string;
+  tag_ids?: string[];
   created_at: string;
   updated_at: string;
 }
@@ -57,3 +60,12 @@ export interface ActivityLog {
 }
 
 export type NavigationPage = 'home' | 'interests' | 'tasks' | 'events';
+
+export interface Tag {
+  id: string;
+  user_id: string;
+  name: string;
+  color: string;
+  created_at: string;
+  updated_at: string;
+}
