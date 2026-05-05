@@ -465,6 +465,13 @@ export const TasksPage = ({
                 />
                 <label htmlFor="is_completed" className="text-sm">Mark as completed</label>
               </div>
+              <div>
+                <label className="text-sm font-medium mb-1 block">Tags</label>
+                <TagPicker
+                  selected={formData.tag_ids}
+                  onChange={(ids) => setFormData(prev => ({ ...prev, tag_ids: ids }))}
+                />
+              </div>
               <div className="flex gap-2">
                 <Button type="submit" className="flex-1">
                   {editingTask ? 'Update' : 'Create'}
@@ -500,6 +507,16 @@ export const TasksPage = ({
           </CardContent>
         </Card>
       </div>
+
+      {tasks.length > 0 && (
+        <SortAndFilterBar
+          sort={sort}
+          onSortChange={setSort}
+          filterTagIds={filterTagIds}
+          onFilterChange={setFilterTagIds}
+          showCompleted
+        />
+      )}
 
       {/* Overdue Tasks */}
       {overdueTasks.length > 0 && (
