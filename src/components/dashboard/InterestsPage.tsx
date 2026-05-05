@@ -106,29 +106,27 @@ export const InterestsPage = ({
       description: interest.description,
       deadline: interest.deadline,
       is_pinned: false,
-      sort_order: 0
+      sort_order: 0,
+      __duplicate: true,
     });
     playDuplicateSound();
-    toast({
-      title: "Interest duplicated",
-      description: "A copy of the interest has been created",
-    });
   };
 
   // Batch actions
   const handleBatchCopy = () => {
     const selected = interests.filter(i => selectedIds.has(i.id));
-    selected.forEach(interest => {
+    selected.forEach((interest, idx) => {
       onCreateInterest({
         title: interest.title,
         description: interest.description,
         deadline: interest.deadline,
         is_pinned: false,
-        sort_order: 0
+        sort_order: 0,
+        __duplicate: true,
+        __silent: idx !== selected.length - 1,
       });
     });
     playDuplicateSound();
-    toast({ title: `${selected.length} interest(s) duplicated` });
     clearSelection();
   };
 
