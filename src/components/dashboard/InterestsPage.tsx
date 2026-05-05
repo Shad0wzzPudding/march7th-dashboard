@@ -340,6 +340,13 @@ export const InterestsPage = ({
                       {format(parseISO(interest.deadline), 'MMM dd, yyyy HH:mm')}
                     </div>
                   )}
+                  {interest.tag_ids && interest.tag_ids.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {interest.tag_ids.map(id => tagsById[id] && (
+                        <TagChip key={id} tag={tagsById[id]} />
+                      ))}
+                    </div>
+                  )}
                   {!isSelecting && (
                     <div className="flex items-center gap-2 pt-2">
                       <Button size="sm" variant="outline" onClick={() => handlePin(interest)}>
@@ -407,6 +414,13 @@ export const InterestsPage = ({
                   <div className="flex items-center gap-1 text-sm text-muted-foreground">
                     <Clock size={12} />
                     {format(parseISO(interest.deadline), 'MMM dd, yyyy HH:mm')}
+                  </div>
+                )}
+                {interest.tag_ids && interest.tag_ids.length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    {interest.tag_ids.map(id => tagsById[id] && (
+                      <TagChip key={id} tag={tagsById[id]} />
+                    ))}
                   </div>
                 )}
                 {!isSelecting && (
