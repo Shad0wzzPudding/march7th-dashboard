@@ -253,6 +253,13 @@ export const InterestsPage = ({
                   value={formData.deadline}
                   onChange={(e) => setFormData(prev => ({ ...prev, deadline: e.target.value }))}
                 />
+                <div>
+                  <label className="text-sm font-medium mb-1 block">Tags</label>
+                  <TagPicker
+                    selected={formData.tag_ids}
+                    onChange={(ids) => setFormData(prev => ({ ...prev, tag_ids: ids }))}
+                  />
+                </div>
                 <div className="flex items-center gap-2">
                   <input
                     type="checkbox"
@@ -278,6 +285,15 @@ export const InterestsPage = ({
       </div>
 
       {/* Pinned Interests */}
+      {interests.length > 0 && (
+        <SortAndFilterBar
+          sort={sort}
+          onSortChange={setSort}
+          filterTagIds={filterTagIds}
+          onFilterChange={setFilterTagIds}
+          showPinned
+        />
+      )}
       {pinnedInterests.length > 0 && (
         <div>
           <h3 className="text-lg font-semibold text-main-focus mb-3 flex items-center gap-2">
