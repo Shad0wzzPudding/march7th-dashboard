@@ -256,6 +256,11 @@ export const EventsPage = ({
                       </span>
                     )}
                   </div>
+                  {event.tag_ids && event.tag_ids.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {event.tag_ids.map(id => tagsById[id] && <TagChip key={id} tag={tagsById[id]} />)}
+                    </div>
+                  )}
                 </div>
               </div>
               {!isSelecting && (
@@ -309,6 +314,11 @@ export const EventsPage = ({
                   </span>
                 )}
               </div>
+              {event.tag_ids && event.tag_ids.length > 0 && (
+                <div className="flex flex-wrap gap-1">
+                  {event.tag_ids.map(id => tagsById[id] && <TagChip key={id} tag={tagsById[id]} />)}
+                </div>
+              )}
               {!isSelecting && (
                 <div className="flex items-center gap-2 pt-2">
                   <Button size="sm" variant="outline" onClick={() => handleCopy(event)}>
