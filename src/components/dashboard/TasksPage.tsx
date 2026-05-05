@@ -18,7 +18,7 @@ import { playSuccessSound, playCompletionSound, playCancelSound, playDeleteSound
 
 interface TasksPageProps {
   tasks: Task[];
-  onCreateTask: (data: Omit<Task, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => void;
+  onCreateTask: (data: Omit<Task, 'id' | 'user_id' | 'created_at' | 'updated_at'> & { __duplicate?: boolean; __silent?: boolean }) => void;
   onUpdateTask: (data: Partial<Task> & { id: string }) => void;
   onDeleteTask: (id: string) => void;
   onClearCompleted: () => void;
@@ -154,29 +154,27 @@ export const TasksPage = ({
       description: task.description,
       start_date: task.start_date,
       deadline: task.deadline,
-      is_completed: false
+      is_completed: false,
+      __duplicate: true,
     });
     playDuplicateSound();
-    toast({
-      title: "Task duplicated",
-      description: "A copy of the task has been created",
-    });
   };
 
   // Batch actions
   const handleBatchCopy = () => {
     const selected = tasks.filter(t => selectedIds.has(t.id));
-    selected.forEach(task => {
+    selected.forEach((task, idx) => {
       onCreateTask({
         title: task.title,
         description: task.description,
         start_date: task.start_date,
         deadline: task.deadline,
-        is_completed: false
+        is_completed: false,
+        __duplicate: true,
+        __silent: idx !== selected.length - 1,
       });
     });
     playDuplicateSound();
-    toast({ title: `${selected.length} task(s) duplicated` });
     clearSelection();
   };
 
