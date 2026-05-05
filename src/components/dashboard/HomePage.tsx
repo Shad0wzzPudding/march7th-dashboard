@@ -694,13 +694,23 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
                             onClick={() => setSelectedItem(item)}
                           >
                             {/* Slim accent border */}
-                            <div className={`absolute left-0 top-0 w-0.5 h-full rounded-l-lg ${
-                              item.dateTypes.includes('deadline') 
-                                ? 'bg-red-500' 
-                                : item.type === 'event'
-                                ? 'bg-blue-500'
-                                : 'bg-green-500'
-                            }`} />
+                            {item.dateTypes.includes('deadline') && item.dateTypes.includes('start') ? (
+                              <div
+                                className="absolute left-0 top-0 w-0.5 h-full rounded-l-lg"
+                                style={{
+                                  background:
+                                    'linear-gradient(to bottom, hsl(142 71% 45%) 0%, hsl(142 71% 45%) 50%, hsl(0 84% 60%) 50%, hsl(0 84% 60%) 100%)',
+                                }}
+                              />
+                            ) : (
+                              <div className={`absolute left-0 top-0 w-0.5 h-full rounded-l-lg ${
+                                item.dateTypes.includes('deadline')
+                                  ? 'bg-red-500'
+                                  : item.type === 'event'
+                                  ? 'bg-blue-500'
+                                  : 'bg-green-500'
+                              }`} />
+                            )}
                             
                             <div className="ml-2">
                               <div className="flex items-start justify-between mb-1">
