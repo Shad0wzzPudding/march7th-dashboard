@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Interest } from '@/lib/types';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,9 @@ import { MultiSelectActionBar } from './MultiSelectActionBar';
 import { MarchConfirmDialog } from './MarchConfirmDialog';
 import { SelectionCorners, SelectModeOverlay } from './SelectionCorners';
 import { playSuccessSound, playCancelSound, playDeleteSound, playDuplicateSound, playPinSound, playUnpinSound, playUpdateSound, playEditSound, playSelectModeSound } from '@/lib/sounds';
+import { TagPicker, TagChip } from './TagPicker';
+import { SortAndFilterBar, SortOption, sortItems, filterByTags } from './SortAndFilterBar';
+import { useTags } from '@/hooks/useTags';
 
 interface InterestsPageProps {
   interests: Interest[];
@@ -39,8 +42,13 @@ export const InterestsPage = ({
     description: '',
     deadline: '',
     is_pinned: false,
-    sort_order: 0
+    sort_order: 0,
+    tag_ids: [] as string[],
   });
+  const [sort, setSort] = useState<SortOption>('created_desc');
+  const [filterTagIds, setFilterTagIds] = useState<string[]>([]);
+  const { tags } = useTags();
+  const tagsById = useMemo(() => Object.fromEntries(tags.map((t) => [t.id, t])), [tags]);
 
   const { selectedIds, selectedCount, isSelecting, toggle, selectAll, clearSelection, enterSelectMode, isSelected } = useMultiSelect<Interest>();
 
@@ -50,7 +58,8 @@ export const InterestsPage = ({
       description: '',
       deadline: '',
       is_pinned: false,
-      sort_order: 0
+      sort_order: 0,
+      tag_ids: [],
     });
     setEditingInterest(null);
   };
@@ -83,7 +92,8 @@ export const InterestsPage = ({
       description: interest.description || '',
       deadline: interest.deadline ? format(parseISO(interest.deadline), "yyyy-MM-dd'T'HH:mm") : '',
       is_pinned: interest.is_pinned,
-      sort_order: interest.sort_order
+      sort_order: interest.sort_order,
+      tag_ids: interest.tag_ids || [],
     });
     setIsCreateOpen(true);
   };
@@ -107,6 +117,7 @@ export const InterestsPage = ({
       deadline: interest.deadline,
       is_pinned: false,
       sort_order: 0,
+      tag_ids: interest.tag_ids || [],
       __duplicate: true,
     });
     playDuplicateSound();
@@ -122,6 +133,7 @@ export const InterestsPage = ({
         deadline: interest.deadline,
         is_pinned: false,
         sort_order: 0,
+        tag_ids: interest.tag_ids || [],
         __duplicate: true,
         __silent: idx !== selected.length - 1,
       });
@@ -168,8 +180,12 @@ export const InterestsPage = ({
     }
   };
 
-  const pinnedInterests = interests.filter(i => i.is_pinned);
-  const unpinnedInterests = interests.filter(i => !i.is_pinned);
+  const visibleInterests = useMemo(
+    () => sortItems(filterByTags(interests, filterTagIds), sort, tagsById),
+    [interests, filterTagIds, sort, tagsById]
+  );
+  const pinnedInterests = visibleInterests.filter(i => i.is_pinned);
+  const unpinnedInterests = visibleInterests.filter(i => !i.is_pinned);
 
   // Check if any selected interests are pinned/unpinned (for showing pin/unpin actions)
   const hasSelectedPinned = interests.some(i => selectedIds.has(i.id) && i.is_pinned);
