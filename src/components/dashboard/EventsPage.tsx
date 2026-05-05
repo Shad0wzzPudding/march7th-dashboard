@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Event } from '@/lib/types';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,9 @@ import { useMultiSelect } from '@/hooks/useMultiSelect';
 import { MultiSelectActionBar } from './MultiSelectActionBar';
 import { MarchConfirmDialog } from './MarchConfirmDialog';
 import { playSuccessSound, playCancelSound, playDeleteSound, playDuplicateSound, playUpdateSound, playEditSound } from '@/lib/sounds';
+import { TagPicker, TagChip } from './TagPicker';
+import { SortAndFilterBar, SortOption, sortItems, filterByTags } from './SortAndFilterBar';
+import { useTags } from '@/hooks/useTags';
 
 interface EventsPageProps {
   events: Event[];
@@ -42,13 +45,22 @@ export const EventsPage = ({
     title: '',
     description: '',
     start_time: '',
-    deadline: ''
+    deadline: '',
+    tag_ids: [] as string[],
   });
+  const [sort, setSort] = useState<SortOption>('created_desc');
+  const [filterTagIds, setFilterTagIds] = useState<string[]>([]);
+  const { tags } = useTags();
+  const tagsById = useMemo(() => Object.fromEntries(tags.map((t) => [t.id, t])), [tags]);
 
   const { selectedIds, selectedCount, isSelecting, toggle, selectAll, clearSelection, enterSelectMode, isSelected } = useMultiSelect<Event>();
 
   const now = new Date();
-  const pastEvents = events.filter(event => isBefore(parseISO(event.start_time), now) && !isToday(parseISO(event.start_time)));
+  const visibleEvents = useMemo(
+    () => sortItems(filterByTags(events, filterTagIds), sort, tagsById),
+    [events, filterTagIds, sort, tagsById]
+  );
+  const pastEvents = visibleEvents.filter(event => isBefore(parseISO(event.start_time), now) && !isToday(parseISO(event.start_time)));
 
   // Hide undo button after 10 seconds
   useEffect(() => {
@@ -94,7 +106,8 @@ export const EventsPage = ({
       title: '',
       description: '',
       start_time: '',
-      deadline: ''
+      deadline: '',
+      tag_ids: [],
     });
     setEditingEvent(null);
   };
@@ -127,7 +140,8 @@ export const EventsPage = ({
       title: event.title,
       description: event.description || '',
       start_time: format(parseISO(event.start_time), "yyyy-MM-dd'T'HH:mm"),
-      deadline: event.deadline ? format(parseISO(event.deadline), "yyyy-MM-dd'T'HH:mm") : ''
+      deadline: event.deadline ? format(parseISO(event.deadline), "yyyy-MM-dd'T'HH:mm") : '',
+      tag_ids: event.tag_ids || [],
     });
     setIsCreateOpen(true);
   };
@@ -138,6 +152,7 @@ export const EventsPage = ({
       description: event.description,
       start_time: event.start_time,
       deadline: event.deadline,
+      tag_ids: event.tag_ids || [],
       __duplicate: true,
     });
     playDuplicateSound();
@@ -152,6 +167,7 @@ export const EventsPage = ({
         description: event.description,
         start_time: event.start_time,
         deadline: event.deadline,
+        tag_ids: event.tag_ids || [],
         __duplicate: true,
         __silent: idx !== selected.length - 1,
       });
@@ -178,8 +194,8 @@ export const EventsPage = ({
     }
   };
 
-  const todayEvents = events.filter(event => isToday(parseISO(event.start_time)));
-  const upcomingEvents = events.filter(event => isAfter(parseISO(event.start_time), now) && !isToday(parseISO(event.start_time)));
+  const todayEvents = visibleEvents.filter(event => isToday(parseISO(event.start_time)));
+  const upcomingEvents = visibleEvents.filter(event => isAfter(parseISO(event.start_time), now) && !isToday(parseISO(event.start_time)));
 
   const getEventStatus = (event: Event) => {
     const eventDate = parseISO(event.start_time);
