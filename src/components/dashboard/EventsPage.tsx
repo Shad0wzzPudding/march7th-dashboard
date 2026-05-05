@@ -18,7 +18,7 @@ import { playSuccessSound, playCancelSound, playDeleteSound, playDuplicateSound,
 
 interface EventsPageProps {
   events: Event[];
-  onCreateEvent: (data: Omit<Event, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => void;
+  onCreateEvent: (data: Omit<Event, 'id' | 'user_id' | 'created_at' | 'updated_at'> & { __duplicate?: boolean; __silent?: boolean }) => void;
   onUpdateEvent: (data: Partial<Event> & { id: string }) => void;
   onDeleteEvent: (id: string) => void;
   onClearPast: () => void;
@@ -137,28 +137,26 @@ export const EventsPage = ({
       title: event.title,
       description: event.description,
       start_time: event.start_time,
-      deadline: event.deadline
+      deadline: event.deadline,
+      __duplicate: true,
     });
     playDuplicateSound();
-    toast({
-      title: "Event duplicated",
-      description: "A copy of the event has been created",
-    });
   };
 
   // Batch actions
   const handleBatchCopy = () => {
     const selected = events.filter(e => selectedIds.has(e.id));
-    selected.forEach(event => {
+    selected.forEach((event, idx) => {
       onCreateEvent({
         title: event.title,
         description: event.description,
         start_time: event.start_time,
-        deadline: event.deadline
+        deadline: event.deadline,
+        __duplicate: true,
+        __silent: idx !== selected.length - 1,
       });
     });
     playDuplicateSound();
-    toast({ title: `${selected.length} event(s) duplicated` });
     clearSelection();
   };
 
