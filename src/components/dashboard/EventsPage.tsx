@@ -432,6 +432,13 @@ export const EventsPage = ({
                 value={formData.deadline}
                 onChange={(e) => setFormData(prev => ({ ...prev, deadline: e.target.value }))}
               />
+              <div>
+                <label className="text-sm font-medium mb-1 block">Tags</label>
+                <TagPicker
+                  selected={formData.tag_ids}
+                  onChange={(ids) => setFormData(prev => ({ ...prev, tag_ids: ids }))}
+                />
+              </div>
               <div className="flex gap-2">
                 <Button type="submit" className="flex-1">
                   {editingEvent ? 'Update' : 'Create'}
@@ -467,6 +474,15 @@ export const EventsPage = ({
           </CardContent>
         </Card>
       </div>
+
+      {events.length > 0 && (
+        <SortAndFilterBar
+          sort={sort}
+          onSortChange={setSort}
+          filterTagIds={filterTagIds}
+          onFilterChange={setFilterTagIds}
+        />
+      )}
 
       {/* Today's Events */}
       <div>
