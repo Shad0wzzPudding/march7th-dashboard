@@ -5,17 +5,6 @@ import { Button } from '@/components/ui/button';
 import { ArrowUpDown, X, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { playSuccessSound } from '@/lib/sounds';
-import march7thExcited from '@/assets/march7th-excited.png';
-import march7thHappy from '@/assets/march7th-happy.png';
-import march7thWinking from '@/assets/march7th-winking.png';
-import march7thProud from '@/assets/march7th-proud.png';
-import march7thConfident from '@/assets/march7th-confident.png';
-import march7thWelcoming from '@/assets/march7th-welcoming.png';
-import march7thCandy from '@/assets/march7th-candy.png';
-import march7thThumbsup from '@/assets/march7th-thumbsup.png';
-import march7thClipboard from '@/assets/march7th-clipboard.png';
-import march7thSalute from '@/assets/march7th-salute.png';
-import march7thPeace from '@/assets/march7th-peace.png';
 
 export type SortOption =
   | 'created_desc'
@@ -52,35 +41,19 @@ export const SortAndFilterBar = ({
     else onFilterChange([...filterTagIds, id]);
   };
 
-  const marchVariants: { msg: string; sticker: string }[] = [
-    { msg: "March 7th is on the case! Sorting by what's due soonest~ ❄️", sticker: march7thExcited },
-    { msg: "Leave it to me! Everything's sorted by deadline now! ✨", sticker: march7thProud },
-    { msg: "Don't worry, I got this! Urgent stuff up top~ 🏹", sticker: march7thConfident },
-    { msg: "March 7th to the rescue! Soonest deadlines first! 💖", sticker: march7thSalute },
-    { msg: "Tada~! Sorted by deadline! You can thank me later~ 📸", sticker: march7thWinking },
-    { msg: "Aha! Found the most urgent ones — handled! ⚡", sticker: march7thHappy },
-    { msg: "Heehee, organizing your life is my specialty! 📋", sticker: march7thClipboard },
-    { msg: "Easy peasy! All deadlines lined up and ready! 👍", sticker: march7thThumbsup },
-    { msg: "Trailblazer~ I prioritized everything for you! ✌️", sticker: march7thPeace },
-    { msg: "Welcome to a perfectly sorted list! 🌸", sticker: march7thWelcoming },
-    { msg: "Sweet sweet organization, just for you~ 🍭", sticker: march7thCandy },
+  const marchMessages = [
+    "March 7th is on the case! Sorting by what's due soonest~ ❄️",
+    "Leave it to me! March 7th has rearranged everything by deadline! ✨",
+    "Don't worry, I got this! Putting the urgent stuff up top~ 🏹",
+    "March 7th to the rescue! Soonest deadlines first, just for you! 💖",
+    "Tada~! Sorted by deadline! You can thank me later~ 📸",
   ];
 
   const requestHelp = () => {
     onSortChange('deadline_asc');
     playSuccessSound();
-    const v = marchVariants[Math.floor(Math.random() * marchVariants.length)];
-    toast(v.msg, {
-      icon: (
-        <img
-          src={v.sticker}
-          alt="March 7th"
-          className="w-10 h-10 object-contain"
-          loading="lazy"
-        />
-      ),
-      duration: 4000,
-    });
+    const msg = marchMessages[Math.floor(Math.random() * marchMessages.length)];
+    toast(msg);
   };
 
   return (
