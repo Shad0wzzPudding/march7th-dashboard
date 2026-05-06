@@ -401,7 +401,7 @@ export const EventsPage = ({
               Select
             </Button>
           )}
-          <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+          <Dialog open={isCreateOpen} onOpenChange={(open) => { if (!open && isCreateOpen) playCancelSound(); setIsCreateOpen(open); }}>
             <DialogTrigger asChild>
               <Button 
                 onClick={resetForm}
