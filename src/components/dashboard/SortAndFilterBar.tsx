@@ -2,7 +2,9 @@ import { useTags } from '@/hooks/useTags';
 import { TagChip } from './TagPicker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { ArrowUpDown, X } from 'lucide-react';
+import { ArrowUpDown, X, Sparkles } from 'lucide-react';
+import { toast } from 'sonner';
+import { playSuccessSound } from '@/lib/sounds';
 
 export type SortOption =
   | 'created_desc'
@@ -39,6 +41,21 @@ export const SortAndFilterBar = ({
     else onFilterChange([...filterTagIds, id]);
   };
 
+  const marchMessages = [
+    "March 7th is on the case! Sorting by what's due soonest~ ❄️",
+    "Leave it to me! March 7th has rearranged everything by deadline! ✨",
+    "Don't worry, I got this! Putting the urgent stuff up top~ 🏹",
+    "March 7th to the rescue! Soonest deadlines first, just for you! 💖",
+    "Tada~! Sorted by deadline! You can thank me later~ 📸",
+  ];
+
+  const requestHelp = () => {
+    onSortChange('deadline_asc');
+    playSuccessSound();
+    const msg = marchMessages[Math.floor(Math.random() * marchMessages.length)];
+    toast(msg);
+  };
+
   return (
     <div className="flex flex-wrap items-center gap-2 p-3 rounded-lg border bg-card/50">
       <ArrowUpDown size={14} className="text-muted-foreground" />
@@ -58,6 +75,16 @@ export const SortAndFilterBar = ({
           {showCompleted && <SelectItem value="completed_last">Completed last</SelectItem>}
         </SelectContent>
       </Select>
+
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={requestHelp}
+        className="h-8 px-2 text-xs gap-1 border-pink-300 text-pink-600 hover:bg-pink-50 dark:hover:bg-pink-950"
+      >
+        <Sparkles size={12} />
+        Request March 7th help
+      </Button>
 
       {tags.length > 0 && (
         <div className="flex items-center gap-1 flex-wrap flex-1">
