@@ -7,6 +7,13 @@ import march7thCandy from '@/assets/march7th-candy.png';
 import march7thProud from '@/assets/march7th-proud.png';
 import march7thWelcoming from '@/assets/march7th-welcoming.png';
 import march7thConfident from '@/assets/march7th-confident.png';
+import march7thTg2 from '@/assets/march7th-tg-002.webp';
+import march7thTg3 from '@/assets/march7th-tg-003.webp';
+import march7thTg4 from '@/assets/march7th-tg-004.webp';
+import march7thTg5 from '@/assets/march7th-tg-005.webp';
+import march7thTg6 from '@/assets/march7th-tg-006.webp';
+import march7thTg7 from '@/assets/march7th-tg-007.webp';
+import march7thTg8 from '@/assets/march7th-tg-008.webp';
 
 const march7thGreetings = [
   { text: "Heyyy Shad0wzz! How's your day going today??", emoji: "😊", sticker: march7thSticker },
@@ -16,7 +23,14 @@ const march7thGreetings = [
   { text: "Yay, you're here! Let's make today super productive!", emoji: "💫", sticker: march7thHappy },
   { text: "Hello hello! Ready to tackle your tasks like a true Trailblazer?", emoji: "🚀", sticker: march7thProud },
   { text: "Heya! Time to check what's on your agenda!", emoji: "📝", sticker: march7thWinking },
-  { text: "Welcome! I've been waiting to show you all your updates!", emoji: "✨", sticker: march7thConfident }
+  { text: "Welcome! I've been waiting to show you all your updates!", emoji: "✨", sticker: march7thConfident },
+  { text: "Ehehe~ caught you slacking! Just kidding, welcome back!", emoji: "📸", sticker: march7thTg2 },
+  { text: "Trailblazer! My ice arrows are ready whenever you are!", emoji: "🏹❄️", sticker: march7thTg3 },
+  { text: "Pssst… I saved a snack for you. Don't tell Stelle!", emoji: "🍬", sticker: march7thTg4 },
+  { text: "Smile for the camera! Today's gonna be a great shot!", emoji: "📷✨", sticker: march7thTg5 },
+  { text: "Don't forget — I'm cuter than your to-do list~", emoji: "💖", sticker: march7thTg6 },
+  { text: "Aaand we're back! Astral Express is now boarding!", emoji: "🚂🌌", sticker: march7thTg7 },
+  { text: "Yo Trailblazer! What chaos are we causing today?", emoji: "⚡", sticker: march7thTg8 }
 ];
 
 export const WelcomeMessage = () => {

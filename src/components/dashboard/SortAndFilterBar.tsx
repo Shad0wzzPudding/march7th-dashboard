@@ -47,6 +47,16 @@ export const SortAndFilterBar = ({
     "Don't worry, I got this! Putting the urgent stuff up top~ 🏹",
     "March 7th to the rescue! Soonest deadlines first, just for you! 💖",
     "Tada~! Sorted by deadline! You can thank me later~ 📸",
+    "Ehehe~ March 7th magic! All your urgent stuff is now front and center! ✨",
+    "Ice arrows locked on the deadlines! Sorted and ready, Trailblazer! 🏹❄️",
+    "Smile~! March 7th took a snapshot and rearranged everything by deadline! 📷",
+    "Astral Express express delivery! Soonest tasks coming through! 🚂💨",
+    "Pom-Pom would be so proud~ Sorted by what's due first! 📦",
+    "Trust me, I'm a memory expert! Deadlines first, no time to lose! 💫",
+    "Hehe, leave the boring sorting to me! Earliest deadlines on top! 💝",
+    "Boop! March 7th's deadline radar activated~ ❄️✨",
+    "Yoink! Grabbed all your tasks and lined them up by deadline! 🎀",
+    "Don't panic, Trailblazer! March 7th has your schedule under control~ 🌟",
   ];
 
   const requestHelp = () => {
