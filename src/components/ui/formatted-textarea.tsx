@@ -70,6 +70,9 @@ const toPlainText = (el: HTMLDivElement): string => {
     }
   };
   el.childNodes.forEach(walk);
+  // Strip a single trailing newline that comes from the cursor-visibility <br>
+  // appended in toHTML; otherwise deletes accumulate phantom blank lines.
+  if (text.endsWith('\n')) text = text.slice(0, -1);
   return text;
 };
 
