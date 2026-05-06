@@ -725,9 +725,9 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
           onPaste={handlePaste}
           data-placeholder={placeholder}
           className={cn(
-            "min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background",
+            "min-h-[80px] max-h-[240px] overflow-y-auto w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-            "whitespace-pre-wrap break-words",
+            "whitespace-pre-wrap break-words [overflow-wrap:anywhere]",
             "empty:before:content-[attr(data-placeholder)] empty:before:text-muted-foreground empty:before:pointer-events-none",
             className
           )}
