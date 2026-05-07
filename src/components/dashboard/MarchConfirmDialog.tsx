@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -51,6 +51,7 @@ export const MarchConfirmDialog = ({
   const [marchMessage] = useState(() => {
     return marchMessages[Math.floor(Math.random() * marchMessages.length)];
   });
+  const justConfirmedRef = useRef(false);
 
   // Play sound when dialog opens
   useEffect(() => {
@@ -62,8 +63,13 @@ export const MarchConfirmDialog = ({
   // Intercept all close attempts (clicking outside, pressing Escape, etc.)
   const handleOpenChange = (newOpen: boolean) => {
     if (!newOpen && open) {
-      // Dialog is being closed - play cancel sound
-      playCancelSound();
+      // Dialog is being closed - play cancel sound,
+      // unless we just confirmed (confirm sound already played).
+      if (justConfirmedRef.current) {
+        justConfirmedRef.current = false;
+      } else {
+        playCancelSound();
+      }
     }
     onOpenChange(newOpen);
   };
@@ -111,7 +117,10 @@ export const MarchConfirmDialog = ({
             {cancelText}
           </Button>
           <AlertDialogAction
-            onClick={() => handleConfirmClick(onConfirm)}
+            onClick={() => {
+              justConfirmedRef.current = true;
+              handleConfirmClick(onConfirm);
+            }}
             className="w-full sm:w-auto bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-semibold"
           >
             {confirmText}
