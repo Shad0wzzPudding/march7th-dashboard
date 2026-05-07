@@ -59,7 +59,7 @@ export interface ActivityLog {
   created_at: string;
 }
 
-export type NavigationPage = 'home' | 'interests' | 'tasks' | 'events';
+export type NavigationPage = 'home' | 'interests' | 'tasks' | 'events' | 'settings';
 
 export interface Tag {
   id: string;
