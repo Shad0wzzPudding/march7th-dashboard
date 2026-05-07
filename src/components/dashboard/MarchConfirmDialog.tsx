@@ -76,7 +76,7 @@ export const MarchConfirmDialog = ({
 
   return (
     <AlertDialog open={open} onOpenChange={handleOpenChange}>
-      <AlertDialogContent className="bg-gradient-to-br from-pink-50 to-purple-50 dark:from-pink-950/40 dark:to-purple-950/40 border-2 border-pink-200 dark:border-pink-800 max-w-md w-[calc(100vw-2rem)] overflow-hidden">
+      <AlertDialogContent className="bg-gradient-to-br from-pink-50 to-purple-50 dark:from-pink-950/40 dark:to-purple-950/40 border-2 border-pink-200 dark:border-pink-800 max-w-md w-[calc(100vw-2rem)]">
         <AlertDialogHeader className="text-center">
           <div className="flex justify-center mb-2">
             <img 
@@ -88,11 +88,11 @@ export const MarchConfirmDialog = ({
           <AlertDialogTitle className="text-xl bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent font-bold">
             {marchMessage.text}
           </AlertDialogTitle>
-          <div className="py-3 min-w-0">
-            <p className="text-base font-semibold text-pink-700 dark:text-pink-300 break-words">
+          <div className="py-3 min-w-0 w-full">
+            <p className="text-base font-semibold text-pink-700 dark:text-pink-300 break-all">
               {title}
             </p>
-            <AlertDialogDescription className="text-sm text-pink-600/80 dark:text-pink-400/80 mt-2 break-words max-h-40 overflow-y-auto">
+            <AlertDialogDescription className="text-sm text-pink-600/80 dark:text-pink-400/80 mt-2 break-all max-h-40 overflow-y-auto">
               {description}
             </AlertDialogDescription>
           </div>
