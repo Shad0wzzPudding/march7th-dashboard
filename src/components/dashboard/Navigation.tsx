@@ -1,6 +1,6 @@
 import { NavigationPage } from '@/lib/types';
 import { Button } from '@/components/ui/button';
-import { Home, Heart, CheckSquare, Calendar } from 'lucide-react';
+import { Home, Heart, CheckSquare, Calendar, Camera } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { playNavigationSound } from '@/lib/sounds';
 
@@ -49,6 +49,26 @@ export const Navigation = ({ activePage, onPageChange }: NavigationProps) => {
             </div>
           </Button>
         ))}
+        {/* Discrete settings shortcut */}
+        <div className="h-px bg-border/60 mx-2" />
+        <Button
+          variant={activePage === 'settings' ? 'default' : 'ghost'}
+          size="icon"
+          onClick={() => handlePageChange('settings')}
+          className={cn(
+            'w-12 h-12 rounded-full transition-all duration-300 group relative',
+            activePage === 'settings'
+              ? 'bg-gradient-to-r from-pink-500 to-purple-500 text-white shadow-lg scale-110'
+              : 'text-muted-foreground/60 hover:text-foreground hover:bg-accent hover:scale-105'
+          )}
+          title="Settings"
+          aria-label="Settings"
+        >
+          <Camera size={18} />
+          <div className="absolute right-full mr-3 px-2 py-1 bg-popover text-popover-foreground text-sm rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
+            Settings
+          </div>
+        </Button>
       </div>
     </div>
   );

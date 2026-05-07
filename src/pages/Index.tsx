@@ -12,6 +12,7 @@ import { HomePage } from '@/components/dashboard/HomePage';
 import { InterestsPage } from '@/components/dashboard/InterestsPage';
 import { TasksPage } from '@/components/dashboard/TasksPage';
 import { EventsPage } from '@/components/dashboard/EventsPage';
+import { SettingsPage } from '@/components/dashboard/SettingsPage';
 
 import { Button } from '@/components/ui/button';
 import { ArrowUp } from 'lucide-react';
@@ -184,6 +185,8 @@ const Index = () => {
             onClearPast={mutations.clearPastEvents.mutate}
           />
         );
+      case 'settings':
+        return <SettingsPage />;
       default:
         return null;
     }
