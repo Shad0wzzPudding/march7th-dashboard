@@ -76,8 +76,8 @@ export const MarchConfirmDialog = ({
 
   return (
     <AlertDialog open={open} onOpenChange={handleOpenChange}>
-      <AlertDialogContent className="bg-gradient-to-br from-pink-50 to-purple-50 dark:from-pink-950/40 dark:to-purple-950/40 border-2 border-pink-200 dark:border-pink-800 max-w-md w-[calc(100vw-2rem)]">
-        <AlertDialogHeader className="text-center">
+      <AlertDialogContent className="bg-gradient-to-br from-pink-50 to-purple-50 dark:from-pink-950/40 dark:to-purple-950/40 border-2 border-pink-200 dark:border-pink-800 max-w-md w-[calc(100vw-2rem)] [&>*]:min-w-0">
+        <AlertDialogHeader className="text-center min-w-0">
           <div className="flex justify-center mb-2">
             <img 
               src={marchMessage.sticker} 
