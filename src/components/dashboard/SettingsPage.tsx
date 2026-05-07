@@ -1,4 +1,5 @@
 import { NotificationSettings } from './NotificationSettings';
+import { TagManager } from './TagManager';
 import { Camera } from 'lucide-react';
 
 export const SettingsPage = () => {
@@ -14,6 +15,7 @@ export const SettingsPage = () => {
         </div>
       </div>
       <NotificationSettings />
+      <TagManager />
     </div>
   );
 };
