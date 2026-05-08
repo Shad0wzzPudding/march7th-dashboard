@@ -11,6 +11,19 @@ import {
 import { Button } from '@/components/ui/button';
 import march7thExcited from '@/assets/march7th-excited.png';
 import march7thWinking from '@/assets/march7th-winking.png';
+import march7thHappy from '@/assets/march7th-happy.png';
+import march7thCandy from '@/assets/march7th-candy.png';
+import march7thProud from '@/assets/march7th-proud.png';
+import march7thWelcoming from '@/assets/march7th-welcoming.png';
+import march7thConfident from '@/assets/march7th-confident.png';
+import march7thTg04 from '@/assets/march7th-tg-04.webp';
+import march7thTg05 from '@/assets/march7th-tg-05.webp';
+import march7thTg06 from '@/assets/march7th-tg-06.webp';
+import march7thTg07 from '@/assets/march7th-tg-07.webp';
+import march7thTg10 from '@/assets/march7th-tg-10.webp';
+import march7thTg11 from '@/assets/march7th-tg-11.webp';
+import march7thTg12 from '@/assets/march7th-tg-12.webp';
+import march7thTg13 from '@/assets/march7th-tg-13.webp';
 import { playMarchSound, playConfirmSound, playCancelSound } from '@/lib/sounds';
 
 interface MarchConfirmDialogProps {
@@ -37,6 +50,19 @@ const marchMessages = [
   { text: "Whoa, wait a second!", sticker: march7thExcited },
   { text: "Hold up, Trailblazer!", sticker: march7thWinking },
   { text: "Are you really sure??", sticker: march7thExcited },
+  { text: "Eep! Think it through, okay?", sticker: march7thHappy },
+  { text: "Wait wait wait — sweet treat first?", sticker: march7thCandy },
+  { text: "Trust me, double-check this one!", sticker: march7thProud },
+  { text: "Heyy, are we really doing this?", sticker: march7thWelcoming },
+  { text: "Hmph, I hope you know what you're doing!", sticker: march7thConfident },
+  { text: "Make a wish before you decide~", sticker: march7thTg04 },
+  { text: "Snack break first? ...No? Okay then!", sticker: march7thTg05 },
+  { text: "Hmph! Don't blame me if you regret it!", sticker: march7thTg06 },
+  { text: "Pretty please, think it over again?", sticker: march7thTg07 },
+  { text: "Ehehe, last chance to back out!", sticker: march7thTg10 },
+  { text: "Vacation later — decide first!", sticker: march7thTg11 },
+  { text: "Waaah, this is a scary choice!", sticker: march7thTg12 },
+  { text: "Staring at you... are you sure?", sticker: march7thTg13 },
 ];
 
 export const MarchConfirmDialog = ({
