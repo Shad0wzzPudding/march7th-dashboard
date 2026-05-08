@@ -4,7 +4,7 @@ import { Tag } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Pencil, Trash2, Check, X, Tag as TagIcon } from 'lucide-react';
+import { Plus, Pencil, Trash2, Check, X, Tag as TagIcon, Pipette } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { TagChip } from './TagPicker';
 import { MarchConfirmDialog } from './MarchConfirmDialog';
@@ -31,6 +31,27 @@ const ColorPalette = ({ value, onChange }: { value: string; onChange: (c: string
         aria-label={`Pick color ${c}`}
       />
     ))}
+    <label
+      className={cn(
+        'relative w-5 h-5 rounded-full border-2 transition-all cursor-pointer flex items-center justify-center overflow-hidden',
+        !PALETTE.includes(value) ? 'border-foreground scale-110' : 'border-transparent'
+      )}
+      style={{
+        background: !PALETTE.includes(value)
+          ? value
+          : 'conic-gradient(from 0deg, #ef4444, #f59e0b, #eab308, #22c55e, #06b6d4, #3b82f6, #8b5cf6, #ec4899, #ef4444)',
+      }}
+      aria-label="Pick custom color"
+      title="Custom color"
+    >
+      <Pipette size={10} className="text-white drop-shadow-[0_0_1px_rgba(0,0,0,0.8)]" />
+      <input
+        type="color"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="absolute inset-0 opacity-0 cursor-pointer"
+      />
+    </label>
   </div>
 );
 
