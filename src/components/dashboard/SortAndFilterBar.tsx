@@ -104,7 +104,7 @@ export const SortAndFilterBar = ({
               <Button
                 variant="outline"
                 size="sm"
-                className="h-8 px-2 gap-1 text-xs relative bg-white dark:bg-zinc-100 text-zinc-800 border-zinc-300 hover:bg-zinc-50 shadow-sm"
+                className="h-8 px-2 gap-1.5 text-xs relative bg-white dark:bg-zinc-100 text-zinc-800 border-zinc-300 hover:bg-zinc-50 shadow-sm max-w-[260px]"
                 title="Filter by tag"
                 aria-label="Filter by tag"
               >
@@ -112,11 +112,38 @@ export const SortAndFilterBar = ({
                 <span className="relative inline-flex items-center justify-center w-5 h-6 bg-white border border-zinc-400 rounded-[2px] shadow-[0_1px_2px_rgba(0,0,0,0.2)] rotate-[-6deg]">
                   <ImageIcon size={10} className="text-pink-500" />
                 </span>
-                <span className="hidden sm:inline">Filter</span>
-                {filterTagIds.length > 0 && (
-                  <span className="ml-0.5 inline-flex items-center justify-center min-w-4 h-4 px-1 rounded-full bg-pink-500 text-white text-[10px] font-bold">
-                    {filterTagIds.length}
-                  </span>
+                {filterTagIds.length === 0 ? (
+                  <span>Filter</span>
+                ) : (
+                  (() => {
+                    const selected = tags.filter((t) => filterTagIds.includes(t.id));
+                    const first = selected[0];
+                    const extra = selected.length - 1;
+                    if (!first) return <span>Filter</span>;
+                    return (
+                      <span className="flex items-center gap-1 min-w-0">
+                        <span
+                          className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[11px] font-medium border max-w-[140px] truncate"
+                          style={{
+                            background: `${first.color}22`,
+                            borderColor: `${first.color}66`,
+                            color: first.color,
+                          }}
+                        >
+                          <span
+                            className="w-1.5 h-1.5 rounded-full shrink-0"
+                            style={{ background: first.color }}
+                          />
+                          <span className="truncate">{first.name}</span>
+                        </span>
+                        {extra > 0 && (
+                          <span className="inline-flex items-center justify-center h-4 px-1.5 rounded-full bg-pink-500 text-white text-[10px] font-bold">
+                            +{extra}
+                          </span>
+                        )}
+                      </span>
+                    );
+                  })()
                 )}
               </Button>
             </PopoverTrigger>
