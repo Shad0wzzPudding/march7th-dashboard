@@ -14,7 +14,7 @@ export const SettingsPage = () => {
           <p className="text-sm text-muted-foreground">March 7th's behind-the-scenes controls~</p>
         </div>
       </div>
-      <NotificationSettings />
+      <NotificationSettings detailed />
       <TagManager />
     </div>
   );
