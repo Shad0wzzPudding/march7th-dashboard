@@ -2,7 +2,8 @@ import { useTags } from '@/hooks/useTags';
 import { TagChip } from './TagPicker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { ArrowUpDown, X, Sparkles } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { ArrowUpDown, X, Sparkles, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { playSuccessSound } from '@/lib/sounds';
 
@@ -97,26 +98,57 @@ export const SortAndFilterBar = ({
       </Button>
 
       {tags.length > 0 && (
-        <div className="flex items-center gap-1 flex-wrap flex-1">
-          <span className="text-xs text-muted-foreground ml-2">Filter:</span>
-          {tags.map((t) => (
-            <TagChip
-              key={t.id}
-              tag={t}
-              onClick={() => toggleTag(t.id)}
-              active={filterTagIds.length === 0 ? undefined : filterTagIds.includes(t.id)}
-            />
-          ))}
-          {filterTagIds.length > 0 && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-6 px-2 text-xs"
-              onClick={() => onFilterChange([])}
-            >
-              <X size={10} className="mr-1" /> Clear
-            </Button>
-          )}
+        <div className="flex items-center gap-1 flex-wrap flex-1 ml-1">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 px-2 gap-1 text-xs relative bg-white dark:bg-zinc-100 text-zinc-800 border-zinc-300 hover:bg-zinc-50 shadow-sm"
+                title="Filter by tag"
+                aria-label="Filter by tag"
+              >
+                {/* Polaroid-style icon */}
+                <span className="relative inline-flex items-center justify-center w-5 h-6 bg-white border border-zinc-400 rounded-[2px] shadow-[0_1px_2px_rgba(0,0,0,0.2)] rotate-[-6deg]">
+                  <ImageIcon size={10} className="text-pink-500" />
+                </span>
+                <span className="hidden sm:inline">Filter</span>
+                {filterTagIds.length > 0 && (
+                  <span className="ml-0.5 inline-flex items-center justify-center min-w-4 h-4 px-1 rounded-full bg-pink-500 text-white text-[10px] font-bold">
+                    {filterTagIds.length}
+                  </span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-64 p-3 space-y-2" align="start">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-semibold text-muted-foreground">Filter by tag</p>
+                {filterTagIds.length > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 px-2 text-xs"
+                    onClick={() => onFilterChange([])}
+                  >
+                    <X size={10} className="mr-1" /> Clear
+                  </Button>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-1 max-h-56 overflow-y-auto">
+                {tags.map((t) => (
+                  <TagChip
+                    key={t.id}
+                    tag={t}
+                    onClick={() => toggleTag(t.id)}
+                    active={filterTagIds.length === 0 ? undefined : filterTagIds.includes(t.id)}
+                  />
+                ))}
+              </div>
+              {filterTagIds.length === 0 && (
+                <p className="text-[11px] text-muted-foreground italic">Tap a tag to filter. Tap again to remove.</p>
+              )}
+            </PopoverContent>
+          </Popover>
         </div>
       )}
     </div>
