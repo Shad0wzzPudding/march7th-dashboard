@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTags } from '@/hooks/useTags';
+import { useDashboardData } from '@/hooks/useDashboardData';
 import { Tag } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -55,7 +56,7 @@ const ColorPalette = ({ value, onChange }: { value: string; onChange: (c: string
   </div>
 );
 
-const TagRow = ({ tag, onDelete }: { tag: Tag; onDelete: (t: Tag) => void }) => {
+const TagRow = ({ tag, count, onDelete }: { tag: Tag; count: number; onDelete: (t: Tag) => void }) => {
   const { updateTag } = useTags();
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(tag.name);
@@ -78,6 +79,12 @@ const TagRow = ({ tag, onDelete }: { tag: Tag; onDelete: (t: Tag) => void }) => 
       <div className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted/50 group">
         <TagChip tag={tag} />
         <div className="flex-1" />
+        <span
+          className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground shrink-0"
+          title={`${count} item${count === 1 ? '' : 's'} use this tag`}
+        >
+          {count} {count === 1 ? 'item' : 'items'}
+        </span>
         <Button variant="ghost" size="icon" className="h-7 w-7 opacity-60 group-hover:opacity-100" onClick={() => setEditing(true)}>
           <Pencil size={13} />
         </Button>
@@ -116,9 +123,19 @@ const TagRow = ({ tag, onDelete }: { tag: Tag; onDelete: (t: Tag) => void }) => 
 
 export const TagManager = () => {
   const { tags, isLoading, createTag, deleteTag } = useTags();
+  const { interests, tasks, events } = useDashboardData();
   const [newName, setNewName] = useState('');
   const [newColor, setNewColor] = useState(PALETTE[0]);
   const [pendingDelete, setPendingDelete] = useState<Tag | null>(null);
+
+  const tagCounts: Record<string, number> = {};
+  for (const list of [interests, tasks, events]) {
+    for (const item of list as Array<{ tag_ids?: string[] }>) {
+      for (const id of item.tag_ids || []) {
+        tagCounts[id] = (tagCounts[id] || 0) + 1;
+      }
+    }
+  }
 
   const handleCreate = async () => {
     if (!newName.trim()) return;
@@ -166,7 +183,7 @@ export const TagManager = () => {
           ) : tags.length === 0 ? (
             <p className="text-sm text-muted-foreground italic">No tags yet — add your first one above.</p>
           ) : (
-            tags.map((t) => <TagRow key={t.id} tag={t} onDelete={setPendingDelete} />)
+            tags.map((t) => <TagRow key={t.id} tag={t} count={tagCounts[t.id] || 0} onDelete={setPendingDelete} />)
           )}
         </div>
       </CardContent>
