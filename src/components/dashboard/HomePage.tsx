@@ -798,10 +798,14 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
             </CardTitle>
             {sortedPinnedInterests.length > 0 && onUpdateInterest && (
               <div className="flex items-center gap-2">
+                {(() => {
+                const hasExpanded = sortedPinnedInterests.some(i => !collapsedInterests.has(i.id));
+                return (
                 <Button
                   variant="outline"
                   size="sm"
                   className="h-7 px-2 text-xs"
+                  disabled={!hasExpanded}
                   onClick={() => {
                     const ids = sortedPinnedInterests.map(i => i.id);
                     const newSet = new Set(collapsedInterests);
@@ -811,11 +815,13 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
                       localStorage.setItem('collapsedInterests', JSON.stringify(Array.from(newSet)));
                     } catch {}
                   }}
-                  title="Collapse all"
+                  title={hasExpanded ? "Collapse all" : "All already collapsed"}
                 >
                   <ChevronUp size={12} className="mr-1" />
                   Collapse all
                 </Button>
+                );
+                })()}
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded-full">
                   <GripVertical size={12} />
                   <span>Drag to reorder</span>
