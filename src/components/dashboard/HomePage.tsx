@@ -96,6 +96,9 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
       return new Set();
     }
   });
+
+  const [showCollapsePout, setShowCollapsePout] = useState(false);
+  const collapsePoutTimerRef = useRef<number | null>(null);
   
   // Main Focus interests order state
   const [interestOrder, setInterestOrder] = useState<string[]>(() => {
