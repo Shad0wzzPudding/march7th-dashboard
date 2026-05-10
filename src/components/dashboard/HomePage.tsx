@@ -805,25 +805,50 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
                 {(() => {
                 const hasExpanded = sortedPinnedInterests.some(i => !collapsedInterests.has(i.id));
                 return (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-7 px-2 text-xs border-2 border-dotted border-main-focus/70"
-                  disabled={!hasExpanded}
-                  onClick={() => {
-                    const ids = sortedPinnedInterests.map(i => i.id);
-                    const newSet = new Set(collapsedInterests);
-                    ids.forEach(id => newSet.add(id));
-                    setCollapsedInterests(newSet);
-                    try {
-                      localStorage.setItem('collapsedInterests', JSON.stringify(Array.from(newSet)));
-                    } catch {}
-                  }}
-                  title={hasExpanded ? "Collapse all" : "All already collapsed"}
-                >
-                  <ChevronUp size={12} className="mr-1" />
-                  Collapse all
-                </Button>
+                <div className="relative">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className={`h-7 px-2 text-xs border-2 border-dotted border-main-focus/70 ${!hasExpanded ? 'opacity-60' : ''}`}
+                    onClick={() => {
+                      if (!hasExpanded) {
+                        setShowCollapsePout(true);
+                        if (collapsePoutTimerRef.current) window.clearTimeout(collapsePoutTimerRef.current);
+                        collapsePoutTimerRef.current = window.setTimeout(() => setShowCollapsePout(false), 2800);
+                        return;
+                      }
+                      setShowCollapsePout(false);
+                      const ids = sortedPinnedInterests.map(i => i.id);
+                      const newSet = new Set(collapsedInterests);
+                      ids.forEach(id => newSet.add(id));
+                      setCollapsedInterests(newSet);
+                      try {
+                        localStorage.setItem('collapsedInterests', JSON.stringify(Array.from(newSet)));
+                      } catch {}
+                    }}
+                    title={hasExpanded ? "Collapse all" : "Nothing to collapse"}
+                  >
+                    <ChevronUp size={12} className="mr-1" />
+                    Collapse all
+                  </Button>
+                  {showCollapsePout && (
+                    <div className="absolute z-50 right-0 top-full mt-1 flex items-start gap-1 animate-scale-in pointer-events-none">
+                      <img
+                        src={march7thPout}
+                        alt="March 7th pouting"
+                        className="w-14 h-14 object-contain drop-shadow-md -mt-1"
+                      />
+                      <div className="relative max-w-[180px] mt-2">
+                        <div className="bg-card border-2 border-main-focus/60 rounded-2xl px-3 py-2 text-[11px] font-medium text-foreground shadow-lg">
+                          Hmph! I can't collapse anything — every block is already closed! Expand at least one first, okay?
+                        </div>
+                        {/* manga bubble tail pointing left toward March 7th */}
+                        <div className="absolute left-[-7px] top-3 w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-r-[8px] border-r-main-focus/60" />
+                        <div className="absolute left-[-5px] top-3 w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-r-[8px] border-r-card" />
+                      </div>
+                    </div>
+                  )}
+                </div>
                 );
                 })()}
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded-full">
