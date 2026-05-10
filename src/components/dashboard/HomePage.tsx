@@ -804,7 +804,7 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-7 px-2 text-xs"
+                  className="h-7 px-2 text-xs border-dotted"
                   disabled={!hasExpanded}
                   onClick={() => {
                     const ids = sortedPinnedInterests.map(i => i.id);
