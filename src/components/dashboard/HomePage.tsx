@@ -16,6 +16,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { unlockAudio, playCollapseSound, playExpandSound } from "@/lib/sounds";
 import { FormattedText } from '@/components/ui/formatted-text';
 import { SwipeableActivityLogEntry } from "./SwipeableActivityLogEntry";
+import march7thPout from '@/assets/march7th-tg-06.webp';
 interface HomePageProps {
   interests: Interest[];
   tasks: Task[];
