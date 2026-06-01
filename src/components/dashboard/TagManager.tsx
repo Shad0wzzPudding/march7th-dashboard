@@ -76,21 +76,24 @@ const TagRow = ({ tag, count, onDelete }: { tag: Tag; count: number; onDelete: (
 
   if (!editing) {
     return (
-      <div className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted/50 group">
-        <TagChip tag={tag} />
-        <div className="flex-1" />
-        <span
-          className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground shrink-0"
-          title={`${count} item${count === 1 ? '' : 's'} use this tag`}
-        >
-          {count} {count === 1 ? 'item' : 'items'}
-        </span>
-        <Button variant="ghost" size="icon" className="h-7 w-7 opacity-60 group-hover:opacity-100" onClick={() => setEditing(true)}>
-          <Pencil size={13} />
-        </Button>
-        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive opacity-60 group-hover:opacity-100" onClick={() => onDelete(tag)}>
-          <Trash2 size={13} />
-        </Button>
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 p-2 rounded-lg hover:bg-muted/50 group">
+        <div className="flex items-center min-w-0 max-w-full mr-auto">
+          <TagChip tag={tag} />
+        </div>
+        <div className="flex items-center gap-1 ml-auto">
+          <span
+            className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground shrink-0"
+            title={`${count} item${count === 1 ? '' : 's'} use this tag`}
+          >
+            {count} {count === 1 ? 'item' : 'items'}
+          </span>
+          <Button variant="ghost" size="icon" className="h-7 w-7 opacity-60 group-hover:opacity-100" onClick={() => setEditing(true)}>
+            <Pencil size={13} />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive opacity-60 group-hover:opacity-100" onClick={() => onDelete(tag)}>
+            <Trash2 size={13} />
+          </Button>
+        </div>
       </div>
     );
   }
