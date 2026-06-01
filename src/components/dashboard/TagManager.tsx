@@ -76,11 +76,14 @@ const TagRow = ({ tag, count, onDelete }: { tag: Tag; count: number; onDelete: (
 
   if (!editing) {
     return (
-      <div className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted/50 group">
-        <TagChip tag={tag} />
-        <div className="flex-1" />
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 p-2 rounded-lg hover:bg-muted/50 group">
+        <div className="min-w-0 max-w-full flex items-center">
+          <TagChip tag={tag} />
+        </div>
+        <div className="hidden sm:block flex-1" />
+        <div className="flex-1 basis-full sm:hidden" />
         <span
-          className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground shrink-0"
+          className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground shrink-0 ml-auto sm:ml-0"
           title={`${count} item${count === 1 ? '' : 's'} use this tag`}
         >
           {count} {count === 1 ? 'item' : 'items'}
