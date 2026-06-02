@@ -298,7 +298,11 @@ const countEdgeStars = (text: string, side: 'start' | 'end'): number => {
   if (side === 'start') {
     for (let i = 0; i < text.length && text[i] === '*'; i++) count++;
   } else {
-    for (let i = text.length - 1; i >= 0 && text[i] === '*'; i--) count++;
+    for (let i = text.length - 1; i >= 0 && text[i] === '*'; i--) {
+      // An escaped star (preceded by `\`) is a literal character, not a marker.
+      if (i > 0 && text[i - 1] === '\\') break;
+      count++;
+    }
   }
   return count;
 };
