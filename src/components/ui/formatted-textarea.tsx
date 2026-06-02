@@ -82,6 +82,30 @@ const toVisibleText = (text: string): string =>
   text.replace(/\*+/g, '').replace(/~~/g, '');
 
 /**
+ * Count caret position as the number of characters/<br>s in the rendered DOM
+ * up to the caret. This mirrors restoreCursor's traversal so save→restore is
+ * symmetric regardless of whether markdown markers are matched (and thus
+ * hidden inside <em>/<strong>/<s>) or unmatched (and rendered as literal `*`).
+ */
+const measureDomOffset = (root: Node): number => {
+  let count = 0;
+  const walk = (node: Node) => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      count += (node.textContent || '').length;
+    } else if (node.nodeType === Node.ELEMENT_NODE) {
+      const tag = (node as HTMLElement).tagName.toLowerCase();
+      if (tag === 'br') {
+        count += 1;
+      } else {
+        node.childNodes.forEach(walk);
+      }
+    }
+  };
+  root.childNodes.forEach(walk);
+  return count;
+};
+
+/**
  * Save and restore cursor position in contentEditable.
  */
 const saveCursor = (el: HTMLElement): number => {
@@ -95,7 +119,7 @@ const saveCursor = (el: HTMLElement): number => {
 
   const temp = document.createElement('div');
   temp.appendChild(preRange.cloneContents());
-  return toVisibleText(toPlainText(temp, false)).length;
+  return measureDomOffset(temp);
 };
 
 const getVisibleOffset = (el: HTMLElement, container: Node, offset: number): number => {
@@ -105,7 +129,7 @@ const getVisibleOffset = (el: HTMLElement, container: Node, offset: number): num
 
   const temp = document.createElement('div');
   temp.appendChild(range.cloneContents());
-  return toVisibleText(toPlainText(temp, false)).length;
+  return measureDomOffset(temp);
 };
 
 const getSelectionVisibleRange = (el: HTMLElement): { start: number; end: number } | null => {
