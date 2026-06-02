@@ -262,6 +262,12 @@ const visibleToRaw = (raw: string, visiblePos: number, skipTrailingMarkers = tru
   let vi = 0;
   let ri = 0;
   while (ri < raw.length && vi < visiblePos) {
+    // Escaped marker: `\*` or `\~` counts as a single visible character.
+    if (raw[ri] === '\\' && (raw[ri + 1] === '*' || raw[ri + 1] === '~')) {
+      ri += 2;
+      vi += 1;
+      continue;
+    }
     // Skip any consecutive * markers (*, **, ***)
     if (raw[ri] === '*') {
       let j = ri;
@@ -280,6 +286,7 @@ const visibleToRaw = (raw: string, visiblePos: number, skipTrailingMarkers = tru
   // Only skip trailing markers for start positions, not end positions
   if (skipTrailingMarkers) {
     while (ri < raw.length) {
+      if (raw[ri] === '\\' && (raw[ri + 1] === '*' || raw[ri + 1] === '~')) break;
       if (raw[ri] === '*') {
         let j = ri;
         while (j < raw.length && raw[j] === '*') j++;
