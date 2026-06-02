@@ -19,6 +19,12 @@ const toHTML = (text: string): string => {
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
+  // Protect escaped markers (\* and \~) so they render literally and are
+  // ignored by the markdown regex below. User-typed markers are escaped in
+  // toPlainText; only button-applied markers stay unescaped.
+  const ESC_STAR = '\u0001';
+  const ESC_TILDE = '\u0002';
+  html = html.replace(/\\\*/g, ESC_STAR).replace(/\\~/g, ESC_TILDE);
   // Bold+Italic ***text*** (must come before bold and italic)
   html = html.replace(/\*\*\*(.+?)\*\*\*/g, '<strong class="font-bold"><em class="italic">$1</em></strong>');
   // Bold **text** (must come before italic)
@@ -27,6 +33,8 @@ const toHTML = (text: string): string => {
   html = html.replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '<em class="italic">$1</em>');
   // Strikethrough ~~text~~
   html = html.replace(/~~([\s\S]+?)~~/g, '<s class="line-through opacity-60">$1</s>');
+  // Restore escaped markers as literal characters.
+  html = html.split(ESC_STAR).join('*').split(ESC_TILDE).join('~');
   html = html.replace(/\n/g, '<br>');
   // Trailing <br> is invisible in contentEditable; add an extra one so the cursor can land there
   if (html.endsWith('<br>')) {
@@ -42,7 +50,11 @@ const toPlainText = (el: HTMLDivElement, stripTrailingNewline = true): string =>
   let text = '';
   const walk = (node: Node) => {
     if (node.nodeType === Node.TEXT_NODE) {
-      text += node.textContent || '';
+      // Escape any literal `*` or `~` typed by the user so they don't get
+      // re-interpreted as markdown markers on the next render. Markers that
+      // originate from toolbar buttons live inside <strong>/<em>/<s> tags
+      // and are re-emitted unescaped by the element branches below.
+      text += (node.textContent || '').replace(/[*~]/g, '\\$&');
     } else if (node.nodeType === Node.ELEMENT_NODE) {
       const tag = (node as HTMLElement).tagName.toLowerCase();
       if (tag === 'br') {
@@ -250,6 +262,12 @@ const visibleToRaw = (raw: string, visiblePos: number, skipTrailingMarkers = tru
   let vi = 0;
   let ri = 0;
   while (ri < raw.length && vi < visiblePos) {
+    // Escaped marker: `\*` or `\~` counts as a single visible character.
+    if (raw[ri] === '\\' && (raw[ri + 1] === '*' || raw[ri + 1] === '~')) {
+      ri += 2;
+      vi += 1;
+      continue;
+    }
     // Skip any consecutive * markers (*, **, ***)
     if (raw[ri] === '*') {
       let j = ri;
@@ -268,6 +286,7 @@ const visibleToRaw = (raw: string, visiblePos: number, skipTrailingMarkers = tru
   // Only skip trailing markers for start positions, not end positions
   if (skipTrailingMarkers) {
     while (ri < raw.length) {
+      if (raw[ri] === '\\' && (raw[ri + 1] === '*' || raw[ri + 1] === '~')) break;
       if (raw[ri] === '*') {
         let j = ri;
         while (j < raw.length && raw[j] === '*') j++;
@@ -286,7 +305,11 @@ const countEdgeStars = (text: string, side: 'start' | 'end'): number => {
   if (side === 'start') {
     for (let i = 0; i < text.length && text[i] === '*'; i++) count++;
   } else {
-    for (let i = text.length - 1; i >= 0 && text[i] === '*'; i--) count++;
+    for (let i = text.length - 1; i >= 0 && text[i] === '*'; i--) {
+      // An escaped star (preceded by `\`) is a literal character, not a marker.
+      if (i > 0 && text[i - 1] === '\\') break;
+      count++;
+    }
   }
   return count;
 };
