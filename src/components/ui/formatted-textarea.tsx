@@ -38,7 +38,7 @@ const toHTML = (text: string): string => {
 /**
  * Converts innerHTML back to plain text with ~~ markers.
  */
-const toPlainText = (el: HTMLDivElement): string => {
+const toPlainText = (el: HTMLDivElement, stripTrailingNewline = true): string => {
   let text = '';
   const walk = (node: Node) => {
     if (node.nodeType === Node.TEXT_NODE) {
@@ -72,7 +72,9 @@ const toPlainText = (el: HTMLDivElement): string => {
   el.childNodes.forEach(walk);
   // Strip a single trailing newline that comes from the cursor-visibility <br>
   // appended in toHTML; otherwise deletes accumulate phantom blank lines.
-  if (text.endsWith('\n')) text = text.slice(0, -1);
+  // Skip this when measuring cursor position, otherwise a caret sitting on an
+  // empty trailing line collapses back to the end of the previous line.
+  if (stripTrailingNewline && text.endsWith('\n')) text = text.slice(0, -1);
   return text;
 };
 
@@ -93,7 +95,7 @@ const saveCursor = (el: HTMLElement): number => {
 
   const temp = document.createElement('div');
   temp.appendChild(preRange.cloneContents());
-  return toVisibleText(toPlainText(temp)).length;
+  return toVisibleText(toPlainText(temp, false)).length;
 };
 
 const getVisibleOffset = (el: HTMLElement, container: Node, offset: number): number => {
@@ -103,7 +105,7 @@ const getVisibleOffset = (el: HTMLElement, container: Node, offset: number): num
 
   const temp = document.createElement('div');
   temp.appendChild(range.cloneContents());
-  return toVisibleText(toPlainText(temp)).length;
+  return toVisibleText(toPlainText(temp, false)).length;
 };
 
 const getSelectionVisibleRange = (el: HTMLElement): { start: number; end: number } | null => {
