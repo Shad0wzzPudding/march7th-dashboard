@@ -50,7 +50,11 @@ const toPlainText = (el: HTMLDivElement, stripTrailingNewline = true): string =>
   let text = '';
   const walk = (node: Node) => {
     if (node.nodeType === Node.TEXT_NODE) {
-      text += node.textContent || '';
+      // Escape any literal `*` or `~` typed by the user so they don't get
+      // re-interpreted as markdown markers on the next render. Markers that
+      // originate from toolbar buttons live inside <strong>/<em>/<s> tags
+      // and are re-emitted unescaped by the element branches below.
+      text += (node.textContent || '').replace(/[*~]/g, '\\$&');
     } else if (node.nodeType === Node.ELEMENT_NODE) {
       const tag = (node as HTMLElement).tagName.toLowerCase();
       if (tag === 'br') {
