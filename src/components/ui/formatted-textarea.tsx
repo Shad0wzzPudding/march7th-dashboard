@@ -19,6 +19,12 @@ const toHTML = (text: string): string => {
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
+  // Protect escaped markers (\* and \~) so they render literally and are
+  // ignored by the markdown regex below. User-typed markers are escaped in
+  // toPlainText; only button-applied markers stay unescaped.
+  const ESC_STAR = '\u0001';
+  const ESC_TILDE = '\u0002';
+  html = html.replace(/\\\*/g, ESC_STAR).replace(/\\~/g, ESC_TILDE);
   // Bold+Italic ***text*** (must come before bold and italic)
   html = html.replace(/\*\*\*(.+?)\*\*\*/g, '<strong class="font-bold"><em class="italic">$1</em></strong>');
   // Bold **text** (must come before italic)
@@ -27,6 +33,8 @@ const toHTML = (text: string): string => {
   html = html.replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '<em class="italic">$1</em>');
   // Strikethrough ~~text~~
   html = html.replace(/~~([\s\S]+?)~~/g, '<s class="line-through opacity-60">$1</s>');
+  // Restore escaped markers as literal characters.
+  html = html.split(ESC_STAR).join('*').split(ESC_TILDE).join('~');
   html = html.replace(/\n/g, '<br>');
   // Trailing <br> is invisible in contentEditable; add an extra one so the cursor can land there
   if (html.endsWith('<br>')) {
