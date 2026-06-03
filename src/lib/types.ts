@@ -20,6 +20,8 @@ export interface Task {
   deadline?: string;
   is_completed: boolean;
   tag_ids?: string[];
+  recurrence_unit?: 'day' | 'week' | 'month' | 'year' | null;
+  recurrence_interval?: number;
   created_at: string;
   updated_at: string;
 }
