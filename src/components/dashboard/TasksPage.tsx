@@ -10,7 +10,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, ResizableDialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Plus, Edit, Trash2, Clock, CheckCircle2, Circle, Calendar, CalendarClock, Copy, Trash, Undo2, X, CheckSquare, Repeat } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { format, parseISO, isAfter, isBefore } from 'date-fns';
+import { format, parseISO, isAfter, isBefore, addHours } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { useMultiSelect } from '@/hooks/useMultiSelect';
 import { MultiSelectActionBar } from './MultiSelectActionBar';
@@ -442,7 +442,16 @@ export const TasksPage = ({
                     type="datetime-local"
                     placeholder="When task becomes active"
                     value={formData.start_date}
-                    onChange={(e) => setFormData(prev => ({ ...prev, start_date: e.target.value }))}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      setFormData(prev => {
+                        const next = { ...prev, start_date: v };
+                        if (v && !prev.deadline) {
+                          next.deadline = format(addHours(new Date(v), 5), "yyyy-MM-dd'T'HH:mm");
+                        }
+                        return next;
+                      });
+                    }}
                     className="flex-1 h-9 text-sm"
                   />
                   <button
