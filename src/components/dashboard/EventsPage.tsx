@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, ResizableDialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Plus, Edit, Trash2, Clock, CalendarDays, Copy, Trash, Undo2, CheckSquare } from 'lucide-react';
-import { format, parseISO, isAfter, isBefore, isToday } from 'date-fns';
+import { format, parseISO, isAfter, isBefore, isToday, addHours } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { useMultiSelect } from '@/hooks/useMultiSelect';
 import { MultiSelectActionBar } from './MultiSelectActionBar';
@@ -433,7 +433,16 @@ export const EventsPage = ({
                 type="datetime-local"
                 placeholder="Start time"
                 value={formData.start_time}
-                onChange={(e) => setFormData(prev => ({ ...prev, start_time: e.target.value }))}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setFormData(prev => {
+                    const next = { ...prev, start_time: v };
+                    if (v && !prev.deadline) {
+                      next.deadline = format(addHours(new Date(v), 5), "yyyy-MM-dd'T'HH:mm");
+                    }
+                    return next;
+                  });
+                }}
                 required
               />
               <Input
