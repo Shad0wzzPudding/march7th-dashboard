@@ -437,7 +437,7 @@ export const EventsPage = ({
                   const v = e.target.value;
                   setFormData(prev => {
                     const next = { ...prev, start_time: v };
-                    if (v && !prev.deadline) {
+                    if (v) {
                       next.deadline = format(addHours(new Date(v), 5), "yyyy-MM-dd'T'HH:mm");
                     }
                     return next;
