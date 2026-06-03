@@ -216,6 +216,8 @@ export type Database = {
           description: string | null
           id: string
           is_completed: boolean
+          recurrence_interval: number
+          recurrence_unit: string | null
           start_date: string | null
           tag_ids: string[]
           title: string
@@ -228,6 +230,8 @@ export type Database = {
           description?: string | null
           id?: string
           is_completed?: boolean
+          recurrence_interval?: number
+          recurrence_unit?: string | null
           start_date?: string | null
           tag_ids?: string[]
           title: string
@@ -240,6 +244,8 @@ export type Database = {
           description?: string | null
           id?: string
           is_completed?: boolean
+          recurrence_interval?: number
+          recurrence_unit?: string | null
           start_date?: string | null
           tag_ids?: string[]
           title?: string

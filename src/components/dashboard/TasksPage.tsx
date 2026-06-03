@@ -8,7 +8,8 @@ import { FormattedText } from '@/components/ui/formatted-text';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, ResizableDialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Edit, Trash2, Clock, CheckCircle2, Circle, Calendar, CalendarClock, Copy, Trash, Undo2, X, CheckSquare } from 'lucide-react';
+import { Plus, Edit, Trash2, Clock, CheckCircle2, Circle, Calendar, CalendarClock, Copy, Trash, Undo2, X, CheckSquare, Repeat } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { format, parseISO, isAfter, isBefore } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { useMultiSelect } from '@/hooks/useMultiSelect';
@@ -49,6 +50,8 @@ export const TasksPage = ({
     deadline: '',
     is_completed: false,
     tag_ids: [] as string[],
+    recurrence_unit: '' as '' | 'day' | 'week' | 'month' | 'year',
+    recurrence_interval: 1,
   });
   const [sort, setSort] = useState<SortOption>('deadline_asc');
   const [filterTagIds, setFilterTagIds] = useState<string[]>([]);
@@ -87,7 +90,10 @@ export const TasksPage = ({
         description: task.description,
         start_date: task.start_date,
         deadline: task.deadline,
-        is_completed: true
+        is_completed: true,
+        tag_ids: task.tag_ids || [],
+        recurrence_unit: task.recurrence_unit || null,
+        recurrence_interval: task.recurrence_interval || 1,
       });
     });
     setShowUndo(false);
@@ -106,6 +112,8 @@ export const TasksPage = ({
       deadline: '',
       is_completed: false,
       tag_ids: [],
+      recurrence_unit: '',
+      recurrence_interval: 1,
     });
     setEditingTask(null);
   };
@@ -117,6 +125,8 @@ export const TasksPage = ({
       ...formData,
       start_date: formData.start_date ? new Date(formData.start_date).toISOString() : undefined,
       deadline: formData.deadline ? new Date(formData.deadline).toISOString() : undefined,
+      recurrence_unit: formData.recurrence_unit || null,
+      recurrence_interval: formData.recurrence_unit ? Math.max(1, Number(formData.recurrence_interval) || 1) : 1,
     };
 
     if (editingTask) {
@@ -141,6 +151,8 @@ export const TasksPage = ({
       deadline: task.deadline ? format(parseISO(task.deadline), "yyyy-MM-dd'T'HH:mm") : '',
       is_completed: task.is_completed,
       tag_ids: task.tag_ids || [],
+      recurrence_unit: (task.recurrence_unit as any) || '',
+      recurrence_interval: task.recurrence_interval || 1,
     });
     setIsCreateOpen(true);
   };
@@ -166,6 +178,8 @@ export const TasksPage = ({
       deadline: task.deadline,
       is_completed: false,
       tag_ids: task.tag_ids || [],
+      recurrence_unit: task.recurrence_unit || null,
+      recurrence_interval: task.recurrence_interval || 1,
       __duplicate: true,
     });
     playDuplicateSound();
@@ -182,6 +196,8 @@ export const TasksPage = ({
         deadline: task.deadline,
         is_completed: false,
         tag_ids: task.tag_ids || [],
+        recurrence_unit: task.recurrence_unit || null,
+        recurrence_interval: task.recurrence_interval || 1,
         __duplicate: true,
         __silent: idx !== selected.length - 1,
       });
@@ -296,6 +312,14 @@ export const TasksPage = ({
                  {task.tag_ids && task.tag_ids.length > 0 && (
                    <div className="flex flex-wrap gap-1 mt-2">
                      {task.tag_ids.map(id => tagsById[id] && <TagChip key={id} tag={tagsById[id]} />)}
+                   </div>
+                 )}
+                 {task.recurrence_unit && (
+                   <div className="mt-2">
+                     <Badge variant="outline" className="text-xs border-violet-300 text-violet-500 dark:text-violet-300">
+                       <Repeat size={10} className="mr-1" />
+                       Every {(task.recurrence_interval || 1) > 1 ? `${task.recurrence_interval} ` : ''}{task.recurrence_unit}{(task.recurrence_interval || 1) > 1 ? 's' : ''}
+                     </Badge>
                    </div>
                  )}
               </div>
@@ -456,6 +480,57 @@ export const TasksPage = ({
                     {formData.deadline && <X size={16} />}
                   </button>
                 </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium flex items-center gap-1">
+                  <Repeat size={14} /> Task Type
+                </label>
+                <Select
+                  value={formData.recurrence_unit === '' ? 'one_time' : 'recurring'}
+                  onValueChange={(val) =>
+                    setFormData(prev => ({
+                      ...prev,
+                      recurrence_unit: val === 'one_time' ? '' : (prev.recurrence_unit || 'week'),
+                    }))
+                  }
+                >
+                  <SelectTrigger className="h-9 text-sm">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="one_time">One-time task</SelectItem>
+                    <SelectItem value="recurring">Every X (recurring)</SelectItem>
+                  </SelectContent>
+                </Select>
+                {formData.recurrence_unit !== '' && (
+                  <div className="flex gap-2 items-center">
+                    <span className="text-sm text-muted-foreground">Every</span>
+                    <Input
+                      type="number"
+                      min={1}
+                      value={formData.recurrence_interval}
+                      onChange={(e) => setFormData(prev => ({ ...prev, recurrence_interval: Math.max(1, Number(e.target.value) || 1) }))}
+                      className="w-20 h-9 text-sm"
+                    />
+                    <Select
+                      value={formData.recurrence_unit}
+                      onValueChange={(val) => setFormData(prev => ({ ...prev, recurrence_unit: val as any }))}
+                    >
+                      <SelectTrigger className="flex-1 h-9 text-sm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="day">Day(s)</SelectItem>
+                        <SelectItem value="week">Week(s)</SelectItem>
+                        <SelectItem value="month">Month(s)</SelectItem>
+                        <SelectItem value="year">Year(s)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+                {formData.recurrence_unit !== '' && !formData.deadline && (
+                  <p className="text-xs text-amber-500">Recurring tasks need a deadline to renew.</p>
+                )}
               </div>
               <div className="flex items-center gap-2">
                 <Checkbox
