@@ -2,6 +2,39 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Interest, Task, Event, ActivityLog, DailyTask } from '@/lib/types';
 import { toast } from 'sonner';
+import { addDays, addWeeks, addMonths, addYears } from 'date-fns';
+
+const advanceDate = (iso: string, unit: string, interval: number): string => {
+  const d = new Date(iso);
+  const n = Math.max(1, interval || 1);
+  let next = d;
+  switch (unit) {
+    case 'day': next = addDays(d, n); break;
+    case 'week': next = addWeeks(d, n); break;
+    case 'month': next = addMonths(d, n); break;
+    case 'year': next = addYears(d, n); break;
+  }
+  return next.toISOString();
+};
+
+const renewRecurringTask = (task: Task): Partial<Task> | null => {
+  if (!task.recurrence_unit || !task.deadline) return null;
+  const interval = task.recurrence_interval || 1;
+  let deadline = task.deadline;
+  let start = task.start_date || undefined;
+  let advanced = false;
+  const now = Date.now();
+  // Advance until the deadline is in the future
+  let guard = 0;
+  while (new Date(deadline).getTime() <= now && guard < 1000) {
+    deadline = advanceDate(deadline, task.recurrence_unit, interval);
+    if (start) start = advanceDate(start, task.recurrence_unit, interval);
+    advanced = true;
+    guard++;
+  }
+  if (!advanced) return null;
+  return { deadline, start_date: start, is_completed: false };
+};
 
 export const useDashboardData = () => {
   const queryClient = useQueryClient();
@@ -46,7 +79,25 @@ export const useDashboardData = () => {
         .order('deadline', { ascending: true });
       
       if (error) throw error;
-      return data || [];
+      const tasks = (data || []) as Task[];
+      // Auto-renew recurring tasks whose deadline has passed
+      const renewals: { id: string; patch: Partial<Task> }[] = [];
+      const renewed = tasks.map((t) => {
+        const patch = renewRecurringTask(t);
+        if (patch) {
+          renewals.push({ id: t.id, patch });
+          return { ...t, ...patch } as Task;
+        }
+        return t;
+      });
+      if (renewals.length > 0) {
+        await Promise.all(
+          renewals.map(({ id, patch }) =>
+            supabase.from('tasks').update(patch).eq('id', id).eq('user_id', user.id)
+          )
+        );
+      }
+      return renewed;
     }
   });
 
