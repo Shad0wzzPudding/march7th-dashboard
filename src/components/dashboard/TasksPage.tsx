@@ -481,6 +481,57 @@ export const TasksPage = ({
                   </button>
                 </div>
               </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium flex items-center gap-1">
+                  <Repeat size={14} /> Task Type
+                </label>
+                <Select
+                  value={formData.recurrence_unit === '' ? 'one_time' : 'recurring'}
+                  onValueChange={(val) =>
+                    setFormData(prev => ({
+                      ...prev,
+                      recurrence_unit: val === 'one_time' ? '' : (prev.recurrence_unit || 'week'),
+                    }))
+                  }
+                >
+                  <SelectTrigger className="h-9 text-sm">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="one_time">One-time task</SelectItem>
+                    <SelectItem value="recurring">Every X (recurring)</SelectItem>
+                  </SelectContent>
+                </Select>
+                {formData.recurrence_unit !== '' && (
+                  <div className="flex gap-2 items-center">
+                    <span className="text-sm text-muted-foreground">Every</span>
+                    <Input
+                      type="number"
+                      min={1}
+                      value={formData.recurrence_interval}
+                      onChange={(e) => setFormData(prev => ({ ...prev, recurrence_interval: Math.max(1, Number(e.target.value) || 1) }))}
+                      className="w-20 h-9 text-sm"
+                    />
+                    <Select
+                      value={formData.recurrence_unit}
+                      onValueChange={(val) => setFormData(prev => ({ ...prev, recurrence_unit: val as any }))}
+                    >
+                      <SelectTrigger className="flex-1 h-9 text-sm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="day">Day(s)</SelectItem>
+                        <SelectItem value="week">Week(s)</SelectItem>
+                        <SelectItem value="month">Month(s)</SelectItem>
+                        <SelectItem value="year">Year(s)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+                {formData.recurrence_unit !== '' && !formData.deadline && (
+                  <p className="text-xs text-amber-500">Recurring tasks need a deadline to renew.</p>
+                )}
+              </div>
               <div className="flex items-center gap-2">
                 <Checkbox
                   id="is_completed"
