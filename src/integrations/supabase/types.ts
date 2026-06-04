@@ -89,6 +89,7 @@ export type Database = {
           deadline: string | null
           description: string | null
           id: string
+          sort_order: number
           start_time: string
           tag_ids: string[]
           title: string
@@ -100,6 +101,7 @@ export type Database = {
           deadline?: string | null
           description?: string | null
           id?: string
+          sort_order?: number
           start_time: string
           tag_ids?: string[]
           title: string
@@ -111,6 +113,7 @@ export type Database = {
           deadline?: string | null
           description?: string | null
           id?: string
+          sort_order?: number
           start_time?: string
           tag_ids?: string[]
           title?: string
@@ -218,6 +221,7 @@ export type Database = {
           is_completed: boolean
           recurrence_interval: number
           recurrence_unit: string | null
+          sort_order: number
           start_date: string | null
           tag_ids: string[]
           title: string
@@ -232,6 +236,7 @@ export type Database = {
           is_completed?: boolean
           recurrence_interval?: number
           recurrence_unit?: string | null
+          sort_order?: number
           start_date?: string | null
           tag_ids?: string[]
           title: string
@@ -246,6 +251,7 @@ export type Database = {
           is_completed?: boolean
           recurrence_interval?: number
           recurrence_unit?: string | null
+          sort_order?: number
           start_date?: string | null
           tag_ids?: string[]
           title?: string
