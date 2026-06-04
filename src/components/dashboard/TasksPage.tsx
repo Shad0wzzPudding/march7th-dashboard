@@ -19,6 +19,7 @@ import { playSuccessSound, playCompletionSound, playCancelSound, playDeleteSound
 import { TagPicker, TagChip } from './TagPicker';
 import { SortAndFilterBar, SortOption, sortItems, filterByTags } from './SortAndFilterBar';
 import { useTags } from '@/hooks/useTags';
+import { DragReorderList } from './DragReorderList';
 
 interface TasksPageProps {
   tasks: Task[];
@@ -234,6 +235,12 @@ export const TasksPage = ({
   
   const overdueTasks = pendingTasks.filter(task => task.deadline && isBefore(parseISO(task.deadline), now));
   const upcomingTasks = pendingTasks.filter(task => !task.deadline || isAfter(parseISO(task.deadline), now));
+
+  const handleUserReorder = (orderedIds: string[]) => {
+    orderedIds.forEach((id, index) => {
+      onUpdateTask({ id, sort_order: index } as any);
+    });
+  };
 
   const getTaskStatus = (task: Task) => {
     if (task.is_completed) return 'completed';
