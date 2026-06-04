@@ -184,7 +184,7 @@ export const SortAndFilterBar = ({
   );
 };
 
-export const sortItems = <T extends { created_at: string; title: string; deadline?: string; is_pinned?: boolean; is_completed?: boolean; tag_ids?: string[] }>(
+export const sortItems = <T extends { created_at: string; title: string; deadline?: string; is_pinned?: boolean; is_completed?: boolean; tag_ids?: string[]; sort_order?: number }>(
   items: T[],
   sort: SortOption,
   tagsById?: Record<string, { name: string }>
@@ -213,6 +213,13 @@ export const sortItems = <T extends { created_at: string; title: string; deadlin
       return arr.sort((a, b) => Number(!!b.is_pinned) - Number(!!a.is_pinned));
     case 'completed_last':
       return arr.sort((a, b) => Number(!!a.is_completed) - Number(!!b.is_completed));
+    case 'user':
+      return arr.sort((a, b) => {
+        const ao = a.sort_order ?? 0;
+        const bo = b.sort_order ?? 0;
+        if (ao !== bo) return ao - bo;
+        return a.created_at.localeCompare(b.created_at);
+      });
     default:
       return arr;
   }
