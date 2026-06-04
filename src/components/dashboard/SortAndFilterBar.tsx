@@ -16,7 +16,8 @@ export type SortOption =
   | 'title_desc'
   | 'tag'
   | 'pinned_first'
-  | 'completed_last';
+  | 'completed_last'
+  | 'user';
 
 interface Props {
   sort: SortOption;
@@ -82,6 +83,7 @@ export const SortAndFilterBar = ({
           <SelectItem value="title_asc">Title A–Z</SelectItem>
           <SelectItem value="title_desc">Title Z–A</SelectItem>
           <SelectItem value="tag">By tag</SelectItem>
+          <SelectItem value="user">User sort (drag to arrange)</SelectItem>
           {showPinned && <SelectItem value="pinned_first">Pinned first</SelectItem>}
           {showCompleted && <SelectItem value="completed_last">Completed last</SelectItem>}
         </SelectContent>
