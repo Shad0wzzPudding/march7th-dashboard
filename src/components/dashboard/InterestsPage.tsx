@@ -301,6 +301,75 @@ export const InterestsPage = ({
           showPinned
         />
       )}
+      {sort === 'user' ? (
+        <div>
+          <h3 className="text-lg font-semibold text-pink-500 dark:text-pink-300 mb-3">
+            My Order ({visibleInterests.length}) — drag to arrange
+          </h3>
+          <DragReorderList
+            items={visibleInterests}
+            getId={(i) => i.id}
+            onReorder={handleUserReorder}
+            renderItem={(interest) => (
+              <Card
+                className={`hover:shadow-md transition-all relative overflow-visible ${
+                  isSelecting ? 'cursor-pointer' : ''
+                } ${isSelected(interest.id) ? 'ring-2 ring-main-focus shadow-lg' : ''}`}
+                onClick={() => handleCardClick(interest)}
+              >
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    {interest.is_pinned && <Pin size={14} className="text-main-focus" />}
+                    {interest.title}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {interest.description && (
+                    <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                      <FormattedText>{interest.description}</FormattedText>
+                    </p>
+                  )}
+                  {interest.deadline && (
+                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                      <Clock size={12} />
+                      {format(parseISO(interest.deadline), 'MMM dd, yyyy HH:mm')}
+                    </div>
+                  )}
+                  {interest.tag_ids && interest.tag_ids.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {interest.tag_ids.map(id => tagsById[id] && (
+                        <TagChip key={id} tag={tagsById[id]} />
+                      ))}
+                    </div>
+                  )}
+                  {!isSelecting && (
+                    <div className="flex items-center gap-2 pt-2">
+                      <Button size="sm" variant="outline" onClick={() => handlePin(interest)}>
+                        {interest.is_pinned ? <PinOff size={12} /> : <Pin size={12} />}
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => handleCopy(interest)}>
+                        <Copy size={12} />
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => handleEdit(interest)}>
+                        <Edit size={12} />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => { playDeleteSound(); onDeleteInterest(interest.id); }}
+                        className="text-destructive hover:text-destructive"
+                      >
+                        <Trash2 size={12} />
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+          />
+        </div>
+      ) : (
+      <>
       {pinnedInterests.length > 0 && (
         <div>
           <h3 className="text-lg font-semibold text-main-focus mb-3 flex items-center gap-2">
