@@ -18,6 +18,7 @@ import { playSuccessSound, playCancelSound, playDeleteSound, playDuplicateSound,
 import { TagPicker, TagChip } from './TagPicker';
 import { SortAndFilterBar, SortOption, sortItems, filterByTags } from './SortAndFilterBar';
 import { useTags } from '@/hooks/useTags';
+import { DragReorderList } from './DragReorderList';
 
 interface EventsPageProps {
   events: Event[];
@@ -196,6 +197,12 @@ export const EventsPage = ({
 
   const todayEvents = visibleEvents.filter(event => isToday(parseISO(event.start_time)));
   const upcomingEvents = visibleEvents.filter(event => isAfter(parseISO(event.start_time), now) && !isToday(parseISO(event.start_time)));
+
+  const handleUserReorder = (orderedIds: string[]) => {
+    orderedIds.forEach((id, index) => {
+      onUpdateEvent({ id, sort_order: index } as any);
+    });
+  };
 
   const getEventStatus = (event: Event) => {
     const eventDate = parseISO(event.start_time);
