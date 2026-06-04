@@ -19,6 +19,7 @@ import { playSuccessSound, playCancelSound, playDeleteSound, playDuplicateSound,
 import { TagPicker, TagChip } from './TagPicker';
 import { SortAndFilterBar, SortOption, sortItems, filterByTags } from './SortAndFilterBar';
 import { useTags } from '@/hooks/useTags';
+import { DragReorderList } from './DragReorderList';
 
 interface InterestsPageProps {
   interests: Interest[];
@@ -186,6 +187,12 @@ export const InterestsPage = ({
   );
   const pinnedInterests = visibleInterests.filter(i => i.is_pinned);
   const unpinnedInterests = visibleInterests.filter(i => !i.is_pinned);
+
+  const handleUserReorder = (orderedIds: string[]) => {
+    orderedIds.forEach((id, index) => {
+      onUpdateInterest({ id, sort_order: index });
+    });
+  };
 
   // Check if any selected interests are pinned/unpinned (for showing pin/unpin actions)
   const hasSelectedPinned = interests.some(i => selectedIds.has(i.id) && i.is_pinned);
