@@ -19,6 +19,7 @@ import { playSuccessSound, playCompletionSound, playCancelSound, playDeleteSound
 import { TagPicker, TagChip } from './TagPicker';
 import { SortAndFilterBar, SortOption, sortItems, filterByTags } from './SortAndFilterBar';
 import { useTags } from '@/hooks/useTags';
+import { DragReorderList } from './DragReorderList';
 
 interface TasksPageProps {
   tasks: Task[];
@@ -234,6 +235,12 @@ export const TasksPage = ({
   
   const overdueTasks = pendingTasks.filter(task => task.deadline && isBefore(parseISO(task.deadline), now));
   const upcomingTasks = pendingTasks.filter(task => !task.deadline || isAfter(parseISO(task.deadline), now));
+
+  const handleUserReorder = (orderedIds: string[]) => {
+    orderedIds.forEach((id, index) => {
+      onUpdateTask({ id, sort_order: index } as any);
+    });
+  };
 
   const getTaskStatus = (task: Task) => {
     if (task.is_completed) return 'completed';
@@ -602,6 +609,20 @@ export const TasksPage = ({
         />
       )}
 
+      {sort === 'user' ? (
+        <div>
+          <h3 className="text-lg font-semibold text-pink-500 dark:text-pink-300 mb-3">
+            My Order ({visibleTasks.length}) — drag to arrange
+          </h3>
+          <DragReorderList
+            items={visibleTasks}
+            getId={(t) => t.id}
+            onReorder={handleUserReorder}
+            renderItem={(task) => renderTaskCard(task)}
+          />
+        </div>
+      ) : (
+      <>
       {/* Overdue Tasks */}
       {overdueTasks.length > 0 && (
         <div>
@@ -634,6 +655,8 @@ export const TasksPage = ({
             {completedTasks.map((task) => renderTaskCard(task, 'completed'))}
           </div>
         </div>
+      )}
+      </>
       )}
 
       {tasks.length === 0 && (

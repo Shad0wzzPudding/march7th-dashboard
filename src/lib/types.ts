@@ -22,6 +22,7 @@ export interface Task {
   tag_ids?: string[];
   recurrence_unit?: string | null;
   recurrence_interval?: number;
+  sort_order?: number;
   created_at: string;
   updated_at: string;
 }
@@ -46,6 +47,7 @@ export interface Event {
   start_time: string;
   deadline?: string;
   tag_ids?: string[];
+  sort_order?: number;
   created_at: string;
   updated_at: string;
 }

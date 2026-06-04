@@ -18,6 +18,7 @@ import { playSuccessSound, playCancelSound, playDeleteSound, playDuplicateSound,
 import { TagPicker, TagChip } from './TagPicker';
 import { SortAndFilterBar, SortOption, sortItems, filterByTags } from './SortAndFilterBar';
 import { useTags } from '@/hooks/useTags';
+import { DragReorderList } from './DragReorderList';
 
 interface EventsPageProps {
   events: Event[];
@@ -196,6 +197,12 @@ export const EventsPage = ({
 
   const todayEvents = visibleEvents.filter(event => isToday(parseISO(event.start_time)));
   const upcomingEvents = visibleEvents.filter(event => isAfter(parseISO(event.start_time), now) && !isToday(parseISO(event.start_time)));
+
+  const handleUserReorder = (orderedIds: string[]) => {
+    orderedIds.forEach((id, index) => {
+      onUpdateEvent({ id, sort_order: index } as any);
+    });
+  };
 
   const getEventStatus = (event: Event) => {
     const eventDate = parseISO(event.start_time);
@@ -503,6 +510,20 @@ export const EventsPage = ({
         />
       )}
 
+      {sort === 'user' ? (
+        <div>
+          <h3 className="text-lg font-semibold text-pink-500 dark:text-pink-300 mb-3">
+            My Order ({visibleEvents.length}) — drag to arrange
+          </h3>
+          <DragReorderList
+            items={visibleEvents}
+            getId={(e) => e.id}
+            onReorder={handleUserReorder}
+            renderItem={(event) => renderEventCard(event, 'upcoming')}
+          />
+        </div>
+      ) : (
+      <>
       {/* Today's Events */}
       <div>
         <h3 className="text-lg font-semibold text-amber-400 dark:text-amber-300 mb-3 flex items-center gap-2">
@@ -547,6 +568,8 @@ export const EventsPage = ({
             </p>
           )}
         </div>
+      )}
+      </>
       )}
 
       {events.length === 0 && (

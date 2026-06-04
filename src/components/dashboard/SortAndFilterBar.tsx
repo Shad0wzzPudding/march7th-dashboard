@@ -16,7 +16,8 @@ export type SortOption =
   | 'title_desc'
   | 'tag'
   | 'pinned_first'
-  | 'completed_last';
+  | 'completed_last'
+  | 'user';
 
 interface Props {
   sort: SortOption;
@@ -82,6 +83,7 @@ export const SortAndFilterBar = ({
           <SelectItem value="title_asc">Title A–Z</SelectItem>
           <SelectItem value="title_desc">Title Z–A</SelectItem>
           <SelectItem value="tag">By tag</SelectItem>
+          <SelectItem value="user">User sort (drag to arrange)</SelectItem>
           {showPinned && <SelectItem value="pinned_first">Pinned first</SelectItem>}
           {showCompleted && <SelectItem value="completed_last">Completed last</SelectItem>}
         </SelectContent>
@@ -182,7 +184,7 @@ export const SortAndFilterBar = ({
   );
 };
 
-export const sortItems = <T extends { created_at: string; title: string; deadline?: string; is_pinned?: boolean; is_completed?: boolean; tag_ids?: string[] }>(
+export const sortItems = <T extends { created_at: string; title: string; deadline?: string; is_pinned?: boolean; is_completed?: boolean; tag_ids?: string[]; sort_order?: number }>(
   items: T[],
   sort: SortOption,
   tagsById?: Record<string, { name: string }>
@@ -211,6 +213,13 @@ export const sortItems = <T extends { created_at: string; title: string; deadlin
       return arr.sort((a, b) => Number(!!b.is_pinned) - Number(!!a.is_pinned));
     case 'completed_last':
       return arr.sort((a, b) => Number(!!a.is_completed) - Number(!!b.is_completed));
+    case 'user':
+      return arr.sort((a, b) => {
+        const ao = a.sort_order ?? 0;
+        const bo = b.sort_order ?? 0;
+        if (ao !== bo) return ao - bo;
+        return a.created_at.localeCompare(b.created_at);
+      });
     default:
       return arr;
   }
