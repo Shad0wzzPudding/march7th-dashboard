@@ -393,10 +393,10 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
   
   // Today's events and tasks
   const todayTasks = tasks
-    .filter(task => !task.is_completed && isToday(parseISO(task.deadline)))
+    .filter(task => !task.is_completed && task.deadline && isToday(parseISO(task.deadline)))
     .slice(0, 3);
   const todayStartingTasks = tasks
-    .filter(task => !task.is_completed && isToday(parseISO(task.start_date)))
+    .filter(task => !task.is_completed && task.start_date && isToday(parseISO(task.start_date)))
     .slice(0, 3);
   const todayEvents = events
     .filter(event => isToday(parseISO(event.start_time)))
@@ -405,12 +405,12 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
   // Overdue tasks and events
   const now = new Date();
   const overdueTasks = tasks.filter(task => 
-    !task.is_completed && isBefore(parseISO(task.deadline), now) && !isToday(parseISO(task.deadline))
+    !task.is_completed && task.deadline && isBefore(parseISO(task.deadline), now) && !isToday(parseISO(task.deadline))
   );
   
   // Upcoming events and tasks (excluding today)
   const upcomingTasks = tasks
-    .filter(task => !task.is_completed && isAfter(parseISO(task.deadline), new Date()) && !isToday(parseISO(task.deadline)))
+    .filter(task => !task.is_completed && task.deadline && isAfter(parseISO(task.deadline), new Date()) && !isToday(parseISO(task.deadline)))
     .slice(0, 3);
   const upcomingEvents = events
     .filter(event => isAfter(parseISO(event.start_time), new Date()) && !isToday(parseISO(event.start_time)))
@@ -432,7 +432,7 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
 
   const summaryItems = {
     todayTasks: { value: todayTasks.length + todayStartingTasks.length, label: "Today's Tasks", colorClass: "text-blue-600 dark:text-blue-400" },
-    completed: { value: tasks.filter(task => task.is_completed && isToday(parseISO(task.deadline))).length, label: "Completed", colorClass: "text-green-600 dark:text-green-400" },
+    completed: { value: tasks.filter(task => task.is_completed && task.deadline && isToday(parseISO(task.deadline))).length, label: "Completed", colorClass: "text-green-600 dark:text-green-400" },
     todayEvents: { value: todayEvents.length, label: "Today's Events", colorClass: "text-orange-600 dark:text-orange-400" },
     overdueTasks: { value: overdueTasks.length, label: "Overdue Tasks", colorClass: "text-red-600 dark:text-red-400" },
   };
