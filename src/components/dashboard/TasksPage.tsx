@@ -609,6 +609,20 @@ export const TasksPage = ({
         />
       )}
 
+      {sort === 'user' ? (
+        <div>
+          <h3 className="text-lg font-semibold text-pink-500 dark:text-pink-300 mb-3">
+            My Order ({visibleTasks.length}) — drag to arrange
+          </h3>
+          <DragReorderList
+            items={visibleTasks}
+            getId={(t) => t.id}
+            onReorder={handleUserReorder}
+            renderItem={(task) => renderTaskCard(task)}
+          />
+        </div>
+      ) : (
+      <>
       {/* Overdue Tasks */}
       {overdueTasks.length > 0 && (
         <div>
@@ -641,6 +655,8 @@ export const TasksPage = ({
             {completedTasks.map((task) => renderTaskCard(task, 'completed'))}
           </div>
         </div>
+      )}
+      </>
       )}
 
       {tasks.length === 0 && (
