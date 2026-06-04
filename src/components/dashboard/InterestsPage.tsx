@@ -194,6 +194,144 @@ export const InterestsPage = ({
     });
   };
 
+  const renderPinnedCard = (interest: Interest) => (
+    <Card
+      key={interest.id}
+      className={`bg-main-focus/20 border-main-focus/40 transition-all relative overflow-visible ${
+        isSelecting ? 'cursor-pointer' : ''
+      } ${isSelected(interest.id) ? 'ring-2 ring-main-focus shadow-lg' : ''}`}
+      onClick={() => handleCardClick(interest)}
+    >
+      <SelectionCorners visible={isSelecting} />
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between">
+          <div className="flex items-start gap-3">
+            {isSelecting && (
+              <Checkbox
+                checked={isSelected(interest.id)}
+                onCheckedChange={() => toggle(interest.id)}
+                onClick={(e) => e.stopPropagation()}
+                className="mt-1"
+              />
+            )}
+            <CardTitle className="text-lg text-main-focus">{interest.title}</CardTitle>
+          </div>
+          <div className="flex items-center gap-1">
+            <Badge variant="secondary" className="bg-main-focus/20 text-main-focus">
+              <Pin size={12} />
+            </Badge>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {interest.description && (
+          <p className="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap"><FormattedText>{interest.description}</FormattedText></p>
+        )}
+        {interest.deadline && (
+          <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
+            <Clock size={12} />
+            {format(parseISO(interest.deadline), 'MMM dd, yyyy HH:mm')}
+          </div>
+        )}
+        {interest.tag_ids && interest.tag_ids.length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {interest.tag_ids.map(id => tagsById[id] && (
+              <TagChip key={id} tag={tagsById[id]} />
+            ))}
+          </div>
+        )}
+        {!isSelecting && (
+          <div className="flex items-center gap-2 pt-2">
+            <Button size="sm" variant="outline" onClick={() => handlePin(interest)}>
+              <PinOff size={12} />
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => handleCopy(interest)}>
+              <Copy size={12} />
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => handleEdit(interest)}>
+              <Edit size={12} />
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => { playDeleteSound(); onDeleteInterest(interest.id); }}
+              className="text-destructive hover:text-destructive"
+            >
+              <Trash2 size={12} />
+            </Button>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+
+  const renderUnpinnedCard = (interest: Interest) => (
+    <Card
+      key={interest.id}
+      className={`hover:shadow-md transition-all relative overflow-visible ${
+        isSelecting ? 'cursor-pointer' : ''
+      } ${isSelected(interest.id) ? 'ring-2 ring-main-focus shadow-lg' : ''}`}
+      onClick={() => handleCardClick(interest)}
+    >
+      <SelectionCorners visible={isSelecting} />
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between">
+          <div className="flex items-start gap-3">
+            {isSelecting && (
+              <Checkbox
+                checked={isSelected(interest.id)}
+                onCheckedChange={() => toggle(interest.id)}
+                onClick={(e) => e.stopPropagation()}
+                className="mt-1"
+              />
+            )}
+            <CardTitle className="text-lg">{interest.title}</CardTitle>
+          </div>
+          {!isSelecting && sort !== 'user' && <GripVertical size={16} className="text-gray-400 cursor-grab" />}
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {interest.description && (
+          <p className="text-sm text-muted-foreground whitespace-pre-wrap"><FormattedText>{interest.description}</FormattedText></p>
+        )}
+        {interest.deadline && (
+          <div className="flex items-center gap-1 text-sm text-muted-foreground">
+            <Clock size={12} />
+            {format(parseISO(interest.deadline), 'MMM dd, yyyy HH:mm')}
+          </div>
+        )}
+        {interest.tag_ids && interest.tag_ids.length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {interest.tag_ids.map(id => tagsById[id] && (
+              <TagChip key={id} tag={tagsById[id]} />
+            ))}
+          </div>
+        )}
+        {!isSelecting && (
+          <div className="flex items-center gap-2 pt-2">
+            <Button size="sm" variant="outline" onClick={() => handlePin(interest)}>
+              <Pin size={12} />
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => handleCopy(interest)}>
+              <Copy size={12} />
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => handleEdit(interest)}>
+              <Edit size={12} />
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => { playDeleteSound(); onDeleteInterest(interest.id); }}
+              className="text-destructive hover:text-destructive"
+            >
+              <Trash2 size={12} />
+            </Button>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+
   // Check if any selected interests are pinned/unpinned (for showing pin/unpin actions)
   const hasSelectedPinned = interests.some(i => selectedIds.has(i.id) && i.is_pinned);
   const hasSelectedUnpinned = interests.some(i => selectedIds.has(i.id) && !i.is_pinned);
@@ -342,155 +480,6 @@ export const InterestsPage = ({
         )}
       </div>
       </>
-              <Card 
-                key={interest.id} 
-                className={`bg-main-focus/20 border-main-focus/40 transition-all relative overflow-visible ${
-                  isSelecting ? 'cursor-pointer' : ''
-                } ${isSelected(interest.id) ? 'ring-2 ring-main-focus shadow-lg' : ''}`}
-                onClick={() => handleCardClick(interest)}
-              >
-                <SelectionCorners visible={isSelecting} />
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-3">
-                      {isSelecting && (
-                        <Checkbox
-                          checked={isSelected(interest.id)}
-                          onCheckedChange={() => toggle(interest.id)}
-                          onClick={(e) => e.stopPropagation()}
-                          className="mt-1"
-                        />
-                      )}
-                      <CardTitle className="text-lg text-main-focus">{interest.title}</CardTitle>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Badge variant="secondary" className="bg-main-focus/20 text-main-focus">
-                        <Pin size={12} />
-                      </Badge>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                    {interest.description && (
-                      <p className="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap"><FormattedText>{interest.description}</FormattedText></p>
-                   )}
-                  {interest.deadline && (
-                    <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
-                      <Clock size={12} />
-                      {format(parseISO(interest.deadline), 'MMM dd, yyyy HH:mm')}
-                    </div>
-                  )}
-                  {interest.tag_ids && interest.tag_ids.length > 0 && (
-                    <div className="flex flex-wrap gap-1">
-                      {interest.tag_ids.map(id => tagsById[id] && (
-                        <TagChip key={id} tag={tagsById[id]} />
-                      ))}
-                    </div>
-                  )}
-                  {!isSelecting && (
-                    <div className="flex items-center gap-2 pt-2">
-                      <Button size="sm" variant="outline" onClick={() => handlePin(interest)}>
-                        <PinOff size={12} />
-                      </Button>
-                      <Button size="sm" variant="outline" onClick={() => handleCopy(interest)}>
-                        <Copy size={12} />
-                      </Button>
-                      <Button size="sm" variant="outline" onClick={() => handleEdit(interest)}>
-                        <Edit size={12} />
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        onClick={() => { playDeleteSound(); onDeleteInterest(interest.id); }}
-                        className="text-destructive hover:text-destructive"
-                      >
-                        <Trash2 size={12} />
-                      </Button>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Unpinned Interests */}
-      <div>
-        <h3 className="text-lg font-semibold text-gray-600 dark:text-gray-400 mb-3">
-          All Interests ({unpinnedInterests.length})
-        </h3>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {unpinnedInterests.map((interest) => (
-            <Card 
-              key={interest.id} 
-              className={`hover:shadow-md transition-all relative overflow-visible ${
-                isSelecting ? 'cursor-pointer' : ''
-              } ${isSelected(interest.id) ? 'ring-2 ring-main-focus shadow-lg' : ''}`}
-              onClick={() => handleCardClick(interest)}
-            >
-              <SelectionCorners visible={isSelecting} />
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-3">
-                    {isSelecting && (
-                      <Checkbox
-                        checked={isSelected(interest.id)}
-                        onCheckedChange={() => toggle(interest.id)}
-                        onClick={(e) => e.stopPropagation()}
-                        className="mt-1"
-                      />
-                    )}
-                    <CardTitle className="text-lg">{interest.title}</CardTitle>
-                  </div>
-                  {!isSelecting && <GripVertical size={16} className="text-gray-400 cursor-grab" />}
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                  {interest.description && (
-                    <p className="text-sm text-muted-foreground whitespace-pre-wrap"><FormattedText>{interest.description}</FormattedText></p>
-                 )}
-                {interest.deadline && (
-                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                    <Clock size={12} />
-                    {format(parseISO(interest.deadline), 'MMM dd, yyyy HH:mm')}
-                  </div>
-                )}
-                {interest.tag_ids && interest.tag_ids.length > 0 && (
-                  <div className="flex flex-wrap gap-1">
-                    {interest.tag_ids.map(id => tagsById[id] && (
-                      <TagChip key={id} tag={tagsById[id]} />
-                    ))}
-                  </div>
-                )}
-                {!isSelecting && (
-                  <div className="flex items-center gap-2 pt-2">
-                    <Button size="sm" variant="outline" onClick={() => handlePin(interest)}>
-                      <Pin size={12} />
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={() => handleCopy(interest)}>
-                      <Copy size={12} />
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={() => handleEdit(interest)}>
-                      <Edit size={12} />
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      onClick={() => { playDeleteSound(); onDeleteInterest(interest.id); }}
-                      className="text-destructive hover:text-destructive"
-                    >
-                      <Trash2 size={12} />
-                    </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-      </>
-      )}
 
       {interests.length === 0 && (
         <Card className="text-center py-12">
