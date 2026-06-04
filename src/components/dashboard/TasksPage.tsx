@@ -609,55 +609,47 @@ export const TasksPage = ({
         />
       )}
 
-      {sort === 'user' ? (
-        <div>
-          <h3 className="text-lg font-semibold text-pink-500 dark:text-pink-300 mb-3">
-            My Order ({visibleTasks.length}) — drag to arrange
-          </h3>
-          <DragReorderList
-            items={visibleTasks}
-            getId={(t) => t.id}
-            onReorder={handleUserReorder}
-            renderItem={(task) => renderTaskCard(task)}
-          />
-        </div>
-      ) : (
-      <>
-      {/* Overdue Tasks */}
-      {overdueTasks.length > 0 && (
-        <div>
-          <h3 className="text-lg font-semibold text-rose-400 dark:text-rose-300 mb-3">
-            Overdue Tasks ({overdueTasks.length})
-          </h3>
-          <div className="space-y-3">
-            {overdueTasks.map((task) => renderTaskCard(task, 'overdue'))}
-          </div>
-        </div>
-      )}
-
-      {/* Upcoming Tasks */}
-      <div>
-        <h3 className="text-lg font-semibold text-sky-400 dark:text-sky-300 mb-3">
-          Upcoming Tasks ({upcomingTasks.length})
-        </h3>
-        <div className="space-y-3">
-          {upcomingTasks.map((task) => renderTaskCard(task))}
-        </div>
-      </div>
-
-      {/* Completed Tasks */}
-      {completedTasks.length > 0 && (
-        <div>
-          <h3 className="text-lg font-semibold text-emerald-400 dark:text-emerald-300 mb-3">
-            Completed Tasks ({completedTasks.length})
-          </h3>
-          <div className="space-y-3">
-            {completedTasks.map((task) => renderTaskCard(task, 'completed'))}
-          </div>
-        </div>
-      )}
-      </>
-      )}
+      {(() => {
+        const renderSection = (items: Task[], badge?: string) =>
+          sort === 'user' ? (
+            <DragReorderList
+              items={items}
+              getId={(t) => t.id}
+              onReorder={handleUserReorder}
+              renderItem={(task) => renderTaskCard(task, badge)}
+            />
+          ) : (
+            <div className="space-y-3">
+              {items.map((task) => renderTaskCard(task, badge))}
+            </div>
+          );
+        return (
+          <>
+            {overdueTasks.length > 0 && (
+              <div>
+                <h3 className="text-lg font-semibold text-rose-400 dark:text-rose-300 mb-3">
+                  Overdue Tasks ({overdueTasks.length}){sort === 'user' ? ' — drag to arrange' : ''}
+                </h3>
+                {renderSection(overdueTasks, 'overdue')}
+              </div>
+            )}
+            <div>
+              <h3 className="text-lg font-semibold text-sky-400 dark:text-sky-300 mb-3">
+                Upcoming Tasks ({upcomingTasks.length}){sort === 'user' ? ' — drag to arrange' : ''}
+              </h3>
+              {renderSection(upcomingTasks)}
+            </div>
+            {completedTasks.length > 0 && (
+              <div>
+                <h3 className="text-lg font-semibold text-emerald-400 dark:text-emerald-300 mb-3">
+                  Completed Tasks ({completedTasks.length}){sort === 'user' ? ' — drag to arrange' : ''}
+                </h3>
+                {renderSection(completedTasks, 'completed')}
+              </div>
+            )}
+          </>
+        );
+      })()}
 
       {tasks.length === 0 && (
         <Card className="text-center py-12">

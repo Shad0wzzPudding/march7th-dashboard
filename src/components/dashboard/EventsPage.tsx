@@ -510,67 +510,71 @@ export const EventsPage = ({
         />
       )}
 
-      {sort === 'user' ? (
-        <div>
-          <h3 className="text-lg font-semibold text-pink-500 dark:text-pink-300 mb-3">
-            My Order ({visibleEvents.length}) — drag to arrange
-          </h3>
-          <DragReorderList
-            items={visibleEvents}
-            getId={(e) => e.id}
-            onReorder={handleUserReorder}
-            renderItem={(event) => renderEventCard(event, 'upcoming')}
-          />
-        </div>
-      ) : (
-      <>
-      {/* Today's Events */}
-      <div>
-        <h3 className="text-lg font-semibold text-amber-400 dark:text-amber-300 mb-3 flex items-center gap-2">
-          <CalendarDays size={16} />
-          Today's Events ({todayEvents.length})
-        </h3>
-        {todayEvents.length > 0 ? (
-          <div className="space-y-3">
-            {todayEvents.map((event) => renderEventCard(event, 'today'))}
-          </div>
-        ) : (
-          <Card className="text-center py-8">
-            <CardContent>
-              <p className="text-muted-foreground">No events scheduled for today</p>
-            </CardContent>
-          </Card>
-        )}
-      </div>
-
-      {/* Upcoming Events */}
-      <div>
-        <h3 className="text-lg font-semibold text-sky-400 dark:text-sky-300 mb-3">
-          Upcoming Events ({upcomingEvents.length})
-        </h3>
-        <div className="grid gap-4 md:grid-cols-2">
-          {upcomingEvents.map((event) => renderEventCard(event, 'upcoming'))}
-        </div>
-      </div>
-
-      {/* Past Events */}
-      {pastEvents.length > 0 && (
-        <div>
-          <h3 className="text-lg font-semibold text-slate-400 dark:text-slate-300 mb-3">
-            Past Events ({pastEvents.length})
-          </h3>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {pastEvents.slice(0, 6).map((event) => renderEventCard(event, 'past'))}
-          </div>
-          {pastEvents.length > 6 && (
-            <p className="text-sm text-muted-foreground text-center mt-4">
-              And {pastEvents.length - 6} more past events...
-            </p>
-          )}
-        </div>
-      )}
-      </>
-      )}
+      {(() => {
+        const renderSection = (
+          items: Event[],
+          variant: 'today' | 'upcoming' | 'past',
+          gridClass: string
+        ) =>
+          sort === 'user' ? (
+            <DragReorderList
+              items={items}
+              getId={(e) => e.id}
+              onReorder={handleUserReorder}
+              renderItem={(event) => renderEventCard(event, variant)}
+            />
+          ) : (
+            <div className={gridClass}>
+              {items.map((event) => renderEventCard(event, variant))}
+            </div>
+          );
+        return (
+          <>
+            <div>
+              <h3 className="text-lg font-semibold text-amber-400 dark:text-amber-300 mb-3 flex items-center gap-2">
+                <CalendarDays size={16} />
+                Today's Events ({todayEvents.length}){sort === 'user' ? ' — drag to arrange' : ''}
+              </h3>
+              {todayEvents.length > 0 ? (
+                renderSection(todayEvents, 'today', 'space-y-3')
+              ) : (
+                <Card className="text-center py-8">
+                  <CardContent>
+                    <p className="text-muted-foreground">No events scheduled for today</p>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-sky-400 dark:text-sky-300 mb-3">
+                Upcoming Events ({upcomingEvents.length}){sort === 'user' ? ' — drag to arrange' : ''}
+              </h3>
+              {renderSection(upcomingEvents, 'upcoming', 'grid gap-4 md:grid-cols-2')}
+            </div>
+            {pastEvents.length > 0 && (
+              <div>
+                <h3 className="text-lg font-semibold text-slate-400 dark:text-slate-300 mb-3">
+                  Past Events ({pastEvents.length}){sort === 'user' ? ' — drag to arrange' : ''}
+                </h3>
+                {sort === 'user' ? (
+                  renderSection(pastEvents, 'past', '')
+                ) : (
+                  <>
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                      {pastEvents.slice(0, 6).map((event) => renderEventCard(event, 'past'))}
+                    </div>
+                    {pastEvents.length > 6 && (
+                      <p className="text-sm text-muted-foreground text-center mt-4">
+                        And {pastEvents.length - 6} more past events...
+                      </p>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
+          </>
+        );
+      })()}
 
       {events.length === 0 && (
         <Card className="text-center py-12">
