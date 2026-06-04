@@ -525,6 +525,8 @@ export const InterestsPage = ({
           ))}
         </div>
       </div>
+      </>
+      )}
 
       {interests.length === 0 && (
         <Card className="text-center py-12">
