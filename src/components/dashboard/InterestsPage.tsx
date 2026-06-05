@@ -198,7 +198,7 @@ export const InterestsPage = ({
   const renderPinnedCard = (interest: Interest) => (
     <Card
       key={interest.id}
-      className={`bg-main-focus/20 border-main-focus/40 transition-all relative overflow-visible ${
+      className={`bg-main-focus/20 border-main-focus/40 transition-all relative overflow-visible flex flex-col h-full ${
         isSelecting ? 'cursor-pointer' : ''
       } ${isSelected(interest.id) ? 'ring-2 ring-main-focus shadow-lg' : ''}`}
       onClick={() => handleCardClick(interest)}
@@ -224,7 +224,7 @@ export const InterestsPage = ({
           </div>
         </div>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-3 flex-1 flex flex-col">
         {interest.description && (
           <p className="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap max-h-32 overflow-y-auto overscroll-contain pr-1" onClick={(e) => e.stopPropagation()}><FormattedText>{interest.description}</FormattedText></p>
         )}
@@ -242,7 +242,7 @@ export const InterestsPage = ({
           </div>
         )}
         {!isSelecting && (
-          <div className="flex items-center gap-2 pt-2">
+          <div className="flex items-center gap-2 pt-2 mt-auto">
             <Button size="sm" variant="outline" onClick={() => handlePin(interest)}>
               <PinOff size={12} />
             </Button>
@@ -269,7 +269,7 @@ export const InterestsPage = ({
   const renderUnpinnedCard = (interest: Interest) => (
     <Card
       key={interest.id}
-      className={`hover:shadow-md transition-all relative overflow-visible ${
+      className={`hover:shadow-md transition-all relative overflow-visible flex flex-col h-full ${
         isSelecting ? 'cursor-pointer' : ''
       } ${isSelected(interest.id) ? 'ring-2 ring-main-focus shadow-lg' : ''}`}
       onClick={() => handleCardClick(interest)}
@@ -291,7 +291,7 @@ export const InterestsPage = ({
           {!isSelecting && sort !== 'user' && <GripVertical size={16} className="text-gray-400 cursor-grab" />}
         </div>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-3 flex-1 flex flex-col">
         {interest.description && (
           <p className="text-sm text-muted-foreground whitespace-pre-wrap max-h-32 overflow-y-auto overscroll-contain pr-1" onClick={(e) => e.stopPropagation()}><FormattedText>{interest.description}</FormattedText></p>
         )}
@@ -309,7 +309,7 @@ export const InterestsPage = ({
           </div>
         )}
         {!isSelecting && (
-          <div className="flex items-center gap-2 pt-2">
+          <div className="flex items-center gap-2 pt-2 mt-auto">
             <Button size="sm" variant="outline" onClick={() => handlePin(interest)}>
               <Pin size={12} />
             </Button>
