@@ -233,13 +233,13 @@ export const EventsPage = ({
     return (
       <Card 
         key={event.id} 
-        className={`${getBorderColor(status)} transition-all ${
+        className={`${getBorderColor(status)} transition-all flex flex-col h-full ${
           isSelecting ? 'cursor-pointer' : ''
         } ${isSelected(event.id) ? 'ring-2 ring-events-theme shadow-lg' : ''}`}
         onClick={() => handleCardClick(event)}
       >
         {variant === 'today' ? (
-          <CardContent className="p-4">
+          <CardContent className="p-4 flex-1">
             <div className="flex items-start justify-between">
               <div className="flex items-start gap-3 flex-1">
                 {isSelecting && (
@@ -309,7 +309,7 @@ export const EventsPage = ({
                 <CardTitle className={`text-${variant === 'past' ? 'base text-muted-foreground' : 'lg'}`}>{event.title}</CardTitle>
               </div>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-3 flex-1 flex flex-col">
                 {event.description && (
                   <p className="text-sm text-muted-foreground whitespace-pre-wrap max-h-32 overflow-y-auto overscroll-contain pr-1" onClick={(e) => e.stopPropagation()}><FormattedText>{event.description}</FormattedText></p>
                )}
@@ -328,7 +328,7 @@ export const EventsPage = ({
                 </div>
               )}
               {!isSelecting && (
-                <div className="flex items-center gap-2 pt-2">
+                <div className="flex items-center gap-2 pt-2 mt-auto">
                   <Button size="sm" variant="outline" onClick={() => handleCopy(event)}>
                     <Copy size={12} />
                   </Button>
