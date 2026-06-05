@@ -18,6 +18,7 @@ import { SelectionCorners, SelectModeOverlay } from './SelectionCorners';
 import { playSuccessSound, playCancelSound, playDeleteSound, playDuplicateSound, playPinSound, playUnpinSound, playUpdateSound, playEditSound, playSelectModeSound } from '@/lib/sounds';
 import { TagPicker, TagChip } from './TagPicker';
 import { SortAndFilterBar, SortOption, sortItems, filterByTags } from './SortAndFilterBar';
+import { useSortPreference } from '@/hooks/useSortPreference';
 import { useTags } from '@/hooks/useTags';
 import { DragReorderList } from './DragReorderList';
 
@@ -46,7 +47,7 @@ export const InterestsPage = ({
     sort_order: 0,
     tag_ids: [] as string[],
   });
-  const [sort, setSort] = useState<SortOption>('created_desc');
+  const [sort, setSort] = useSortPreference('interests');
   const [filterTagIds, setFilterTagIds] = useState<string[]>([]);
   const { tags } = useTags();
   const tagsById = useMemo(() => Object.fromEntries(tags.map((t) => [t.id, t])), [tags]);

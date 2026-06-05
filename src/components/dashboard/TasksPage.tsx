@@ -18,6 +18,7 @@ import { MarchConfirmDialog } from './MarchConfirmDialog';
 import { playSuccessSound, playCompletionSound, playCancelSound, playDeleteSound, playDuplicateSound, playUpdateSound, playEditSound } from '@/lib/sounds';
 import { TagPicker, TagChip } from './TagPicker';
 import { SortAndFilterBar, SortOption, sortItems, filterByTags } from './SortAndFilterBar';
+import { useSortPreference } from '@/hooks/useSortPreference';
 import { useTags } from '@/hooks/useTags';
 import { DragReorderList } from './DragReorderList';
 
@@ -54,7 +55,7 @@ export const TasksPage = ({
     recurrence_unit: '' as '' | 'day' | 'week' | 'month' | 'year',
     recurrence_interval: 1,
   });
-  const [sort, setSort] = useState<SortOption>('deadline_asc');
+  const [sort, setSort] = useSortPreference('tasks');
   const [filterTagIds, setFilterTagIds] = useState<string[]>([]);
   const { tags } = useTags();
   const tagsById = useMemo(() => Object.fromEntries(tags.map((t) => [t.id, t])), [tags]);

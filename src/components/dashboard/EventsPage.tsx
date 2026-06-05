@@ -17,6 +17,7 @@ import { MarchConfirmDialog } from './MarchConfirmDialog';
 import { playSuccessSound, playCancelSound, playDeleteSound, playDuplicateSound, playUpdateSound, playEditSound } from '@/lib/sounds';
 import { TagPicker, TagChip } from './TagPicker';
 import { SortAndFilterBar, SortOption, sortItems, filterByTags } from './SortAndFilterBar';
+import { useSortPreference } from '@/hooks/useSortPreference';
 import { useTags } from '@/hooks/useTags';
 import { DragReorderList } from './DragReorderList';
 
@@ -49,7 +50,7 @@ export const EventsPage = ({
     deadline: '',
     tag_ids: [] as string[],
   });
-  const [sort, setSort] = useState<SortOption>('created_desc');
+  const [sort, setSort] = useSortPreference('events');
   const [filterTagIds, setFilterTagIds] = useState<string[]>([]);
   const { tags } = useTags();
   const tagsById = useMemo(() => Object.fromEntries(tags.map((t) => [t.id, t])), [tags]);
