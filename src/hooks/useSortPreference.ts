@@ -47,7 +47,7 @@ export function useSortPreference(page: PageKey) {
       prefs.sort = sortPrefs;
       await supabase
         .from('user_preferences')
-        .upsert({ user_id: uid, prefs }, { onConflict: 'user_id' });
+        .upsert([{ user_id: uid, prefs: prefs as never }], { onConflict: 'user_id' });
     })();
   };
 
