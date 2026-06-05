@@ -252,7 +252,7 @@ export const EventsPage = ({
                 <div className="flex-1">
                   <h4 className="font-semibold text-lg">{event.title}</h4>
                     {event.description && (
-                      <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap"><FormattedText>{event.description}</FormattedText></p>
+                      <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap max-h-32 overflow-y-auto overscroll-contain pr-1" onClick={(e) => e.stopPropagation()}><FormattedText>{event.description}</FormattedText></p>
                    )}
                   <div className={`flex items-center gap-1 text-sm mt-2 ${getStatusColor(status)}`}>
                     <Clock size={12} />
@@ -310,7 +310,7 @@ export const EventsPage = ({
             </CardHeader>
             <CardContent className="space-y-3">
                 {event.description && (
-                  <p className="text-sm text-muted-foreground whitespace-pre-wrap"><FormattedText>{event.description}</FormattedText></p>
+                  <p className="text-sm text-muted-foreground whitespace-pre-wrap max-h-32 overflow-y-auto overscroll-contain pr-1" onClick={(e) => e.stopPropagation()}><FormattedText>{event.description}</FormattedText></p>
                )}
               <div className={`flex items-center gap-1 text-sm ${getStatusColor(status)}`}>
                 <Clock size={12} />

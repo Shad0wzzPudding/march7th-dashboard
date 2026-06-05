@@ -302,7 +302,7 @@ export const TasksPage = ({
                   {task.title}
                 </h4>
                   {task.description && (
-                    <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap"><FormattedText>{task.description}</FormattedText></p>
+                    <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap max-h-32 overflow-y-auto overscroll-contain pr-1" onClick={(e) => e.stopPropagation()}><FormattedText>{task.description}</FormattedText></p>
                   )}
                  <div className="space-y-1 mt-2">
                    {task.start_date ? (
