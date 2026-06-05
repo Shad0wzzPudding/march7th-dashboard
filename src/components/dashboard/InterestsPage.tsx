@@ -225,7 +225,7 @@ export const InterestsPage = ({
       </CardHeader>
       <CardContent className="space-y-3">
         {interest.description && (
-          <p className="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap"><FormattedText>{interest.description}</FormattedText></p>
+          <p className="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap max-h-32 overflow-y-auto overscroll-contain pr-1" onClick={(e) => e.stopPropagation()}><FormattedText>{interest.description}</FormattedText></p>
         )}
         {interest.deadline && (
           <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
@@ -292,7 +292,7 @@ export const InterestsPage = ({
       </CardHeader>
       <CardContent className="space-y-3">
         {interest.description && (
-          <p className="text-sm text-muted-foreground whitespace-pre-wrap"><FormattedText>{interest.description}</FormattedText></p>
+          <p className="text-sm text-muted-foreground whitespace-pre-wrap max-h-32 overflow-y-auto overscroll-contain pr-1" onClick={(e) => e.stopPropagation()}><FormattedText>{interest.description}</FormattedText></p>
         )}
         {interest.deadline && (
           <div className="flex items-center gap-1 text-sm text-muted-foreground">
