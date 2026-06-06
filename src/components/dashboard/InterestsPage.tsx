@@ -198,7 +198,7 @@ export const InterestsPage = ({
   const renderPinnedCard = (interest: Interest) => (
     <Card
       key={interest.id}
-      className={`bg-main-focus/20 border-main-focus/40 transition-all relative overflow-visible flex flex-col h-full ${
+      className={`bg-main-focus/20 border-main-focus/40 transition-all relative overflow-visible flex flex-col h-full min-h-[200px] ${
         isSelecting ? 'cursor-pointer' : ''
       } ${isSelected(interest.id) ? 'ring-2 ring-main-focus shadow-lg' : ''}`}
       onClick={() => handleCardClick(interest)}
@@ -269,7 +269,7 @@ export const InterestsPage = ({
   const renderUnpinnedCard = (interest: Interest) => (
     <Card
       key={interest.id}
-      className={`hover:shadow-md transition-all relative overflow-visible flex flex-col h-full ${
+      className={`hover:shadow-md transition-all relative overflow-visible flex flex-col h-full min-h-[200px] ${
         isSelecting ? 'cursor-pointer' : ''
       } ${isSelected(interest.id) ? 'ring-2 ring-main-focus shadow-lg' : ''}`}
       onClick={() => handleCardClick(interest)}
