@@ -71,7 +71,7 @@ export const InterestsPage = ({
     
     const submissionData = {
       ...formData,
-      deadline: formData.deadline ? new Date(formData.deadline).toISOString() : undefined,
+      deadline: formData.deadline ? new Date(formData.deadline).toISOString() : (null as unknown as string | undefined),
     };
 
     if (editingInterest) {
