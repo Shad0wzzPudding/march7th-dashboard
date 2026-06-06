@@ -233,7 +233,7 @@ export const EventsPage = ({
     return (
       <Card 
         key={event.id} 
-        className={`${getBorderColor(status)} transition-all flex flex-col h-full ${
+        className={`${getBorderColor(status)} transition-all flex flex-col h-full min-h-[200px] ${
           isSelecting ? 'cursor-pointer' : ''
         } ${isSelected(event.id) ? 'ring-2 ring-events-theme shadow-lg' : ''}`}
         onClick={() => handleCardClick(event)}
@@ -309,7 +309,7 @@ export const EventsPage = ({
                 <CardTitle className={`text-${variant === 'past' ? 'base text-muted-foreground' : 'lg'}`}>{event.title}</CardTitle>
               </div>
             </CardHeader>
-            <CardContent className="space-y-3 flex-1 flex flex-col">
+            <CardContent className="flex-1 flex flex-col gap-3">
                 {event.description && (
                   <p className="text-sm text-muted-foreground whitespace-pre-wrap max-h-32 overflow-y-auto overscroll-contain pr-1" onClick={(e) => e.stopPropagation()}><FormattedText>{event.description}</FormattedText></p>
                )}
