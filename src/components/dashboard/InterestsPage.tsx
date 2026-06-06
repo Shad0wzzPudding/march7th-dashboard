@@ -224,7 +224,7 @@ export const InterestsPage = ({
           </div>
         </div>
       </CardHeader>
-      <CardContent className="space-y-3 flex-1 flex flex-col">
+      <CardContent className="flex-1 flex flex-col gap-3">
         {interest.description && (
           <p className="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap max-h-32 overflow-y-auto overscroll-contain pr-1" onClick={(e) => e.stopPropagation()}><FormattedText>{interest.description}</FormattedText></p>
         )}
@@ -291,7 +291,7 @@ export const InterestsPage = ({
           {!isSelecting && sort !== 'user' && <GripVertical size={16} className="text-gray-400 cursor-grab" />}
         </div>
       </CardHeader>
-      <CardContent className="space-y-3 flex-1 flex flex-col">
+      <CardContent className="flex-1 flex flex-col gap-3">
         {interest.description && (
           <p className="text-sm text-muted-foreground whitespace-pre-wrap max-h-32 overflow-y-auto overscroll-contain pr-1" onClick={(e) => e.stopPropagation()}><FormattedText>{interest.description}</FormattedText></p>
         )}
