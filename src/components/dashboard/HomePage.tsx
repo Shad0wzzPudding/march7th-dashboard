@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react";
+import { createPortal } from "react-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -831,22 +832,31 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
                     <ChevronUp size={12} className="mr-1" />
                     Collapse all
                   </Button>
-                  {showCollapsePout && (
-                    <div className="absolute z-50 right-0 top-full mt-1 flex items-start gap-1 animate-scale-in pointer-events-none">
-                      <img
-                        src={march7thPout}
-                        alt="March 7th pouting"
-                        className="w-14 h-14 object-contain drop-shadow-md -mt-1"
-                      />
-                      <div className="relative max-w-[280px] mt-2">
-                        <div className="bg-card border-2 border-main-focus/60 rounded-2xl px-3 py-2 text-[11px] font-medium text-foreground shadow-lg">
-                          Hmph! I can't collapse anything — every block is already closed! Expand at least one first, okay?
+                  {showCollapsePout && createPortal(
+                    <div
+                      className="fixed inset-0 z-[100] flex items-start justify-center pt-24 px-4 animate-fade-in"
+                      onClick={() => setShowCollapsePout(false)}
+                    >
+                      <div className="absolute inset-0 bg-black/20" />
+                      <div
+                        className="relative flex items-start gap-2 animate-scale-in"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <img
+                          src={march7thPout}
+                          alt="March 7th pouting"
+                          className="w-20 h-20 object-contain drop-shadow-md -mt-2 flex-shrink-0"
+                        />
+                        <div className="relative w-[260px] mt-3">
+                          <div className="bg-card border-2 border-main-focus/60 rounded-2xl px-4 py-3 text-sm font-medium text-foreground shadow-xl">
+                            Hmph! I can't collapse anything — every block is already closed! Expand at least one first, okay?
+                          </div>
+                          <div className="absolute left-[-9px] top-4 w-0 h-0 border-t-[7px] border-t-transparent border-b-[7px] border-b-transparent border-r-[9px] border-r-main-focus/60" />
+                          <div className="absolute left-[-6px] top-4 w-0 h-0 border-t-[7px] border-t-transparent border-b-[7px] border-b-transparent border-r-[9px] border-r-card" />
                         </div>
-                        {/* manga bubble tail pointing left toward March 7th */}
-                        <div className="absolute left-[-7px] top-3 w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-r-[8px] border-r-main-focus/60" />
-                        <div className="absolute left-[-5px] top-3 w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-r-[8px] border-r-card" />
                       </div>
-                    </div>
+                    </div>,
+                    document.body
                   )}
                 </div>
                 );
