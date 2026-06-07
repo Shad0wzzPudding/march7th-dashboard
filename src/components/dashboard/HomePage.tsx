@@ -832,7 +832,6 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
                     <ChevronUp size={12} className="mr-1" />
                     Collapse all
                   </Button>
-                  {showCollapsePout && (
                   {showCollapsePout && createPortal(
                     <div
                       className="fixed inset-0 z-[100] flex items-start justify-center pt-24 px-4 animate-fade-in"
