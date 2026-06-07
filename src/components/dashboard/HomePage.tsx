@@ -838,7 +838,7 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
                         alt="March 7th pouting"
                         className="w-14 h-14 object-contain drop-shadow-md -mt-1"
                       />
-                      <div className="relative max-w-[180px] mt-2">
+                      <div className="relative max-w-[280px] mt-2">
                         <div className="bg-card border-2 border-main-focus/60 rounded-2xl px-3 py-2 text-[11px] font-medium text-foreground shadow-lg">
                           Hmph! I can't collapse anything — every block is already closed! Expand at least one first, okay?
                         </div>
