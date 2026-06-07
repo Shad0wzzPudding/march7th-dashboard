@@ -832,31 +832,24 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
                     <ChevronUp size={12} className="mr-1" />
                     Collapse all
                   </Button>
-                  {showCollapsePout && createPortal(
+                  {showCollapsePout && (
                     <div
-                      className="fixed inset-0 z-[100] flex items-start justify-center pt-24 px-4 animate-fade-in"
-                      onClick={() => setShowCollapsePout(false)}
+                      className="absolute right-0 top-full mt-2 z-50 flex items-start gap-2 animate-scale-in"
+                      onClick={(e) => e.stopPropagation()}
                     >
-                      <div className="absolute inset-0 bg-black/20" />
-                      <div
-                        className="relative flex items-start gap-2 animate-scale-in"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <img
-                          src={march7thPout}
-                          alt="March 7th pouting"
-                          className="w-20 h-20 object-contain drop-shadow-md -mt-2 flex-shrink-0"
-                        />
-                        <div className="relative w-[260px] mt-3">
-                          <div className="bg-card border-2 border-main-focus/60 rounded-2xl px-4 py-3 text-sm font-medium text-foreground shadow-xl">
-                            Hmph! I can't collapse anything — every block is already closed! Expand at least one first, okay?
-                          </div>
-                          <div className="absolute left-[-9px] top-4 w-0 h-0 border-t-[7px] border-t-transparent border-b-[7px] border-b-transparent border-r-[9px] border-r-main-focus/60" />
-                          <div className="absolute left-[-6px] top-4 w-0 h-0 border-t-[7px] border-t-transparent border-b-[7px] border-b-transparent border-r-[9px] border-r-card" />
+                      <img
+                        src={march7thPout}
+                        alt="March 7th pouting"
+                        className="w-20 h-20 object-contain drop-shadow-md -mt-2 flex-shrink-0"
+                      />
+                      <div className="relative w-[260px] mt-3">
+                        <div className="bg-card border-2 border-main-focus/60 rounded-2xl px-4 py-3 text-sm font-medium text-foreground shadow-xl">
+                          Hmph! I can't collapse anything — every block is already closed! Expand at least one first, okay?
                         </div>
+                        <div className="absolute left-[-9px] top-4 w-0 h-0 border-t-[7px] border-t-transparent border-b-[7px] border-b-transparent border-r-[9px] border-r-main-focus/60" />
+                        <div className="absolute left-[-6px] top-4 w-0 h-0 border-t-[7px] border-t-transparent border-b-[7px] border-b-transparent border-r-[9px] border-r-card" />
                       </div>
-                    </div>,
-                    document.body
+                    </div>
                   )}
                 </div>
                 );
