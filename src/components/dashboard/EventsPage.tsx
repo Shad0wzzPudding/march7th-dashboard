@@ -258,7 +258,7 @@ export const EventsPage = ({
                    )}
                   <div className={`flex items-center gap-1 text-sm mt-2 ${getStatusColor(status)}`}>
                     <Clock size={12} />
-                    {format(parseISO(event.start_time), 'HH:mm')} - Today
+                    {event.start_time ? `${format(parseISO(event.start_time), 'HH:mm')} - Today` : 'No start time'}
                     {event.deadline && (
                       <span className="ml-2 text-xs text-muted-foreground">
                         • Deadline: {format(parseISO(event.deadline), 'HH:mm')}
@@ -316,7 +316,7 @@ export const EventsPage = ({
                )}
               <div className={`flex items-center gap-1 text-sm ${getStatusColor(status)}`}>
                 <Clock size={12} />
-                {format(parseISO(event.start_time), 'MMM dd, yyyy HH:mm')}
+                {event.start_time ? format(parseISO(event.start_time), 'MMM dd, yyyy HH:mm') : 'No start time'}
                 {event.deadline && (
                   <span className="ml-2 text-xs text-muted-foreground">
                     • Deadline: {format(parseISO(event.deadline), 'MMM dd, HH:mm')}
