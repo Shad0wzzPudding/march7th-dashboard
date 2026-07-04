@@ -408,6 +408,82 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
   const [autoBullet, setAutoBullet] = useState(false);
   const isUpdatingRef = useRef(false);
   const applyFormatToggleRef = useRef<(marker: string) => void>(() => {});
+
+  // Undo/redo history: stack of {value, cursor} snapshots.
+  const historyRef = useRef<{ value: string; cursor: number }[]>([{ value, cursor: 0 }]);
+  const historyIndexRef = useRef(0);
+  const pendingSnapshotTimerRef = useRef<number | null>(null);
+
+  const commitSnapshot = useCallback((val: string, cursor: number) => {
+    const stack = historyRef.current;
+    const idx = historyIndexRef.current;
+    const cur = stack[idx];
+    if (cur && cur.value === val) {
+      cur.cursor = cursor;
+      return;
+    }
+    const truncated = stack.slice(0, idx + 1);
+    truncated.push({ value: val, cursor });
+    if (truncated.length > 200) truncated.shift();
+    historyRef.current = truncated;
+    historyIndexRef.current = truncated.length - 1;
+  }, []);
+
+  const flushPendingSnapshot = useCallback(() => {
+    if (pendingSnapshotTimerRef.current != null) {
+      clearTimeout(pendingSnapshotTimerRef.current);
+      pendingSnapshotTimerRef.current = null;
+    }
+  }, []);
+
+  const scheduleTypingSnapshot = useCallback((val: string, cursor: number) => {
+    flushPendingSnapshot();
+    pendingSnapshotTimerRef.current = window.setTimeout(() => {
+      pendingSnapshotTimerRef.current = null;
+      commitSnapshot(val, cursor);
+    }, 400);
+  }, [commitSnapshot, flushPendingSnapshot]);
+
+  const pushSnapshotNow = useCallback((val: string, cursor: number) => {
+    flushPendingSnapshot();
+    commitSnapshot(val, cursor);
+  }, [commitSnapshot, flushPendingSnapshot]);
+
+  const applyHistoryEntry = useCallback((entry: { value: string; cursor: number }) => {
+    const el = editorRef.current;
+    if (!el) return;
+    isUpdatingRef.current = true;
+    el.innerHTML = toHTML(entry.value);
+    restoreCursor(el, entry.cursor);
+    el.focus();
+    onChange(entry.value);
+    requestAnimationFrame(() => {
+      isUpdatingRef.current = false;
+    });
+  }, [onChange]);
+
+  const performUndo = useCallback(() => {
+    flushPendingSnapshot();
+    const el = editorRef.current;
+    if (el) {
+      const currentPlain = toPlainText(el);
+      const top = historyRef.current[historyIndexRef.current];
+      if (top && top.value !== currentPlain) {
+        commitSnapshot(currentPlain, saveCursor(el));
+      }
+    }
+    if (historyIndexRef.current <= 0) return;
+    historyIndexRef.current -= 1;
+    applyHistoryEntry(historyRef.current[historyIndexRef.current]);
+  }, [applyHistoryEntry, commitSnapshot, flushPendingSnapshot]);
+
+  const performRedo = useCallback(() => {
+    flushPendingSnapshot();
+    if (historyIndexRef.current >= historyRef.current.length - 1) return;
+    historyIndexRef.current += 1;
+    applyHistoryEntry(historyRef.current[historyIndexRef.current]);
+  }, [applyHistoryEntry, flushPendingSnapshot]);
+
   // Sync external value changes into contentEditable
   useEffect(() => {
     const el = editorRef.current;
@@ -418,8 +494,13 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
       const pos = saveCursor(el);
       el.innerHTML = toHTML(value);
       restoreCursor(el, pos);
+      // External value replaced the editor contents (e.g. editing a different
+      // item) — reset undo history so we don't rewind into unrelated state.
+      flushPendingSnapshot();
+      historyRef.current = [{ value, cursor: pos }];
+      historyIndexRef.current = 0;
     }
-  }, [value]);
+  }, [value, flushPendingSnapshot]);
 
   const handleInput = useCallback(() => {
     const el = editorRef.current;
@@ -429,6 +510,7 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
     const plainText = toPlainText(el);
     const pos = saveCursor(el);
     onChange(plainText);
+    scheduleTypingSnapshot(plainText, pos);
     
     // Re-render with formatting after a tick
     requestAnimationFrame(() => {
@@ -436,9 +518,22 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
       restoreCursor(el, pos);
       isUpdatingRef.current = false;
     });
-  }, [onChange]);
+  }, [onChange, scheduleTypingSnapshot]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
+    // Undo / Redo — intercept before the browser's native (broken) undo runs.
+    const mod = e.ctrlKey || e.metaKey;
+    if (mod && !e.shiftKey && (e.key === 'z' || e.key === 'Z')) {
+      e.preventDefault();
+      performUndo();
+      return;
+    }
+    if (mod && ((e.shiftKey && (e.key === 'z' || e.key === 'Z')) || e.key === 'y' || e.key === 'Y')) {
+      e.preventDefault();
+      performRedo();
+      return;
+    }
+
     // Keyboard shortcuts for formatting
     if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key === 'b') {
       e.preventDefault();
@@ -496,6 +591,7 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
           // Remove empty bullet
           const newValue = textBefore.slice(0, lastNewline === -1 ? 0 : lastNewline) + '\n' + textAfter;
           onChange(newValue);
+          pushSnapshotNow(newValue, (lastNewline === -1 ? 0 : lastNewline) + 1);
           isUpdatingRef.current = true;
           requestAnimationFrame(() => {
             el.innerHTML = toHTML(newValue);
@@ -508,6 +604,7 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
         
         const newValue = textBefore + '\n• ' + textAfter;
         onChange(newValue);
+        pushSnapshotNow(newValue, textBefore.length + 3);
         isUpdatingRef.current = true;
         requestAnimationFrame(() => {
           el.innerHTML = toHTML(newValue);
@@ -521,6 +618,7 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
       // Normal enter
       const newValue = textBefore + '\n' + textAfter;
       onChange(newValue);
+      pushSnapshotNow(newValue, textBefore.length + 1);
       isUpdatingRef.current = true;
       requestAnimationFrame(() => {
         el.innerHTML = toHTML(newValue);
@@ -529,7 +627,7 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
         isUpdatingRef.current = false;
       });
     }
-  }, [autoBullet, onChange]);
+  }, [autoBullet, onChange, pushSnapshotNow]);
 
   const insertBullet = useCallback(() => {
     const el = editorRef.current;
@@ -562,7 +660,8 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
       el.focus();
       isUpdatingRef.current = false;
     });
-  }, [value, onChange]);
+    pushSnapshotNow(newValue, newPos);
+  }, [value, onChange, pushSnapshotNow]);
 
   const restoreSelection = useCallback((el: HTMLElement, visStart: number, visEnd: number) => {
     const sel = window.getSelection();
@@ -686,7 +785,8 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
       el.focus();
       isUpdatingRef.current = false;
     });
-  }, [value, onChange, restoreSelection]);
+    pushSnapshotNow(newValue, newVisEnd);
+  }, [value, onChange, restoreSelection, pushSnapshotNow]);
 
   applyFormatToggleRef.current = applyFormatToggle;
 
@@ -708,7 +808,8 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
       restoreCursor(el, newPos);
       isUpdatingRef.current = false;
     });
-  }, [value, onChange]);
+    pushSnapshotNow(newValue, newPos);
+  }, [value, onChange, pushSnapshotNow]);
 
   return (
     <div className="space-y-1">
