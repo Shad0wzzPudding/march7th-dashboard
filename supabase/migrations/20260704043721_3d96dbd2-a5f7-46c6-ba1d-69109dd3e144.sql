@@ -1,0 +1,1 @@
+ALTER TABLE public.events ALTER COLUMN start_time DROP NOT NULL;

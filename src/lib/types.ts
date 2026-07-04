@@ -44,7 +44,7 @@ export interface Event {
   user_id: string;
   title: string;
   description?: string;
-  start_time: string;
+  start_time?: string | null;
   deadline?: string;
   tag_ids?: string[];
   sort_order?: number;

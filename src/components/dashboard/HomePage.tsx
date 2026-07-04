@@ -400,7 +400,7 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
     .filter(task => !task.is_completed && task.start_date && isToday(parseISO(task.start_date)))
     .slice(0, 3);
   const todayEvents = events
-    .filter(event => isToday(parseISO(event.start_time)))
+    .filter(event => event.start_time && isToday(parseISO(event.start_time)))
     .slice(0, 3);
   
   // Overdue tasks and events
@@ -414,7 +414,7 @@ export const HomePage = ({ interests, tasks, events, activityLog, onUpdateIntere
     .filter(task => !task.is_completed && task.deadline && isAfter(parseISO(task.deadline), new Date()) && !isToday(parseISO(task.deadline)))
     .slice(0, 3);
   const upcomingEvents = events
-    .filter(event => isAfter(parseISO(event.start_time), new Date()) && !isToday(parseISO(event.start_time)))
+    .filter(event => event.start_time && isAfter(parseISO(event.start_time), new Date()) && !isToday(parseISO(event.start_time)))
     .slice(0, 3);
 
   // Summary items order state

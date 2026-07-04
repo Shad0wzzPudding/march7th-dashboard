@@ -62,7 +62,7 @@ export const EventsPage = ({
     () => sortItems(filterByTags(events, filterTagIds), sort, tagsById),
     [events, filterTagIds, sort, tagsById]
   );
-  const pastEvents = visibleEvents.filter(event => isBefore(parseISO(event.start_time), now) && !isToday(parseISO(event.start_time)));
+  const pastEvents = visibleEvents.filter(event => event.start_time && isBefore(parseISO(event.start_time), now) && !isToday(parseISO(event.start_time)));
 
   // Hide undo button after 10 seconds
   useEffect(() => {
@@ -119,7 +119,7 @@ export const EventsPage = ({
     
     const submissionData = {
       ...formData,
-      start_time: new Date(formData.start_time).toISOString(),
+      start_time: formData.start_time ? new Date(formData.start_time).toISOString() : null,
       deadline: formData.deadline ? new Date(formData.deadline).toISOString() : undefined,
     };
 
@@ -141,7 +141,7 @@ export const EventsPage = ({
     setFormData({
       title: event.title,
       description: event.description || '',
-      start_time: format(parseISO(event.start_time), "yyyy-MM-dd'T'HH:mm"),
+      start_time: event.start_time ? format(parseISO(event.start_time), "yyyy-MM-dd'T'HH:mm") : '',
       deadline: event.deadline ? format(parseISO(event.deadline), "yyyy-MM-dd'T'HH:mm") : '',
       tag_ids: event.tag_ids || [],
     });
@@ -196,8 +196,8 @@ export const EventsPage = ({
     }
   };
 
-  const todayEvents = visibleEvents.filter(event => isToday(parseISO(event.start_time)));
-  const upcomingEvents = visibleEvents.filter(event => isAfter(parseISO(event.start_time), now) && !isToday(parseISO(event.start_time)));
+  const todayEvents = visibleEvents.filter(event => event.start_time && isToday(parseISO(event.start_time)));
+  const upcomingEvents = visibleEvents.filter(event => !event.start_time || (isAfter(parseISO(event.start_time), now) && !isToday(parseISO(event.start_time))));
 
   const handleUserReorder = (orderedIds: string[]) => {
     orderedIds.forEach((id, index) => {
@@ -206,6 +206,7 @@ export const EventsPage = ({
   };
 
   const getEventStatus = (event: Event) => {
+    if (!event.start_time) return 'upcoming';
     const eventDate = parseISO(event.start_time);
     if (isToday(eventDate)) return 'today';
     if (isAfter(eventDate, now)) return 'upcoming';
@@ -257,7 +258,7 @@ export const EventsPage = ({
                    )}
                   <div className={`flex items-center gap-1 text-sm mt-2 ${getStatusColor(status)}`}>
                     <Clock size={12} />
-                    {format(parseISO(event.start_time), 'HH:mm')} - Today
+                    {event.start_time ? `${format(parseISO(event.start_time), 'HH:mm')} - Today` : 'No start time'}
                     {event.deadline && (
                       <span className="ml-2 text-xs text-muted-foreground">
                         • Deadline: {format(parseISO(event.deadline), 'HH:mm')}
@@ -315,7 +316,7 @@ export const EventsPage = ({
                )}
               <div className={`flex items-center gap-1 text-sm ${getStatusColor(status)}`}>
                 <Clock size={12} />
-                {format(parseISO(event.start_time), 'MMM dd, yyyy HH:mm')}
+                {event.start_time ? format(parseISO(event.start_time), 'MMM dd, yyyy HH:mm') : 'No start time'}
                 {event.deadline && (
                   <span className="ml-2 text-xs text-muted-foreground">
                     • Deadline: {format(parseISO(event.deadline), 'MMM dd, HH:mm')}
@@ -439,7 +440,7 @@ export const EventsPage = ({
               />
               <Input
                 type="datetime-local"
-                placeholder="Start time"
+                placeholder="Start time (optional)"
                 value={formData.start_time}
                 onChange={(e) => {
                   const v = e.target.value;
@@ -451,7 +452,6 @@ export const EventsPage = ({
                     return next;
                   });
                 }}
-                required
               />
               <Input
                 type="datetime-local"
