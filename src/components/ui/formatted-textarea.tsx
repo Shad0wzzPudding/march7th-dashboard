@@ -591,6 +591,7 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
           // Remove empty bullet
           const newValue = textBefore.slice(0, lastNewline === -1 ? 0 : lastNewline) + '\n' + textAfter;
           onChange(newValue);
+          pushSnapshotNow(newValue, (lastNewline === -1 ? 0 : lastNewline) + 1);
           isUpdatingRef.current = true;
           requestAnimationFrame(() => {
             el.innerHTML = toHTML(newValue);
@@ -603,6 +604,7 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
         
         const newValue = textBefore + '\n• ' + textAfter;
         onChange(newValue);
+        pushSnapshotNow(newValue, textBefore.length + 3);
         isUpdatingRef.current = true;
         requestAnimationFrame(() => {
           el.innerHTML = toHTML(newValue);
@@ -616,6 +618,7 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
       // Normal enter
       const newValue = textBefore + '\n' + textAfter;
       onChange(newValue);
+      pushSnapshotNow(newValue, textBefore.length + 1);
       isUpdatingRef.current = true;
       requestAnimationFrame(() => {
         el.innerHTML = toHTML(newValue);
@@ -624,7 +627,7 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
         isUpdatingRef.current = false;
       });
     }
-  }, [autoBullet, onChange]);
+  }, [autoBullet, onChange, pushSnapshotNow]);
 
   const insertBullet = useCallback(() => {
     const el = editorRef.current;
@@ -657,7 +660,8 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
       el.focus();
       isUpdatingRef.current = false;
     });
-  }, [value, onChange]);
+    pushSnapshotNow(newValue, newPos);
+  }, [value, onChange, pushSnapshotNow]);
 
   const restoreSelection = useCallback((el: HTMLElement, visStart: number, visEnd: number) => {
     const sel = window.getSelection();
@@ -781,7 +785,8 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
       el.focus();
       isUpdatingRef.current = false;
     });
-  }, [value, onChange, restoreSelection]);
+    pushSnapshotNow(newValue, newVisEnd);
+  }, [value, onChange, restoreSelection, pushSnapshotNow]);
 
   applyFormatToggleRef.current = applyFormatToggle;
 
@@ -803,7 +808,8 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
       restoreCursor(el, newPos);
       isUpdatingRef.current = false;
     });
-  }, [value, onChange]);
+    pushSnapshotNow(newValue, newPos);
+  }, [value, onChange, pushSnapshotNow]);
 
   return (
     <div className="space-y-1">
