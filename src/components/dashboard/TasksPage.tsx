@@ -15,7 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useMultiSelect } from '@/hooks/useMultiSelect';
 import { MultiSelectActionBar } from './MultiSelectActionBar';
 import { MarchConfirmDialog } from './MarchConfirmDialog';
-import { playSuccessSound, playCompletionSound, playCancelSound, playDeleteSound, playDuplicateSound, playUpdateSound, playEditSound } from '@/lib/sounds';
+import { playSuccessSound, playCompletionSound, playCancelSound, playDeleteSound, playDuplicateSound, playUpdateSound, playEditSound, playAddSound } from '@/lib/sounds';
 import { TagPicker, TagChip } from './TagPicker';
 import { SortAndFilterBar, SortOption, sortItems, filterByTags } from './SortAndFilterBar';
 import { useSortPreference } from '@/hooks/useSortPreference';
@@ -418,7 +418,7 @@ export const TasksPage = ({
           <Dialog open={isCreateOpen} onOpenChange={(open) => { if (!open && isCreateOpen) playCancelSound(); setIsCreateOpen(open); }}>
             <DialogTrigger asChild>
               <Button 
-                onClick={resetForm}
+                onClick={() => { playAddSound(); resetForm(); }}
                 className="bg-upcoming-events hover:bg-upcoming-events/80 text-white"
               >
                 <Plus size={16} className="mr-2" />
@@ -656,7 +656,7 @@ export const TasksPage = ({
         <Card className="text-center py-12">
           <CardContent>
             <p className="text-muted-foreground mb-4">No tasks yet! Add your first task to get started.</p>
-            <Button onClick={() => setIsCreateOpen(true)}>
+            <Button onClick={() => { playAddSound(); setIsCreateOpen(true); }}>
               <Plus size={16} className="mr-2" />
               Add Your First Task
             </Button>

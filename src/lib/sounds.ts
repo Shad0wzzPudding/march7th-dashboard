@@ -580,3 +580,33 @@ export const playSelectModeSound = () => {
     console.log('[playSelectModeSound] Audio error:', e);
   }
 };
+
+export const playAddSound = () => {
+  haptic([10, 15]);
+  try {
+    const audioContext = getAudioContext();
+    const now = audioContext.currentTime;
+
+    // Cute "pop-open" — quick ascending triad with a bright bell tail
+    const playTone = (freq: number, start: number, dur: number, type: OscillatorType = 'sine', peak = 0.2) => {
+      const osc = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      osc.connect(gain);
+      gain.connect(audioContext.destination);
+      osc.frequency.value = freq;
+      osc.type = type;
+      gain.gain.setValueAtTime(0, start);
+      gain.gain.linearRampToValueAtTime(peak, start + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.01, start + dur);
+      osc.start(start);
+      osc.stop(start + dur);
+    };
+
+    playTone(659.25, now, 0.07, 'triangle', 0.22);        // E5
+    playTone(987.77, now + 0.05, 0.09, 'triangle', 0.22); // B5
+    playTone(1318.51, now + 0.11, 0.14, 'sine', 0.18);    // E6 sparkle
+
+  } catch (e) {
+    console.log('[playAddSound] Audio error:', e);
+  }
+};
