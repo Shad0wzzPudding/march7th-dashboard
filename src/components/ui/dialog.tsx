@@ -41,6 +41,12 @@ const DialogContent = React.forwardRef<
         className
       )}
       {...props}
+      onCloseAutoFocus={(e) => {
+        // Keep scroll in place: don't refocus the trigger, which would
+        // scroll the page back to it when the dialog closes.
+        e.preventDefault();
+        props.onCloseAutoFocus?.(e);
+      }}
     >
       {children}
       <DialogPrimitive.Close 
@@ -209,6 +215,13 @@ const ResizableDialogContent = React.forwardRef<
           maxHeight: '90vh',
         }}
         {...props}
+        onCloseAutoFocus={(e) => {
+          // Prevent Radix from returning focus to the trigger, which causes
+          // the browser to scroll the trigger back into view and yank the
+          // user away from where they were reading/editing.
+          e.preventDefault();
+          props.onCloseAutoFocus?.(e);
+        }}
       >
         {children}
         
