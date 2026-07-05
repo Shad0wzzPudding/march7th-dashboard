@@ -41,6 +41,12 @@ const DialogContent = React.forwardRef<
         className
       )}
       {...props}
+      onCloseAutoFocus={(e) => {
+        // Keep scroll in place: don't refocus the trigger, which would
+        // scroll the page back to it when the dialog closes.
+        e.preventDefault();
+        props.onCloseAutoFocus?.(e);
+      }}
     >
       {children}
       <DialogPrimitive.Close 
