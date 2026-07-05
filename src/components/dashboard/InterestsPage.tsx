@@ -15,7 +15,7 @@ import { useMultiSelect } from '@/hooks/useMultiSelect';
 import { MultiSelectActionBar } from './MultiSelectActionBar';
 import { MarchConfirmDialog } from './MarchConfirmDialog';
 import { SelectionCorners, SelectModeOverlay } from './SelectionCorners';
-import { playSuccessSound, playCancelSound, playDeleteSound, playDuplicateSound, playPinSound, playUnpinSound, playUpdateSound, playEditSound, playSelectModeSound } from '@/lib/sounds';
+import { playSuccessSound, playCancelSound, playDeleteSound, playDuplicateSound, playPinSound, playUnpinSound, playUpdateSound, playEditSound, playSelectModeSound, playAddSound } from '@/lib/sounds';
 import { TagPicker, TagChip } from './TagPicker';
 import { SortAndFilterBar, SortOption, sortItems, filterByTags } from './SortAndFilterBar';
 import { useSortPreference } from '@/hooks/useSortPreference';
@@ -368,7 +368,7 @@ export const InterestsPage = ({
           <Dialog open={isCreateOpen} onOpenChange={(open) => { if (!open && isCreateOpen) playCancelSound(); setIsCreateOpen(open); }}>
             <DialogTrigger asChild>
               <Button 
-                onClick={resetForm} 
+                onClick={() => { playAddSound(); resetForm(); }}
                 className="bg-main-focus hover:bg-main-focus/80 text-white"
               >
                 <Plus size={16} className="mr-2" />
@@ -486,7 +486,7 @@ export const InterestsPage = ({
         <Card className="text-center py-12">
           <CardContent>
             <p className="text-muted-foreground mb-4">No interests yet! Add your first interest to get started.</p>
-            <Button onClick={() => setIsCreateOpen(true)}>
+            <Button onClick={() => { playAddSound(); setIsCreateOpen(true); }}>
               <Plus size={16} className="mr-2" />
               Add Your First Interest
             </Button>
