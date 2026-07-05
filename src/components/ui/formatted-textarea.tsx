@@ -449,12 +449,18 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
     commitSnapshot(val, cursor);
   }, [commitSnapshot, flushPendingSnapshot]);
 
-  const applyHistoryEntry = useCallback((entry: { value: string; cursor: number }) => {
+  const applyHistoryEntry = useCallback((entry: { value: string; cursor: number }, cursorOverride?: number) => {
     const el = editorRef.current;
     if (!el) return;
     isUpdatingRef.current = true;
     el.innerHTML = toHTML(entry.value);
-    restoreCursor(el, entry.cursor);
+    // Measure the maximum caret offset in the newly-rendered DOM so we can
+    // clamp any override without walking past the end.
+    const maxOffset = measureDomOffset(el);
+    const target = cursorOverride != null
+      ? Math.min(Math.max(0, cursorOverride), maxOffset)
+      : entry.cursor;
+    restoreCursor(el, target);
     el.focus();
     onChange(entry.value);
     requestAnimationFrame(() => {
@@ -465,23 +471,27 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
   const performUndo = useCallback(() => {
     flushPendingSnapshot();
     const el = editorRef.current;
+    let currentCursor: number | undefined;
     if (el) {
       const currentPlain = toPlainText(el);
+      currentCursor = saveCursor(el);
       const top = historyRef.current[historyIndexRef.current];
       if (top && top.value !== currentPlain) {
-        commitSnapshot(currentPlain, saveCursor(el));
+        commitSnapshot(currentPlain, currentCursor);
       }
     }
     if (historyIndexRef.current <= 0) return;
     historyIndexRef.current -= 1;
-    applyHistoryEntry(historyRef.current[historyIndexRef.current]);
+    applyHistoryEntry(historyRef.current[historyIndexRef.current], currentCursor);
   }, [applyHistoryEntry, commitSnapshot, flushPendingSnapshot]);
 
   const performRedo = useCallback(() => {
     flushPendingSnapshot();
+    const el = editorRef.current;
+    const currentCursor = el ? saveCursor(el) : undefined;
     if (historyIndexRef.current >= historyRef.current.length - 1) return;
     historyIndexRef.current += 1;
-    applyHistoryEntry(historyRef.current[historyIndexRef.current]);
+    applyHistoryEntry(historyRef.current[historyIndexRef.current], currentCursor);
   }, [applyHistoryEntry, flushPendingSnapshot]);
 
   // Sync external value changes into contentEditable
