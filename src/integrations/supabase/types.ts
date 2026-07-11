@@ -85,6 +85,7 @@ export type Database = {
       }
       events: {
         Row: {
+          attachments: Json
           created_at: string
           deadline: string | null
           description: string | null
@@ -97,6 +98,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          attachments?: Json
           created_at?: string
           deadline?: string | null
           description?: string | null
@@ -109,6 +111,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          attachments?: Json
           created_at?: string
           deadline?: string | null
           description?: string | null
@@ -124,6 +127,7 @@ export type Database = {
       }
       interests: {
         Row: {
+          attachments: Json
           created_at: string
           deadline: string | null
           description: string | null
@@ -136,6 +140,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          attachments?: Json
           created_at?: string
           deadline?: string | null
           description?: string | null
@@ -148,6 +153,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          attachments?: Json
           created_at?: string
           deadline?: string | null
           description?: string | null
@@ -214,6 +220,7 @@ export type Database = {
       }
       tasks: {
         Row: {
+          attachments: Json
           created_at: string
           deadline: string | null
           description: string | null
@@ -229,6 +236,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          attachments?: Json
           created_at?: string
           deadline?: string | null
           description?: string | null
@@ -244,6 +252,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          attachments?: Json
           created_at?: string
           deadline?: string | null
           description?: string | null

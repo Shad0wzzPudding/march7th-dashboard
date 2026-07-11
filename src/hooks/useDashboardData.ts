@@ -57,7 +57,7 @@ export const useDashboardData = () => {
         .order('sort_order', { ascending: true });
       
       if (error) throw error;
-      return data || [];
+      return (data || []) as unknown as Interest[];
     }
   });
 
@@ -79,7 +79,7 @@ export const useDashboardData = () => {
         .order('deadline', { ascending: true });
       
       if (error) throw error;
-      const tasks = (data || []) as Task[];
+      const tasks = (data || []) as unknown as Task[];
       // Auto-renew recurring tasks whose deadline has passed
       const renewals: { id: string; patch: Partial<Task> }[] = [];
       const renewed = tasks.map((t) => {
@@ -153,7 +153,7 @@ export const useDashboardData = () => {
         .order('start_time', { ascending: true });
       
       if (error) throw error;
-      return data || [];
+      return (data || []) as unknown as Event[];
     }
   });
 

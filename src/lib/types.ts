@@ -1,3 +1,11 @@
+export type Attachment = {
+  path: string;
+  name: string;
+  type: string;
+  size: number;
+  [key: string]: string | number;
+};
+
 export interface Interest {
   id: string;
   user_id: string;
@@ -7,6 +15,7 @@ export interface Interest {
   is_pinned: boolean;
   sort_order: number;
   tag_ids?: string[];
+  attachments?: Attachment[];
   created_at: string;
   updated_at: string;
 }
@@ -23,6 +32,7 @@ export interface Task {
   recurrence_unit?: string | null;
   recurrence_interval?: number;
   sort_order?: number;
+  attachments?: Attachment[];
   created_at: string;
   updated_at: string;
 }
@@ -48,6 +58,7 @@ export interface Event {
   deadline?: string;
   tag_ids?: string[];
   sort_order?: number;
+  attachments?: Attachment[];
   created_at: string;
   updated_at: string;
 }

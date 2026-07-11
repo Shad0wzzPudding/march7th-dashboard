@@ -16,6 +16,7 @@ import { MultiSelectActionBar } from './MultiSelectActionBar';
 import { MarchConfirmDialog } from './MarchConfirmDialog';
 import { playSuccessSound, playCancelSound, playDeleteSound, playDuplicateSound, playUpdateSound, playEditSound, playAddSound } from '@/lib/sounds';
 import { TagPicker, TagChip } from './TagPicker';
+import { AttachmentsField, AttachmentsChips } from './AttachmentsField';
 import { SortAndFilterBar, SortOption, sortItems, filterByTags } from './SortAndFilterBar';
 import { useSortPreference } from '@/hooks/useSortPreference';
 import { useTags } from '@/hooks/useTags';
@@ -49,6 +50,7 @@ export const EventsPage = ({
     start_time: '',
     deadline: '',
     tag_ids: [] as string[],
+    attachments: [] as import('@/lib/types').Attachment[],
   });
   const [sort, setSort] = useSortPreference('events');
   const [filterTagIds, setFilterTagIds] = useState<string[]>([]);
@@ -92,7 +94,8 @@ export const EventsPage = ({
         title: event.title,
         description: event.description,
         start_time: event.start_time,
-        deadline: event.deadline
+        deadline: event.deadline,
+        attachments: event.attachments || [],
       });
     });
     setShowUndo(false);
@@ -110,6 +113,7 @@ export const EventsPage = ({
       start_time: '',
       deadline: '',
       tag_ids: [],
+      attachments: [],
     });
     setEditingEvent(null);
   };
@@ -144,6 +148,7 @@ export const EventsPage = ({
       start_time: event.start_time ? format(parseISO(event.start_time), "yyyy-MM-dd'T'HH:mm") : '',
       deadline: event.deadline ? format(parseISO(event.deadline), "yyyy-MM-dd'T'HH:mm") : '',
       tag_ids: event.tag_ids || [],
+      attachments: event.attachments || [],
     });
     setIsCreateOpen(true);
   };
@@ -155,6 +160,7 @@ export const EventsPage = ({
       start_time: event.start_time,
       deadline: event.deadline,
       tag_ids: event.tag_ids || [],
+      attachments: event.attachments || [],
       __duplicate: true,
     });
     playDuplicateSound();
@@ -170,6 +176,7 @@ export const EventsPage = ({
         start_time: event.start_time,
         deadline: event.deadline,
         tag_ids: event.tag_ids || [],
+        attachments: event.attachments || [],
         __duplicate: true,
         __silent: idx !== selected.length - 1,
       });
@@ -270,6 +277,11 @@ export const EventsPage = ({
                       {event.tag_ids.map(id => tagsById[id] && <TagChip key={id} tag={tagsById[id]} />)}
                     </div>
                   )}
+                  {event.attachments && event.attachments.length > 0 && (
+                    <div className="mt-2">
+                      <AttachmentsChips attachments={event.attachments} />
+                    </div>
+                  )}
                 </div>
               </div>
               {!isSelecting && (
@@ -328,6 +340,7 @@ export const EventsPage = ({
                   {event.tag_ids.map(id => tagsById[id] && <TagChip key={id} tag={tagsById[id]} />)}
                 </div>
               )}
+              <AttachmentsChips attachments={event.attachments} />
               {!isSelecting && (
                 <div className="flex items-center gap-2 pt-2 mt-auto">
                   <Button size="sm" variant="outline" onClick={() => handleCopy(event)}>
@@ -466,6 +479,10 @@ export const EventsPage = ({
                   onChange={(ids) => setFormData(prev => ({ ...prev, tag_ids: ids }))}
                 />
               </div>
+              <AttachmentsField
+                value={formData.attachments}
+                onChange={(atts) => setFormData(prev => ({ ...prev, attachments: atts }))}
+              />
               <div className="flex gap-2">
                 <Button type="submit" className="flex-1">
                   {editingEvent ? 'Update' : 'Create'}

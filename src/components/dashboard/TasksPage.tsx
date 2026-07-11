@@ -17,6 +17,7 @@ import { MultiSelectActionBar } from './MultiSelectActionBar';
 import { MarchConfirmDialog } from './MarchConfirmDialog';
 import { playSuccessSound, playCompletionSound, playCancelSound, playDeleteSound, playDuplicateSound, playUpdateSound, playEditSound, playAddSound } from '@/lib/sounds';
 import { TagPicker, TagChip } from './TagPicker';
+import { AttachmentsField, AttachmentsChips } from './AttachmentsField';
 import { SortAndFilterBar, SortOption, sortItems, filterByTags } from './SortAndFilterBar';
 import { useSortPreference } from '@/hooks/useSortPreference';
 import { useTags } from '@/hooks/useTags';
@@ -54,6 +55,7 @@ export const TasksPage = ({
     tag_ids: [] as string[],
     recurrence_unit: '' as '' | 'day' | 'week' | 'month' | 'year',
     recurrence_interval: 1,
+    attachments: [] as import('@/lib/types').Attachment[],
   });
   const [sort, setSort] = useSortPreference('tasks');
   const [filterTagIds, setFilterTagIds] = useState<string[]>([]);
@@ -96,6 +98,7 @@ export const TasksPage = ({
         tag_ids: task.tag_ids || [],
         recurrence_unit: task.recurrence_unit || null,
         recurrence_interval: task.recurrence_interval || 1,
+        attachments: task.attachments || [],
       });
     });
     setShowUndo(false);
@@ -116,6 +119,7 @@ export const TasksPage = ({
       tag_ids: [],
       recurrence_unit: '',
       recurrence_interval: 1,
+      attachments: [],
     });
     setEditingTask(null);
   };
@@ -155,6 +159,7 @@ export const TasksPage = ({
       tag_ids: task.tag_ids || [],
       recurrence_unit: (task.recurrence_unit as any) || '',
       recurrence_interval: task.recurrence_interval || 1,
+      attachments: task.attachments || [],
     });
     setIsCreateOpen(true);
   };
@@ -182,6 +187,7 @@ export const TasksPage = ({
       tag_ids: task.tag_ids || [],
       recurrence_unit: task.recurrence_unit || null,
       recurrence_interval: task.recurrence_interval || 1,
+      attachments: task.attachments || [],
       __duplicate: true,
     });
     playDuplicateSound();
@@ -200,6 +206,7 @@ export const TasksPage = ({
         tag_ids: task.tag_ids || [],
         recurrence_unit: task.recurrence_unit || null,
         recurrence_interval: task.recurrence_interval || 1,
+        attachments: task.attachments || [],
         __duplicate: true,
         __silent: idx !== selected.length - 1,
       });
@@ -328,6 +335,11 @@ export const TasksPage = ({
                        <Repeat size={10} className="mr-1" />
                        Every {(task.recurrence_interval || 1) > 1 ? `${task.recurrence_interval} ` : ''}{task.recurrence_unit}{(task.recurrence_interval || 1) > 1 ? 's' : ''}
                      </Badge>
+                   </div>
+                 )}
+                 {task.attachments && task.attachments.length > 0 && (
+                   <div className="mt-2">
+                     <AttachmentsChips attachments={task.attachments} />
                    </div>
                  )}
               </div>
@@ -564,6 +576,10 @@ export const TasksPage = ({
                   onChange={(ids) => setFormData(prev => ({ ...prev, tag_ids: ids }))}
                 />
               </div>
+              <AttachmentsField
+                value={formData.attachments}
+                onChange={(atts) => setFormData(prev => ({ ...prev, attachments: atts }))}
+              />
               <div className="flex gap-2">
                 <Button type="submit" className="flex-1">
                   {editingTask ? 'Update' : 'Create'}

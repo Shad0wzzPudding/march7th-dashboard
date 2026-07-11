@@ -17,6 +17,7 @@ import { MarchConfirmDialog } from './MarchConfirmDialog';
 import { SelectionCorners, SelectModeOverlay } from './SelectionCorners';
 import { playSuccessSound, playCancelSound, playDeleteSound, playDuplicateSound, playPinSound, playUnpinSound, playUpdateSound, playEditSound, playSelectModeSound, playAddSound } from '@/lib/sounds';
 import { TagPicker, TagChip } from './TagPicker';
+import { AttachmentsField, AttachmentsChips } from './AttachmentsField';
 import { SortAndFilterBar, SortOption, sortItems, filterByTags } from './SortAndFilterBar';
 import { useSortPreference } from '@/hooks/useSortPreference';
 import { useTags } from '@/hooks/useTags';
@@ -46,6 +47,7 @@ export const InterestsPage = ({
     is_pinned: false,
     sort_order: 0,
     tag_ids: [] as string[],
+    attachments: [] as import('@/lib/types').Attachment[],
   });
   const [sort, setSort] = useSortPreference('interests');
   const [filterTagIds, setFilterTagIds] = useState<string[]>([]);
@@ -62,6 +64,7 @@ export const InterestsPage = ({
       is_pinned: false,
       sort_order: 0,
       tag_ids: [],
+      attachments: [],
     });
     setEditingInterest(null);
   };
@@ -96,6 +99,7 @@ export const InterestsPage = ({
       is_pinned: interest.is_pinned,
       sort_order: interest.sort_order,
       tag_ids: interest.tag_ids || [],
+      attachments: interest.attachments || [],
     });
     setIsCreateOpen(true);
   };
@@ -120,6 +124,7 @@ export const InterestsPage = ({
       is_pinned: false,
       sort_order: 0,
       tag_ids: interest.tag_ids || [],
+      attachments: interest.attachments || [],
       __duplicate: true,
     });
     playDuplicateSound();
@@ -136,6 +141,7 @@ export const InterestsPage = ({
         is_pinned: false,
         sort_order: 0,
         tag_ids: interest.tag_ids || [],
+        attachments: interest.attachments || [],
         __duplicate: true,
         __silent: idx !== selected.length - 1,
       });
@@ -241,6 +247,7 @@ export const InterestsPage = ({
             ))}
           </div>
         )}
+        <AttachmentsChips attachments={interest.attachments} />
         {!isSelecting && (
           <div className="flex items-center gap-2 pt-2 mt-auto">
             <Button size="sm" variant="outline" onClick={() => handlePin(interest)}>
@@ -308,6 +315,7 @@ export const InterestsPage = ({
             ))}
           </div>
         )}
+        <AttachmentsChips attachments={interest.attachments} />
         {!isSelecting && (
           <div className="flex items-center gap-2 pt-2 mt-auto">
             <Button size="sm" variant="outline" onClick={() => handlePin(interest)}>
@@ -406,6 +414,10 @@ export const InterestsPage = ({
                     onChange={(ids) => setFormData(prev => ({ ...prev, tag_ids: ids }))}
                   />
                 </div>
+                <AttachmentsField
+                  value={formData.attachments}
+                  onChange={(atts) => setFormData(prev => ({ ...prev, attachments: atts }))}
+                />
                 <div className="flex items-center gap-2">
                   <input
                     type="checkbox"
