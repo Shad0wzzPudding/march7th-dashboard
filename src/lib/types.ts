@@ -1,9 +1,10 @@
-export interface Attachment {
+export type Attachment = {
   path: string;
   name: string;
   type: string;
   size: number;
-}
+  [key: string]: string | number;
+};
 
 export interface Interest {
   id: string;
