@@ -576,6 +576,10 @@ export const TasksPage = ({
                   onChange={(ids) => setFormData(prev => ({ ...prev, tag_ids: ids }))}
                 />
               </div>
+              <AttachmentsField
+                value={formData.attachments}
+                onChange={(atts) => setFormData(prev => ({ ...prev, attachments: atts }))}
+              />
               <div className="flex gap-2">
                 <Button type="submit" className="flex-1">
                   {editingTask ? 'Update' : 'Create'}
