@@ -131,7 +131,7 @@ export const useDashboardData = () => {
         .order('deadline', { ascending: true });
       
       if (error) throw error;
-      return (data || []) as unknown as Event[];
+      return data || [];
     }
   });
 
@@ -153,7 +153,7 @@ export const useDashboardData = () => {
         .order('start_time', { ascending: true });
       
       if (error) throw error;
-      return data || [];
+      return (data || []) as unknown as Event[];
     }
   });
 
