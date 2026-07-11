@@ -247,6 +247,7 @@ export const InterestsPage = ({
             ))}
           </div>
         )}
+        <AttachmentsChips attachments={interest.attachments} />
         {!isSelecting && (
           <div className="flex items-center gap-2 pt-2 mt-auto">
             <Button size="sm" variant="outline" onClick={() => handlePin(interest)}>
@@ -314,6 +315,7 @@ export const InterestsPage = ({
             ))}
           </div>
         )}
+        <AttachmentsChips attachments={interest.attachments} />
         {!isSelecting && (
           <div className="flex items-center gap-2 pt-2 mt-auto">
             <Button size="sm" variant="outline" onClick={() => handlePin(interest)}>
@@ -412,6 +414,10 @@ export const InterestsPage = ({
                     onChange={(ids) => setFormData(prev => ({ ...prev, tag_ids: ids }))}
                   />
                 </div>
+                <AttachmentsField
+                  value={formData.attachments}
+                  onChange={(atts) => setFormData(prev => ({ ...prev, attachments: atts }))}
+                />
                 <div className="flex items-center gap-2">
                   <input
                     type="checkbox"
