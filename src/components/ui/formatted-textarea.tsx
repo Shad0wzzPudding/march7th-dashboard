@@ -60,17 +60,38 @@ const toPlainText = (el: HTMLDivElement, stripTrailingNewline = true): string =>
       if (tag === 'br') {
         text += '\n';
       } else if (tag === 's') {
+        const before = text.length;
+        const start = text.length;
         text += '~~';
         node.childNodes.forEach(walk);
-        text += '~~';
+        // Skip emitting empty markers (e.g. an empty <s> the browser left
+        // behind after pressing Enter inside a strikethrough run), which
+        // would otherwise show as literal `~~~~` on the new line.
+        if (text.length === start + 2) {
+          text = text.slice(0, before);
+        } else {
+          text += '~~';
+        }
       } else if (tag === 'strong' || tag === 'b') {
+        const before = text.length;
+        const start = text.length;
         text += '**';
         node.childNodes.forEach(walk);
-        text += '**';
+        if (text.length === start + 2) {
+          text = text.slice(0, before);
+        } else {
+          text += '**';
+        }
       } else if (tag === 'em' || tag === 'i') {
+        const before = text.length;
+        const start = text.length;
         text += '*';
         node.childNodes.forEach(walk);
-        text += '*';
+        if (text.length === start + 1) {
+          text = text.slice(0, before);
+        } else {
+          text += '*';
+        }
       } else if (tag === 'div' || tag === 'p') {
         if (text.length > 0 && !text.endsWith('\n')) {
           text += '\n';
