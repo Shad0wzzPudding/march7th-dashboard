@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.ensure_daily_tasks_for_today(uuid) FROM PUBLIC, anon, authenticated;
