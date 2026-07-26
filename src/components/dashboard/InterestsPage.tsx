@@ -17,7 +17,7 @@ import { MarchConfirmDialog } from './MarchConfirmDialog';
 import { SelectionCorners, SelectModeOverlay } from './SelectionCorners';
 import { playSuccessSound, playCancelSound, playDeleteSound, playDuplicateSound, playPinSound, playUnpinSound, playUpdateSound, playEditSound, playSelectModeSound, playAddSound } from '@/lib/sounds';
 import { TagPicker, TagChip } from './TagPicker';
-import { AttachmentsField, AttachmentsChips } from './AttachmentsField';
+import { AttachmentsField, AttachmentsChips, AttachmentsImages } from './AttachmentsField';
 import { SortAndFilterBar, SortOption, sortItems, filterByTags } from './SortAndFilterBar';
 import { useSortPreference } from '@/hooks/useSortPreference';
 import { useTags } from '@/hooks/useTags';
@@ -234,6 +234,8 @@ export const InterestsPage = ({
         {interest.description && (
           <p className="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap max-h-32 overflow-y-auto overscroll-contain pr-1" onClick={(e) => e.stopPropagation()}><FormattedText>{interest.description}</FormattedText></p>
         )}
+        <AttachmentsImages attachments={interest.attachments} />
+        <AttachmentsChips attachments={interest.attachments} />
         {interest.deadline && (
           <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
             <Clock size={12} />
@@ -247,7 +249,6 @@ export const InterestsPage = ({
             ))}
           </div>
         )}
-        <AttachmentsChips attachments={interest.attachments} />
         {!isSelecting && (
           <div className="flex items-center gap-2 pt-2 mt-auto">
             <Button size="sm" variant="outline" onClick={() => handlePin(interest)}>
@@ -302,6 +303,8 @@ export const InterestsPage = ({
         {interest.description && (
           <p className="text-sm text-muted-foreground whitespace-pre-wrap max-h-32 overflow-y-auto overscroll-contain pr-1" onClick={(e) => e.stopPropagation()}><FormattedText>{interest.description}</FormattedText></p>
         )}
+        <AttachmentsImages attachments={interest.attachments} />
+        <AttachmentsChips attachments={interest.attachments} />
         {interest.deadline && (
           <div className="flex items-center gap-1 text-sm text-muted-foreground">
             <Clock size={12} />
@@ -315,7 +318,6 @@ export const InterestsPage = ({
             ))}
           </div>
         )}
-        <AttachmentsChips attachments={interest.attachments} />
         {!isSelecting && (
           <div className="flex items-center gap-2 pt-2 mt-auto">
             <Button size="sm" variant="outline" onClick={() => handlePin(interest)}>

@@ -17,7 +17,7 @@ import { MultiSelectActionBar } from './MultiSelectActionBar';
 import { MarchConfirmDialog } from './MarchConfirmDialog';
 import { playSuccessSound, playCompletionSound, playCancelSound, playDeleteSound, playDuplicateSound, playUpdateSound, playEditSound, playAddSound } from '@/lib/sounds';
 import { TagPicker, TagChip } from './TagPicker';
-import { AttachmentsField, AttachmentsChips } from './AttachmentsField';
+import { AttachmentsField, AttachmentsChips, AttachmentsImages } from './AttachmentsField';
 import { SortAndFilterBar, SortOption, sortItems, filterByTags } from './SortAndFilterBar';
 import { useSortPreference } from '@/hooks/useSortPreference';
 import { useTags } from '@/hooks/useTags';
@@ -312,6 +312,16 @@ export const TasksPage = ({
                   {task.description && (
                     <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap max-h-32 overflow-y-auto overscroll-contain pr-1" onClick={(e) => e.stopPropagation()}><FormattedText>{task.description}</FormattedText></p>
                   )}
+                 {task.attachments && task.attachments.length > 0 && (
+                   <div className="mt-2">
+                     <AttachmentsImages attachments={task.attachments} />
+                   </div>
+                 )}
+                 {task.attachments && task.attachments.length > 0 && (
+                   <div className="mt-2">
+                     <AttachmentsChips attachments={task.attachments} />
+                   </div>
+                 )}
                  <div className="space-y-1 mt-2">
                    {task.start_date ? (
                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
@@ -335,11 +345,6 @@ export const TasksPage = ({
                        <Repeat size={10} className="mr-1" />
                        Every {(task.recurrence_interval || 1) > 1 ? `${task.recurrence_interval} ` : ''}{task.recurrence_unit}{(task.recurrence_interval || 1) > 1 ? 's' : ''}
                      </Badge>
-                   </div>
-                 )}
-                 {task.attachments && task.attachments.length > 0 && (
-                   <div className="mt-2">
-                     <AttachmentsChips attachments={task.attachments} />
                    </div>
                  )}
               </div>

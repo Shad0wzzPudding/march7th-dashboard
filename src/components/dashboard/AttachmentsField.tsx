@@ -1,8 +1,8 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Attachment } from '@/lib/types';
 import { Button } from '@/components/ui/button';
-import { Paperclip, X, Loader2, FileText, Image as ImageIcon, Download } from 'lucide-react';
+import { Paperclip, X, Loader2, FileText, Image as ImageIcon, Download, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 
 const MAX_SIZE = 25 * 1024 * 1024; // 25MB
@@ -27,6 +27,14 @@ export async function openAttachment(a: Attachment) {
     return;
   }
   window.open(data.signedUrl, '_blank', 'noopener,noreferrer');
+}
+
+export function isImageAttachment(a: Attachment) {
+  return typeof a.type === 'string' && a.type.startsWith('image/');
+}
+
+export function isDisplayed(a: Attachment) {
+  return isImageAttachment(a) && Number(a.display) === 1;
 }
 
 interface AttachmentsFieldProps {
@@ -118,6 +126,23 @@ export function AttachmentsField({ value, onChange }: AttachmentsFieldProps) {
                 {a.name}
               </button>
               <span className="text-muted-foreground">{formatSize(a.size)}</span>
+              {isImageAttachment(a) && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    onChange(
+                      value.map((x) =>
+                        x.path === a.path ? { ...x, display: isDisplayed(x) ? 0 : 1 } : x,
+                      ),
+                    )
+                  }
+                  className={isDisplayed(a) ? 'text-main-focus' : 'text-muted-foreground hover:text-foreground'}
+                  title={isDisplayed(a) ? 'Hide inline preview' : 'Show inline preview'}
+                  aria-label="Toggle inline display"
+                >
+                  {isDisplayed(a) ? <Eye size={12} /> : <EyeOff size={12} />}
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() => handleRemove(a)}
@@ -153,6 +178,62 @@ export function AttachmentsChips({ attachments }: AttachmentsChipsProps) {
           {iconFor(a.type)}
           <span className="truncate max-w-[120px]">{a.name}</span>
           <Download size={10} className="text-muted-foreground" />
+        </button>
+      ))}
+    </div>
+  );
+}
+
+interface AttachmentsImagesProps {
+  attachments?: Attachment[];
+}
+
+export function AttachmentsImages({ attachments }: AttachmentsImagesProps) {
+  const shown = (attachments || []).filter(isDisplayed);
+  const [urls, setUrls] = useState<Record<string, string>>({});
+  const key = shown.map((a) => a.path).join('|');
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const next: Record<string, string> = {};
+      for (const a of shown) {
+        const { data } = await supabase.storage
+          .from('attachments')
+          .createSignedUrl(a.path, 3600);
+        if (data?.signedUrl) next[a.path] = data.signedUrl;
+      }
+      if (!cancelled) setUrls(next);
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key]);
+
+  if (shown.length === 0) return null;
+  return (
+    <div className="flex flex-wrap gap-2" onClick={(e) => e.stopPropagation()}>
+      {shown.map((a) => (
+        <button
+          key={a.path}
+          type="button"
+          onClick={() => openAttachment(a)}
+          className="block rounded-md overflow-hidden border border-border bg-muted/40 hover:opacity-90 transition-opacity"
+          title={String(a.name)}
+        >
+          {urls[a.path] ? (
+            <img
+              src={urls[a.path]}
+              alt={String(a.name)}
+              className="max-h-48 max-w-full object-contain"
+              loading="lazy"
+            />
+          ) : (
+            <div className="w-32 h-24 flex items-center justify-center text-xs text-muted-foreground">
+              Loading…
+            </div>
+          )}
         </button>
       ))}
     </div>
