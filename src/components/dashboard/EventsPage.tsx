@@ -16,7 +16,7 @@ import { MultiSelectActionBar } from './MultiSelectActionBar';
 import { MarchConfirmDialog } from './MarchConfirmDialog';
 import { playSuccessSound, playCancelSound, playDeleteSound, playDuplicateSound, playUpdateSound, playEditSound, playAddSound } from '@/lib/sounds';
 import { TagPicker, TagChip } from './TagPicker';
-import { AttachmentsField, AttachmentsChips } from './AttachmentsField';
+import { AttachmentsField, AttachmentsChips, AttachmentsImages } from './AttachmentsField';
 import { SortAndFilterBar, SortOption, sortItems, filterByTags } from './SortAndFilterBar';
 import { useSortPreference } from '@/hooks/useSortPreference';
 import { useTags } from '@/hooks/useTags';
@@ -263,6 +263,16 @@ export const EventsPage = ({
                     {event.description && (
                       <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap max-h-32 overflow-y-auto overscroll-contain pr-1" onClick={(e) => e.stopPropagation()}><FormattedText>{event.description}</FormattedText></p>
                    )}
+                  {event.attachments && event.attachments.length > 0 && (
+                    <div className="mt-2">
+                      <AttachmentsImages attachments={event.attachments} />
+                    </div>
+                  )}
+                  {event.attachments && event.attachments.length > 0 && (
+                    <div className="mt-2">
+                      <AttachmentsChips attachments={event.attachments} />
+                    </div>
+                  )}
                   <div className={`flex items-center gap-1 text-sm mt-2 ${getStatusColor(status)}`}>
                     <Clock size={12} />
                     {event.start_time ? `${format(parseISO(event.start_time), 'HH:mm')} - Today` : 'No start time'}
@@ -275,11 +285,6 @@ export const EventsPage = ({
                   {event.tag_ids && event.tag_ids.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-2">
                       {event.tag_ids.map(id => tagsById[id] && <TagChip key={id} tag={tagsById[id]} />)}
-                    </div>
-                  )}
-                  {event.attachments && event.attachments.length > 0 && (
-                    <div className="mt-2">
-                      <AttachmentsChips attachments={event.attachments} />
                     </div>
                   )}
                 </div>
@@ -326,6 +331,8 @@ export const EventsPage = ({
                 {event.description && (
                   <p className="text-sm text-muted-foreground whitespace-pre-wrap max-h-32 overflow-y-auto overscroll-contain pr-1" onClick={(e) => e.stopPropagation()}><FormattedText>{event.description}</FormattedText></p>
                )}
+              <AttachmentsImages attachments={event.attachments} />
+              <AttachmentsChips attachments={event.attachments} />
               <div className={`flex items-center gap-1 text-sm ${getStatusColor(status)}`}>
                 <Clock size={12} />
                 {event.start_time ? format(parseISO(event.start_time), 'MMM dd, yyyy HH:mm') : 'No start time'}
@@ -340,7 +347,6 @@ export const EventsPage = ({
                   {event.tag_ids.map(id => tagsById[id] && <TagChip key={id} tag={tagsById[id]} />)}
                 </div>
               )}
-              <AttachmentsChips attachments={event.attachments} />
               {!isSelecting && (
                 <div className="flex items-center gap-2 pt-2 mt-auto">
                   <Button size="sm" variant="outline" onClick={() => handleCopy(event)}>
