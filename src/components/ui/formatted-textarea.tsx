@@ -896,9 +896,6 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
         >
           <Italic size={14} />
         </Button>
-        <span className="text-[10px] text-muted-foreground ml-1">
-          *italic* · **bold** · ~~strike~~
-        </span>
       </div>
       <div className="relative">
         <div
