@@ -183,7 +183,7 @@ export const DraggableInterestCard = ({
       {/* Card content */}
       <div
         ref={cardRef}
-        className="relative bg-card/80 border border-main-focus/30 rounded-lg transition-transform select-none"
+        className="relative bg-card/80 border border-main-focus/30 rounded-lg transition-transform select-text"
         style={{
           transform: `translateX(${translateX}px)`,
           transition: isHorizontalDragging ? 'none' : 'transform 0.2s ease-out',

@@ -99,7 +99,7 @@ export const SwipeableActivityLogEntry = ({
 
       {/* Card content */}
       <div
-        className="relative flex items-center justify-between p-2 bg-gray-100 dark:bg-gray-800 rounded border border-gray-300 dark:border-gray-600 cursor-grab active:cursor-grabbing select-none"
+        className="relative flex items-center justify-between p-2 bg-gray-100 dark:bg-gray-800 rounded border border-gray-300 dark:border-gray-600 cursor-grab active:cursor-grabbing select-text"
         style={{
           transform: `translateX(-${translateX}px)`,
           transition: isDragging ? "none" : "transform 0.2s ease-out",
