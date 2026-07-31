@@ -3,6 +3,7 @@ import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { X, Maximize2, Minimize2 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { useIsMobile } from "@/hooks/use-mobile"
 import { playCancelSound } from "@/lib/sounds"
 
 const Dialog = DialogPrimitive.Root
@@ -37,7 +38,7 @@ const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg",
+        "fixed left-[50%] top-[50%] z-50 grid w-[100vw] max-w-lg max-h-[92svh] overflow-y-auto sm:w-full translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg",
         className
       )}
       {...props}
@@ -84,6 +85,7 @@ const ResizableDialogContent = React.forwardRef<
   defaultHeight,
   ...props 
 }, ref) => {
+  const isMobile = useIsMobile();
   const [size, setSize] = React.useState({ width: defaultWidth, height: defaultHeight });
   const [isResizing, setIsResizing] = React.useState(false);
   const [resizeDirection, setResizeDirection] = React.useState<string | null>(null);
@@ -194,7 +196,10 @@ const ResizableDialogContent = React.forwardRef<
     };
   }, [isResizing, resizeDirection, minWidth, minHeight, maxWidth, maxHeight]);
 
-  const resizeHandleBase = "absolute bg-transparent hover:bg-primary/20 transition-colors z-10";
+  const resizeHandleBase = cn(
+    "absolute bg-transparent hover:bg-primary/20 transition-colors z-10",
+    isMobile && "hidden"
+  );
 
   return (
     <DialogPortal>
@@ -204,14 +209,14 @@ const ResizableDialogContent = React.forwardRef<
         className={cn(
           "fixed left-[50%] top-[50%] z-50 grid translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 sm:rounded-lg overflow-auto",
           isResizing && "select-none",
+          isMobile && "!rounded-none p-4",
           className
         )}
-        style={{
-          width: size.width,
-          height: size.height,
-          maxWidth: '95vw',
-          maxHeight: '90vh',
-        }}
+        style={
+          isMobile
+            ? { width: '100vw', maxWidth: '100vw', height: 'auto', maxHeight: '92svh' }
+            : { width: size.width, height: size.height, maxWidth: '95vw', maxHeight: '90vh' }
+        }
         {...props}
         onCloseAutoFocus={(e) => {
           // Prevent Radix from returning focus to the trigger, which causes
