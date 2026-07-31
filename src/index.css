@@ -147,6 +147,13 @@
   }
   button { touch-action: manipulation; }
 
+  /* Allow selecting/copying text on touch devices */
+  p, span, h1, h2, h3, h4, li, td, [contenteditable="true"] {
+    -webkit-user-select: text;
+    user-select: text;
+    -webkit-touch-callout: default;
+  }
+
   /* Custom scrollbar */
   ::-webkit-scrollbar {
     width: 8px;

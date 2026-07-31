@@ -116,7 +116,7 @@ export const SwipeableInterestCard = ({
       {/* Card content */}
       <div
         ref={cardRef}
-        className="relative bg-card/80 border border-main-focus/30 rounded-lg transition-transform cursor-grab active:cursor-grabbing select-none"
+        className="relative bg-card/80 border border-main-focus/30 rounded-lg transition-transform cursor-grab active:cursor-grabbing select-text"
         style={{
           transform: `translateX(${translateX}px)`,
           transition: isDragging ? 'none' : 'transform 0.2s ease-out',
