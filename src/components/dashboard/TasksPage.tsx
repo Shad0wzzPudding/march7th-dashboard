@@ -397,11 +397,11 @@ export const TasksPage = ({
         cancelText="Wait, no!"
       />
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-2xl font-bold text-upcoming-events">
           My Tasks
         </h2>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {showUndo && (
             <Button 
               variant="outline"
@@ -600,23 +600,23 @@ export const TasksPage = ({
       </div>
 
       {/* Task Statistics */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-2 sm:gap-4">
         <Card className="text-center">
-          <CardContent className="pt-6">
+          <CardContent className="pt-6 px-1 sm:px-6">
             <div className="text-2xl font-bold text-sky-400 dark:text-sky-300">{upcomingTasks.length}</div>
-            <div className="text-sm text-muted-foreground">Upcoming</div>
+            <div className="text-xs sm:text-sm text-muted-foreground truncate">Upcoming</div>
           </CardContent>
         </Card>
         <Card className="text-center">
-          <CardContent className="pt-6">
+          <CardContent className="pt-6 px-1 sm:px-6">
             <div className="text-2xl font-bold text-rose-400 dark:text-rose-300">{overdueTasks.length}</div>
-            <div className="text-sm text-muted-foreground">Overdue</div>
+            <div className="text-xs sm:text-sm text-muted-foreground truncate">Overdue</div>
           </CardContent>
         </Card>
         <Card className="text-center">
-          <CardContent className="pt-6">
+          <CardContent className="pt-6 px-1 sm:px-6">
             <div className="text-2xl font-bold text-emerald-400 dark:text-emerald-300">{completedTasks.length}</div>
-            <div className="text-sm text-muted-foreground">Completed</div>
+            <div className="text-xs sm:text-sm text-muted-foreground truncate">Completed</div>
           </CardContent>
         </Card>
       </div>
