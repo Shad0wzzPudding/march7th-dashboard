@@ -360,11 +360,11 @@ export const InterestsPage = ({
         cancelText="Wait, no!"
       />
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-2xl font-bold text-main-focus">
           My Interests
         </h2>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {!isSelecting && interests.length > 0 && (
             <Button
               variant="outline"
