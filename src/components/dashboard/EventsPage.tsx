@@ -394,11 +394,11 @@ export const EventsPage = ({
         cancelText="Wait, no!"
       />
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-2xl font-bold text-events-theme">
           My Events
         </h2>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {showUndo && (
             <Button 
               variant="outline"
@@ -504,23 +504,23 @@ export const EventsPage = ({
       </div>
 
       {/* Event Statistics */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-2 sm:gap-4">
         <Card className="text-center">
-          <CardContent className="pt-6">
+          <CardContent className="pt-6 px-1 sm:px-6">
             <div className="text-2xl font-bold text-amber-400 dark:text-amber-300">{todayEvents.length}</div>
-            <div className="text-sm text-muted-foreground">Today</div>
+            <div className="text-xs sm:text-sm text-muted-foreground truncate">Today</div>
           </CardContent>
         </Card>
         <Card className="text-center">
-          <CardContent className="pt-6">
+          <CardContent className="pt-6 px-1 sm:px-6">
             <div className="text-2xl font-bold text-sky-400 dark:text-sky-300">{upcomingEvents.length}</div>
-            <div className="text-sm text-muted-foreground">Upcoming</div>
+            <div className="text-xs sm:text-sm text-muted-foreground truncate">Upcoming</div>
           </CardContent>
         </Card>
         <Card className="text-center">
-          <CardContent className="pt-6">
+          <CardContent className="pt-6 px-1 sm:px-6">
             <div className="text-2xl font-bold text-slate-400 dark:text-slate-300">{pastEvents.length}</div>
-            <div className="text-sm text-muted-foreground">Past</div>
+            <div className="text-xs sm:text-sm text-muted-foreground truncate">Past</div>
           </CardContent>
         </Card>
       </div>
