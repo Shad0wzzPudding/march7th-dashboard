@@ -18,10 +18,11 @@ import { MarchConfirmDialog } from './MarchConfirmDialog';
 import { playSuccessSound, playCompletionSound, playCancelSound, playDeleteSound, playDuplicateSound, playUpdateSound, playEditSound, playAddSound } from '@/lib/sounds';
 import { TagPicker, TagChip } from './TagPicker';
 import { AttachmentsField, AttachmentsChips, AttachmentsImages } from './AttachmentsField';
-import { SortAndFilterBar, SortOption, sortItems, filterByTags } from './SortAndFilterBar';
+import { SortAndFilterBar, SortOption, sortItems, filterByTags, searchItems } from './SortAndFilterBar';
 import { useSortPreference } from '@/hooks/useSortPreference';
 import { useTags } from '@/hooks/useTags';
 import { DragReorderList } from './DragReorderList';
+import { CollapsiblePreview } from './CollapsiblePreview';
 
 interface TasksPageProps {
   tasks: Task[];
@@ -59,6 +60,7 @@ export const TasksPage = ({
   });
   const [sort, setSort] = useSortPreference('tasks');
   const [filterTagIds, setFilterTagIds] = useState<string[]>([]);
+  const [search, setSearch] = useState('');
   const { tags } = useTags();
   const tagsById = useMemo(() => Object.fromEntries(tags.map((t) => [t.id, t])), [tags]);
 
@@ -235,8 +237,8 @@ export const TasksPage = ({
 
   const now = new Date();
   const visibleTasks = useMemo(
-    () => sortItems(filterByTags(tasks, filterTagIds), sort, tagsById),
-    [tasks, filterTagIds, sort, tagsById]
+    () => sortItems(searchItems(filterByTags(tasks, filterTagIds), search), sort, tagsById),
+    [tasks, filterTagIds, search, sort, tagsById]
   );
   const pendingTasks = visibleTasks.filter(task => !task.is_completed);
   const completedTasks = visibleTasks.filter(task => task.is_completed);
@@ -627,6 +629,9 @@ export const TasksPage = ({
           onSortChange={setSort}
           filterTagIds={filterTagIds}
           onFilterChange={setFilterTagIds}
+          search={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Search tasks…"
           showCompleted
         />
       )}
@@ -666,7 +671,16 @@ export const TasksPage = ({
                 <h3 className="text-lg font-semibold text-emerald-400 dark:text-emerald-300 mb-3">
                   Completed Tasks ({completedTasks.length}){sort === 'user' ? ' — drag to arrange' : ''}
                 </h3>
-                {renderSection(completedTasks, 'completed')}
+                {sort === 'user' ? (
+                  renderSection(completedTasks, 'completed')
+                ) : (
+                  <CollapsiblePreview
+                    items={completedTasks}
+                    previewCount={1}
+                    label="completed tasks"
+                    renderList={(items) => renderSection(items, 'completed')}
+                  />
+                )}
               </div>
             )}
           </>
