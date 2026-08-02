@@ -51,6 +51,7 @@ export const InterestsPage = ({
   });
   const [sort, setSort] = useSortPreference('interests');
   const [filterTagIds, setFilterTagIds] = useState<string[]>([]);
+  const [search, setSearch] = useState('');
   const { tags } = useTags();
   const tagsById = useMemo(() => Object.fromEntries(tags.map((t) => [t.id, t])), [tags]);
 
