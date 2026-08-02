@@ -188,6 +188,29 @@ export const SortAndFilterBar = ({
           </Popover>
         </div>
       )}
+      </div>
+
+      {onSearchChange && (
+        <div className="relative">
+          <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={search ?? ''}
+            onChange={(e) => onSearchChange(e.target.value)}
+            placeholder={searchPlaceholder}
+            className="h-8 pl-8 pr-8 text-xs"
+          />
+          {!!search && (
+            <button
+              type="button"
+              onClick={() => onSearchChange('')}
+              aria-label="Clear search"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            >
+              <X size={12} />
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 };
