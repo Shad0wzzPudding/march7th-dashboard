@@ -147,6 +147,35 @@
   }
   button { touch-action: manipulation; }
 
+  /* Normalize native date/time inputs (iOS renders them oversized + centered) */
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"] {
+    -webkit-appearance: none;
+    appearance: none;
+    display: block;
+    width: 100%;
+    min-height: 2.5rem;
+    height: 2.5rem;
+    line-height: 1.25rem;
+    text-align: left;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  input[type="date"]::-webkit-date-and-time-value,
+  input[type="time"]::-webkit-date-and-time-value,
+  input[type="datetime-local"]::-webkit-date-and-time-value {
+    text-align: left;
+    min-height: 1.25rem;
+    margin: 0;
+  }
+
+  input[type="date"]::-webkit-calendar-picker-indicator,
+  input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    margin-left: auto;
+  }
+
   /* Allow selecting/copying text on touch devices */
   p, span, h1, h2, h3, h4, li, td, [contenteditable="true"] {
     -webkit-user-select: text;
