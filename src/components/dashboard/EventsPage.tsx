@@ -17,10 +17,11 @@ import { MarchConfirmDialog } from './MarchConfirmDialog';
 import { playSuccessSound, playCancelSound, playDeleteSound, playDuplicateSound, playUpdateSound, playEditSound, playAddSound } from '@/lib/sounds';
 import { TagPicker, TagChip } from './TagPicker';
 import { AttachmentsField, AttachmentsChips, AttachmentsImages } from './AttachmentsField';
-import { SortAndFilterBar, SortOption, sortItems, filterByTags } from './SortAndFilterBar';
+import { SortAndFilterBar, SortOption, sortItems, filterByTags, searchItems } from './SortAndFilterBar';
 import { useSortPreference } from '@/hooks/useSortPreference';
 import { useTags } from '@/hooks/useTags';
 import { DragReorderList } from './DragReorderList';
+import { CollapsiblePreview } from './CollapsiblePreview';
 
 interface EventsPageProps {
   events: Event[];
@@ -54,6 +55,7 @@ export const EventsPage = ({
   });
   const [sort, setSort] = useSortPreference('events');
   const [filterTagIds, setFilterTagIds] = useState<string[]>([]);
+  const [search, setSearch] = useState('');
   const { tags } = useTags();
   const tagsById = useMemo(() => Object.fromEntries(tags.map((t) => [t.id, t])), [tags]);
 
@@ -61,8 +63,8 @@ export const EventsPage = ({
 
   const now = new Date();
   const visibleEvents = useMemo(
-    () => sortItems(filterByTags(events, filterTagIds), sort, tagsById),
-    [events, filterTagIds, sort, tagsById]
+    () => sortItems(searchItems(filterByTags(events, filterTagIds), search), sort, tagsById),
+    [events, filterTagIds, search, sort, tagsById]
   );
   const pastEvents = visibleEvents.filter(event => event.start_time && isBefore(parseISO(event.start_time), now) && !isToday(parseISO(event.start_time)));
 
@@ -531,6 +533,9 @@ export const EventsPage = ({
           onSortChange={setSort}
           filterTagIds={filterTagIds}
           onFilterChange={setFilterTagIds}
+          search={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Search events…"
         />
       )}
 
@@ -583,16 +588,16 @@ export const EventsPage = ({
                 {sort === 'user' ? (
                   renderSection(pastEvents, 'past', '')
                 ) : (
-                  <>
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                      {pastEvents.slice(0, 6).map((event) => renderEventCard(event, 'past'))}
-                    </div>
-                    {pastEvents.length > 6 && (
-                      <p className="text-sm text-muted-foreground text-center mt-4">
-                        And {pastEvents.length - 6} more past events...
-                      </p>
+                  <CollapsiblePreview
+                    items={pastEvents}
+                    previewCount={3}
+                    label="past events"
+                    renderList={(items) => (
+                      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                        {items.map((event) => renderEventCard(event, 'past'))}
+                      </div>
                     )}
-                  </>
+                  />
                 )}
               </div>
             )}
