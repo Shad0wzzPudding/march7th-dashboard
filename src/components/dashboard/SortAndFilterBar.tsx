@@ -3,7 +3,8 @@ import { TagChip } from './TagPicker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { ArrowUpDown, X, Sparkles, Image as ImageIcon } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { ArrowUpDown, X, Sparkles, Image as ImageIcon, Search } from 'lucide-react';
 import { toast } from 'sonner';
 import { playSuccessSound } from '@/lib/sounds';
 
@@ -26,6 +27,9 @@ interface Props {
   onFilterChange: (ids: string[]) => void;
   showPinned?: boolean;
   showCompleted?: boolean;
+  search?: string;
+  onSearchChange?: (v: string) => void;
+  searchPlaceholder?: string;
 }
 
 export const SortAndFilterBar = ({
@@ -35,6 +39,9 @@ export const SortAndFilterBar = ({
   onFilterChange,
   showPinned,
   showCompleted,
+  search,
+  onSearchChange,
+  searchPlaceholder = 'Search…',
 }: Props) => {
   const { tags } = useTags();
 
@@ -69,7 +76,8 @@ export const SortAndFilterBar = ({
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-2 p-3 rounded-lg border bg-card/50">
+    <div className="p-3 rounded-lg border bg-card/50 space-y-2">
+      <div className="flex flex-wrap items-center gap-2">
       <ArrowUpDown size={14} className="text-muted-foreground" />
       <Select value={sort} onValueChange={(v) => onSortChange(v as SortOption)}>
         <SelectTrigger className="w-44 h-8 text-xs">
