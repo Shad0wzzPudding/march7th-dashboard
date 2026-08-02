@@ -263,3 +263,16 @@ export const filterByTags = <T extends { tag_ids?: string[] }>(
   if (tagIds.length === 0) return items;
   return items.filter((i) => i.tag_ids?.some((id) => tagIds.includes(id)));
 };
+
+export const searchItems = <T extends { title: string; description?: string | null }>(
+  items: T[],
+  query: string
+): T[] => {
+  const q = query.trim().toLowerCase();
+  if (!q) return items;
+  return items.filter(
+    (i) =>
+      i.title.toLowerCase().includes(q) ||
+      (i.description || '').toLowerCase().includes(q)
+  );
+};
