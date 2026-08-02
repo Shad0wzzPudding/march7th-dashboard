@@ -18,7 +18,7 @@ import { SelectionCorners, SelectModeOverlay } from './SelectionCorners';
 import { playSuccessSound, playCancelSound, playDeleteSound, playDuplicateSound, playPinSound, playUnpinSound, playUpdateSound, playEditSound, playSelectModeSound, playAddSound } from '@/lib/sounds';
 import { TagPicker, TagChip } from './TagPicker';
 import { AttachmentsField, AttachmentsChips, AttachmentsImages } from './AttachmentsField';
-import { SortAndFilterBar, SortOption, sortItems, filterByTags } from './SortAndFilterBar';
+import { SortAndFilterBar, SortOption, sortItems, filterByTags, searchItems } from './SortAndFilterBar';
 import { useSortPreference } from '@/hooks/useSortPreference';
 import { useTags } from '@/hooks/useTags';
 import { DragReorderList } from './DragReorderList';
@@ -51,6 +51,7 @@ export const InterestsPage = ({
   });
   const [sort, setSort] = useSortPreference('interests');
   const [filterTagIds, setFilterTagIds] = useState<string[]>([]);
+  const [search, setSearch] = useState('');
   const { tags } = useTags();
   const tagsById = useMemo(() => Object.fromEntries(tags.map((t) => [t.id, t])), [tags]);
 
@@ -189,8 +190,8 @@ export const InterestsPage = ({
   };
 
   const visibleInterests = useMemo(
-    () => sortItems(filterByTags(interests, filterTagIds), sort, tagsById),
-    [interests, filterTagIds, sort, tagsById]
+    () => sortItems(searchItems(filterByTags(interests, filterTagIds), search), sort, tagsById),
+    [interests, filterTagIds, search, sort, tagsById]
   );
   const pinnedInterests = visibleInterests.filter(i => i.is_pinned);
   const unpinnedInterests = visibleInterests.filter(i => !i.is_pinned);
@@ -451,6 +452,9 @@ export const InterestsPage = ({
           onSortChange={setSort}
           filterTagIds={filterTagIds}
           onFilterChange={setFilterTagIds}
+          search={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Search interests…"
           showPinned
         />
       )}

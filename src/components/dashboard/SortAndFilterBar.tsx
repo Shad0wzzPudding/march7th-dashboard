@@ -3,7 +3,8 @@ import { TagChip } from './TagPicker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { ArrowUpDown, X, Sparkles, Image as ImageIcon } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { ArrowUpDown, X, Sparkles, Image as ImageIcon, Search } from 'lucide-react';
 import { toast } from 'sonner';
 import { playSuccessSound } from '@/lib/sounds';
 
@@ -26,6 +27,9 @@ interface Props {
   onFilterChange: (ids: string[]) => void;
   showPinned?: boolean;
   showCompleted?: boolean;
+  search?: string;
+  onSearchChange?: (v: string) => void;
+  searchPlaceholder?: string;
 }
 
 export const SortAndFilterBar = ({
@@ -35,6 +39,9 @@ export const SortAndFilterBar = ({
   onFilterChange,
   showPinned,
   showCompleted,
+  search,
+  onSearchChange,
+  searchPlaceholder = 'Search…',
 }: Props) => {
   const { tags } = useTags();
 
@@ -69,7 +76,8 @@ export const SortAndFilterBar = ({
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-2 p-3 rounded-lg border bg-card/50">
+    <div className="p-3 rounded-lg border bg-card/50 space-y-2">
+      <div className="flex flex-wrap items-center gap-2">
       <ArrowUpDown size={14} className="text-muted-foreground" />
       <Select value={sort} onValueChange={(v) => onSortChange(v as SortOption)}>
         <SelectTrigger className="w-44 h-8 text-xs">
@@ -180,6 +188,29 @@ export const SortAndFilterBar = ({
           </Popover>
         </div>
       )}
+      </div>
+
+      {onSearchChange && (
+        <div className="relative">
+          <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={search ?? ''}
+            onChange={(e) => onSearchChange(e.target.value)}
+            placeholder={searchPlaceholder}
+            className="h-8 pl-8 pr-8 text-xs"
+          />
+          {!!search && (
+            <button
+              type="button"
+              onClick={() => onSearchChange('')}
+              aria-label="Clear search"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            >
+              <X size={12} />
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 };
@@ -231,4 +262,17 @@ export const filterByTags = <T extends { tag_ids?: string[] }>(
 ): T[] => {
   if (tagIds.length === 0) return items;
   return items.filter((i) => i.tag_ids?.some((id) => tagIds.includes(id)));
+};
+
+export const searchItems = <T extends { title: string; description?: string | null }>(
+  items: T[],
+  query: string
+): T[] => {
+  const q = query.trim().toLowerCase();
+  if (!q) return items;
+  return items.filter(
+    (i) =>
+      i.title.toLowerCase().includes(q) ||
+      (i.description || '').toLowerCase().includes(q)
+  );
 };
