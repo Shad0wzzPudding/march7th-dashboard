@@ -285,8 +285,8 @@ export const TasksPage = ({
         onClick={() => handleCardClick(task)}
       >
         <CardContent className="p-4">
-          <div className="flex items-start justify-between">
-            <div className="flex items-start gap-3 flex-1">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex items-start gap-3 flex-1 min-w-0">
               {isSelecting ? (
                 <Checkbox
                   checked={isSelected(task.id)}
@@ -307,12 +307,36 @@ export const TasksPage = ({
                    }
                 </Button>
               )}
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <h4 className={`font-semibold ${task.is_completed ? 'line-through text-muted-foreground' : ''}`}>
                   {task.title}
                 </h4>
+              </div>
+            </div>
+            {!isSelecting && (
+              <div className="flex items-center gap-2 shrink-0">
+                {showBadge === 'overdue' && <Badge variant="destructive" className="text-xs">Overdue</Badge>}
+                {showBadge === 'completed' && <Badge className="text-xs bg-emerald-100 dark:bg-emerald-900 text-emerald-600 dark:text-emerald-300">Completed</Badge>}
+                <Button size="sm" variant="outline" onClick={() => handleCopy(task)}>
+                  <Copy size={12} />
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => handleEdit(task)}>
+                  <Edit size={12} />
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  onClick={() => { playDeleteSound(); onDeleteTask(task.id); }}
+                  className="text-destructive hover:text-destructive"
+                >
+                  <Trash2 size={12} />
+                </Button>
+              </div>
+            )}
+          </div>
+          <div className="w-full mt-2">
                   {task.description && (
-                    <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap max-h-32 overflow-y-auto overscroll-contain pr-1" onClick={(e) => e.stopPropagation()}><FormattedText>{task.description}</FormattedText></p>
+                    <p className="w-full text-sm text-muted-foreground whitespace-pre-wrap break-words max-h-32 overflow-y-auto overscroll-contain" onClick={(e) => e.stopPropagation()}><FormattedText>{task.description}</FormattedText></p>
                   )}
                  {task.attachments && task.attachments.length > 0 && (
                    <div className="mt-2">
@@ -349,28 +373,6 @@ export const TasksPage = ({
                      </Badge>
                    </div>
                  )}
-              </div>
-            </div>
-            {!isSelecting && (
-              <div className="flex items-center gap-2">
-                {showBadge === 'overdue' && <Badge variant="destructive" className="text-xs">Overdue</Badge>}
-                {showBadge === 'completed' && <Badge className="text-xs bg-emerald-100 dark:bg-emerald-900 text-emerald-600 dark:text-emerald-300">Completed</Badge>}
-                <Button size="sm" variant="outline" onClick={() => handleCopy(task)}>
-                  <Copy size={12} />
-                </Button>
-                <Button size="sm" variant="outline" onClick={() => handleEdit(task)}>
-                  <Edit size={12} />
-                </Button>
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  onClick={() => { playDeleteSound(); onDeleteTask(task.id); }}
-                  className="text-destructive hover:text-destructive"
-                >
-                  <Trash2 size={12} />
-                </Button>
-              </div>
-            )}
           </div>
         </CardContent>
       </Card>

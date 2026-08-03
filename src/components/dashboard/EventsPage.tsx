@@ -250,8 +250,8 @@ export const EventsPage = ({
       >
         {variant === 'today' ? (
           <CardContent className="p-4 flex-1">
-            <div className="flex items-start justify-between">
-              <div className="flex items-start gap-3 flex-1">
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex items-start gap-3 flex-1 min-w-0">
                 {isSelecting && (
                   <Checkbox
                     checked={isSelected(event.id)}
@@ -260,10 +260,35 @@ export const EventsPage = ({
                     className="mt-1"
                   />
                 )}
-                <div className="flex-1">
+                <div className="flex-1 min-w-0">
                   <h4 className="font-semibold text-lg">{event.title}</h4>
+                </div>
+              </div>
+              {!isSelecting && (
+                <div className="flex items-center gap-2 shrink-0">
+                  <Badge className="text-xs bg-amber-100 dark:bg-amber-900 text-amber-600 dark:text-amber-300">
+                    Today
+                  </Badge>
+                  <Button size="sm" variant="outline" onClick={() => handleCopy(event)}>
+                    <Copy size={12} />
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => handleEdit(event)}>
+                    <Edit size={12} />
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    onClick={() => { playDeleteSound(); onDeleteEvent(event.id); }}
+                    className="text-destructive hover:text-destructive"
+                  >
+                    <Trash2 size={12} />
+                  </Button>
+                </div>
+              )}
+            </div>
+            <div className="w-full mt-2">
                     {event.description && (
-                      <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap max-h-32 overflow-y-auto overscroll-contain pr-1" onClick={(e) => e.stopPropagation()}><FormattedText>{event.description}</FormattedText></p>
+                      <p className="w-full text-sm text-muted-foreground whitespace-pre-wrap break-words max-h-32 overflow-y-auto overscroll-contain" onClick={(e) => e.stopPropagation()}><FormattedText>{event.description}</FormattedText></p>
                    )}
                   {event.attachments && event.attachments.length > 0 && (
                     <div className="mt-2">
@@ -289,29 +314,6 @@ export const EventsPage = ({
                       {event.tag_ids.map(id => tagsById[id] && <TagChip key={id} tag={tagsById[id]} />)}
                     </div>
                   )}
-                </div>
-              </div>
-              {!isSelecting && (
-                <div className="flex items-center gap-2">
-                  <Badge className="text-xs bg-amber-100 dark:bg-amber-900 text-amber-600 dark:text-amber-300">
-                    Today
-                  </Badge>
-                  <Button size="sm" variant="outline" onClick={() => handleCopy(event)}>
-                    <Copy size={12} />
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => handleEdit(event)}>
-                    <Edit size={12} />
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    onClick={() => { playDeleteSound(); onDeleteEvent(event.id); }}
-                    className="text-destructive hover:text-destructive"
-                  >
-                    <Trash2 size={12} />
-                  </Button>
-                </div>
-              )}
             </div>
           </CardContent>
         ) : (
@@ -331,7 +333,7 @@ export const EventsPage = ({
             </CardHeader>
             <CardContent className="flex-1 flex flex-col gap-3">
                 {event.description && (
-                  <p className="text-sm text-muted-foreground whitespace-pre-wrap max-h-32 overflow-y-auto overscroll-contain pr-1" onClick={(e) => e.stopPropagation()}><FormattedText>{event.description}</FormattedText></p>
+                  <p className="w-full text-sm text-muted-foreground whitespace-pre-wrap break-words max-h-32 overflow-y-auto overscroll-contain" onClick={(e) => e.stopPropagation()}><FormattedText>{event.description}</FormattedText></p>
                )}
               <AttachmentsImages attachments={event.attachments} />
               <AttachmentsChips attachments={event.attachments} />
