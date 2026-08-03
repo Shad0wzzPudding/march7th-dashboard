@@ -285,7 +285,7 @@ export const TasksPage = ({
         onClick={() => handleCardClick(task)}
       >
         <CardContent className="p-4">
-          <div className="flex items-start justify-between gap-2">
+          <div data-card-header className="flex items-start justify-between gap-2">
             <div className="flex items-start gap-3 flex-1 min-w-0">
               {isSelecting ? (
                 <Checkbox
@@ -314,7 +314,7 @@ export const TasksPage = ({
               </div>
             </div>
             {!isSelecting && (
-              <div className="flex items-center gap-2 shrink-0">
+              <div data-card-actions className="flex items-center gap-2 shrink-0">
                 {showBadge === 'overdue' && <Badge variant="destructive" className="text-xs">Overdue</Badge>}
                 {showBadge === 'completed' && <Badge className="text-xs bg-emerald-100 dark:bg-emerald-900 text-emerald-600 dark:text-emerald-300">Completed</Badge>}
                 <Button size="sm" variant="outline" onClick={() => handleCopy(task)}>

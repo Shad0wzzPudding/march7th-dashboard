@@ -251,7 +251,7 @@ export const InterestsPage = ({
           </div>
         )}
         {!isSelecting && (
-          <div className="flex items-center gap-2 pt-2 mt-auto">
+          <div data-card-actions className="flex items-center gap-2 pt-2 mt-auto">
             <Button size="sm" variant="outline" onClick={() => handlePin(interest)}>
               <PinOff size={12} />
             </Button>
@@ -320,7 +320,7 @@ export const InterestsPage = ({
           </div>
         )}
         {!isSelecting && (
-          <div className="flex items-center gap-2 pt-2 mt-auto">
+          <div data-card-actions className="flex items-center gap-2 pt-2 mt-auto">
             <Button size="sm" variant="outline" onClick={() => handlePin(interest)}>
               <Pin size={12} />
             </Button>
