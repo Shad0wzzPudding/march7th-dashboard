@@ -233,7 +233,7 @@ export const InterestsPage = ({
       </CardHeader>
       <CardContent className="flex-1 flex flex-col gap-3">
         {interest.description && (
-          <p className="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap max-h-32 overflow-y-auto overscroll-contain pr-1" onClick={(e) => e.stopPropagation()}><FormattedText>{interest.description}</FormattedText></p>
+          <p className="w-full text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap break-words max-h-32 overflow-y-auto overscroll-contain" onClick={(e) => e.stopPropagation()}><FormattedText>{interest.description}</FormattedText></p>
         )}
         <AttachmentsImages attachments={interest.attachments} />
         <AttachmentsChips attachments={interest.attachments} />
@@ -302,7 +302,7 @@ export const InterestsPage = ({
       </CardHeader>
       <CardContent className="flex-1 flex flex-col gap-3">
         {interest.description && (
-          <p className="text-sm text-muted-foreground whitespace-pre-wrap max-h-32 overflow-y-auto overscroll-contain pr-1" onClick={(e) => e.stopPropagation()}><FormattedText>{interest.description}</FormattedText></p>
+          <p className="w-full text-sm text-muted-foreground whitespace-pre-wrap break-words max-h-32 overflow-y-auto overscroll-contain" onClick={(e) => e.stopPropagation()}><FormattedText>{interest.description}</FormattedText></p>
         )}
         <AttachmentsImages attachments={interest.attachments} />
         <AttachmentsChips attachments={interest.attachments} />
