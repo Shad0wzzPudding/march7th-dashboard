@@ -223,3 +223,15 @@
   color: hsl(var(--muted-foreground));
   pointer-events: none;
 }
+/* Inside the "show all" modal, stack card action buttons under the block name */
+[data-modal-list] [data-card-header] {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.5rem;
+}
+[data-modal-list] [data-card-actions] {
+  order: -1;
+  flex-wrap: wrap;
+  margin-top: 0;
+  padding-top: 0;
+}
