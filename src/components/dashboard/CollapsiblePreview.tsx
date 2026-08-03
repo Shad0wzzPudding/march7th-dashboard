@@ -43,7 +43,7 @@ export function CollapsiblePreview<T>({ items, previewCount, renderList, label =
               All {label} ({items.length})
             </DialogTitle>
           </DialogHeader>
-          <div className="overflow-y-auto pr-1">{renderList(items)}</div>
+          <div data-modal-list className="overflow-y-auto pr-1">{renderList(items)}</div>
         </ResizableDialogContent>
       </Dialog>
     </div>
