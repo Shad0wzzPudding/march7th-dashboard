@@ -250,7 +250,7 @@ export const EventsPage = ({
       >
         {variant === 'today' ? (
           <CardContent className="p-4 flex-1">
-            <div className="flex items-start justify-between gap-2">
+            <div data-card-header className="flex items-start justify-between gap-2">
               <div className="flex items-start gap-3 flex-1 min-w-0">
                 {isSelecting && (
                   <Checkbox
@@ -265,7 +265,7 @@ export const EventsPage = ({
                 </div>
               </div>
               {!isSelecting && (
-                <div className="flex items-center gap-2 shrink-0">
+                <div data-card-actions className="flex items-center gap-2 shrink-0">
                   <Badge className="text-xs bg-amber-100 dark:bg-amber-900 text-amber-600 dark:text-amber-300">
                     Today
                   </Badge>
@@ -352,7 +352,7 @@ export const EventsPage = ({
                 </div>
               )}
               {!isSelecting && (
-                <div className="flex items-center gap-2 pt-2 mt-auto">
+                <div data-card-actions className="flex items-center gap-2 pt-2 mt-auto">
                   <Button size="sm" variant="outline" onClick={() => handleCopy(event)}>
                     <Copy size={12} />
                   </Button>
