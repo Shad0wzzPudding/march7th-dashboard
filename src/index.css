@@ -235,3 +235,33 @@
   margin-top: 0;
   padding-top: 0;
 }
+
+/* Subtle pink glass-liquid shimmer */
+@keyframes pink-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+.pink-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.pink-shimmer::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 0%,
+    hsl(var(--primary) / 0.15) 25%,
+    hsl(var(--primary) / 0.35) 45%,
+    hsl(var(--primary) / 0.15) 65%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: pink-shimmer 3s ease-in-out infinite;
+  pointer-events: none;
+}
