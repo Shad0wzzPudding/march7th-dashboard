@@ -246,7 +246,6 @@
   }
 }
 .pink-shimmer {
-  position: relative;
   overflow: hidden;
 }
 .pink-shimmer::before {
@@ -264,4 +263,5 @@
   animation: pink-shimmer 6s ease-in-out infinite;
   pointer-events: none;
   mix-blend-mode: overlay;
+  z-index: 0;
 }

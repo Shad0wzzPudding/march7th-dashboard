@@ -23,13 +23,13 @@ export function CollapsiblePreview<T>({ items, previewCount, renderList, label =
     <div className="relative">
       {renderList(items.slice(0, previewCount))}
 
-      <div className="pink-shimmer pointer-events-none absolute inset-x-0 bottom-0 z-10 h-32 flex items-end justify-center rounded-b-2xl bg-gradient-to-t from-primary/95 via-primary/50 to-primary/5 backdrop-blur-md [box-shadow:inset_0_-10px_30px_-10px_hsl(var(--primary)/0.3)]">
+      <div className="pink-shimmer pointer-events-none absolute inset-x-0 bottom-0 z-10 isolate flex h-32 items-end justify-center overflow-hidden rounded-b-2xl bg-gradient-to-t from-primary via-primary/55 to-primary/10 backdrop-blur-md [box-shadow:inset_0_-10px_30px_-10px_hsl(var(--primary)/0.3)]">
         <button
           type="button"
           onClick={() => setOpen(true)}
           aria-label={`Show all ${items.length} ${label}`}
           title={`Show all ${items.length} ${label}`}
-          className="pointer-events-auto mb-1 inline-flex items-center gap-1 rounded-full border border-border bg-card px-4 py-1.5 text-xs font-medium text-muted-foreground shadow-md transition-all hover:scale-105 hover:text-foreground"
+          className="pointer-events-auto relative z-20 mb-1 inline-flex items-center gap-1 rounded-full border border-border bg-card px-4 py-1.5 text-xs font-medium text-muted-foreground shadow-md transition-all hover:scale-105 hover:text-foreground"
         >
           <MoreHorizontal size={16} />
           <span>+{hidden} more</span>
