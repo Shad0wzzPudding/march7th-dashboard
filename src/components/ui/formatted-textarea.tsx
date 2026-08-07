@@ -797,7 +797,7 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
         newValue = before.slice(0, -mLen) + selected + after.slice(mLen);
         newVisEnd = visEnd;
       } else if (wrappedInside) {
-        newValue = before + selected.slice(mLen, -mLen) + after;
+        newValue = before + stripMarkers(selected, marker) + after;
         newVisEnd = visEnd;
       } else {
         // Apply formatting per-line so multi-line selections work correctly
