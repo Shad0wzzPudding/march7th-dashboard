@@ -23,7 +23,7 @@ export function CollapsiblePreview<T>({ items, previewCount, renderList, label =
     <div className="relative">
       {renderList(items.slice(0, previewCount))}
 
-      <div className="pink-shimmer pointer-events-none absolute inset-x-0 bottom-0 z-10 isolate flex h-40 items-end justify-center overflow-hidden rounded-b-2xl bg-gradient-to-t from-primary via-primary/75 to-primary/15 backdrop-blur-md [box-shadow:inset_0_-10px_40px_-10px_hsl(var(--primary)/0.45)]">
+      <div className="pink-shimmer pointer-events-none absolute inset-x-0 bottom-0 z-10 isolate flex h-44 items-end justify-center overflow-hidden rounded-b-2xl bg-gradient-to-t from-primary/95 via-primary/85 to-primary/35 backdrop-blur-md [box-shadow:inset_0_-12px_50px_-10px_hsl(var(--primary)/0.6)]">
         <button
           type="button"
           onClick={() => setOpen(true)}
