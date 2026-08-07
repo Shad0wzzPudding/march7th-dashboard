@@ -807,8 +807,8 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
           if (!line.trim()) return line;
 
           if (hasSpecificFormat(line, marker)) {
-            // Remove exactly mLen stars from each side
-            return line.slice(mLen, -mLen);
+            // Remove the first/last marker occurrences while preserving whitespace.
+            return stripMarkers(line, marker);
           }
 
           return marker + line + marker;
