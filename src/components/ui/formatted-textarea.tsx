@@ -343,19 +343,35 @@ const countEdgeStars = (text: string, side: 'start' | 'end'): number => {
 const hasSpecificFormat = (text: string, marker: string): boolean => {
   const trimmed = text.trim();
   if (!trimmed) return false;
-  
+
   if (marker === '~~') {
     return trimmed.startsWith('~~') && trimmed.endsWith('~~') && trimmed.length > 4;
   }
-  
+
   const leading = countEdgeStars(trimmed, 'start');
   const trailing = countEdgeStars(trimmed, 'end');
   const minStars = Math.min(leading, trailing);
   if (trimmed.length <= minStars * 2) return false;
-  
+
   if (marker === '**') return minStars >= 2;
   if (marker === '*') return minStars % 2 === 1;
   return false;
+};
+
+/**
+ * Remove the first and last occurrences of a marker from text while preserving
+ * any surrounding whitespace. This avoids leaving stray marker characters when
+ * the selection includes spaces around the formatted span.
+ */
+const stripMarkers = (text: string, marker: string): string => {
+  const start = text.indexOf(marker);
+  const end = text.lastIndexOf(marker);
+  if (start === -1 || end === -1 || end <= start) return text;
+  return (
+    text.slice(0, start) +
+    text.slice(start + marker.length, end) +
+    text.slice(end + marker.length)
+  );
 };
 
 const toggleStarMarkerOnText = (text: string, markerLength: number): string => {
@@ -781,7 +797,7 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
         newValue = before.slice(0, -mLen) + selected + after.slice(mLen);
         newVisEnd = visEnd;
       } else if (wrappedInside) {
-        newValue = before + selected.slice(mLen, -mLen) + after;
+        newValue = before + stripMarkers(selected, marker) + after;
         newVisEnd = visEnd;
       } else {
         // Apply formatting per-line so multi-line selections work correctly
@@ -791,8 +807,8 @@ export const FormattedTextarea = ({ value, onChange, placeholder, className }: F
           if (!line.trim()) return line;
 
           if (hasSpecificFormat(line, marker)) {
-            // Remove exactly mLen stars from each side
-            return line.slice(mLen, -mLen);
+            // Remove the first/last marker occurrences while preserving whitespace.
+            return stripMarkers(line, marker);
           }
 
           return marker + line + marker;
