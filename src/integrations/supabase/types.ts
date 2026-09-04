@@ -167,6 +167,42 @@ export type Database = {
         }
         Relationships: []
       }
+      line_links: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          id: string
+          is_enabled: boolean
+          line_user_id: string | null
+          link_code: string
+          linked_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          is_enabled?: boolean
+          line_user_id?: string | null
+          link_code: string
+          linked_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          is_enabled?: boolean
+          line_user_id?: string | null
+          link_code?: string
+          linked_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       push_subscriptions: {
         Row: {
           created_at: string
