@@ -1,0 +1,165 @@
+import { createClient } from 'jsr:@supabase/supabase-js@2';
+
+const LINE_API = 'https://api.line.me/v2/bot';
+const TH_OFFSET_MS = 7 * 60 * 60 * 1000;
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-cron-secret',
+};
+
+function thDateString(d: Date): string {
+  return new Date(d.getTime() + TH_OFFSET_MS).toISOString().split('T')[0];
+}
+
+function thTime(iso: string | null): string | null {
+  if (!iso) return null;
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return null;
+  const shifted = new Date(d.getTime() + TH_OFFSET_MS);
+  const hh = String(shifted.getUTCHours()).padStart(2, '0');
+  const mm = String(shifted.getUTCMinutes()).padStart(2, '0');
+  return `${hh}:${mm}`;
+}
+
+function stripMarkdown(text: string): string {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '$1')
+    .replace(/~~(.*?)~~/g, '$1')
+    .replace(/==(.*?)==/g, '$1')
+    .replace(/\*(.*?)\*/g, '$1')
+    .trim();
+}
+
+function shorten(text: string | null, max = 160): string | null {
+  if (!text) return null;
+  const clean = stripMarkdown(text).replace(/\s*\n\s*/g, ' ');
+  if (!clean) return null;
+  return clean.length > max ? `${clean.slice(0, max - 1)}…` : clean;
+}
+
+async function pushMessage(token: string, to: string, text: string) {
+  const res = await fetch(`${LINE_API}/message/push`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ to, messages: [{ type: 'text', text: text.slice(0, 4900) }] }),
+  });
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`LINE push failed ${res.status}: ${body}`);
+  }
+}
+
+Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
+
+  const json = (body: unknown, status = 200) =>
+    new Response(JSON.stringify(body), {
+      status,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+
+  try {
+    const accessToken = Deno.env.get('LINE_CHANNEL_ACCESS_TOKEN');
+    if (!accessToken) return json({ error: 'LINE_CHANNEL_ACCESS_TOKEN not configured' }, 500);
+
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+    );
+
+    // Auth: either the cron secret, or a signed-in user asking for a test message
+    const cronSecret = req.headers.get('x-cron-secret');
+    const isCron = !!cronSecret && cronSecret === Deno.env.get('CRON_SECRET');
+
+    let targetUserId: string | null = null;
+    if (!isCron) {
+      const authHeader = req.headers.get('Authorization') ?? '';
+      const token = authHeader.replace('Bearer ', '');
+      const { data: userData } = await supabase.auth.getUser(token);
+      if (!userData?.user) return json({ error: 'Unauthorized' }, 401);
+      targetUserId = userData.user.id;
+    }
+
+    let query = supabase
+      .from('line_links')
+      .select('user_id, line_user_id, display_name')
+      .not('line_user_id', 'is', null)
+      .eq('is_enabled', true);
+    if (targetUserId) query = query.eq('user_id', targetUserId);
+
+    const { data: links, error: linksError } = await query;
+    if (linksError) throw linksError;
+    if (!links || links.length === 0) return json({ message: 'No linked LINE accounts', sent: 0 });
+
+    const today = thDateString(new Date());
+    let sent = 0;
+    const failures: string[] = [];
+
+    for (const link of links) {
+      try {
+        const { data: tasks } = await supabase
+          .from('tasks')
+          .select('title, description, deadline, start_date, recurrence_unit, recurrence_interval')
+          .eq('user_id', link.user_id)
+          .eq('is_completed', false);
+
+        const { data: events } = await supabase
+          .from('events')
+          .select('title, description, start_time, deadline')
+          .eq('user_id', link.user_id);
+
+        const todayTasks = (tasks ?? []).filter((t) => {
+          const d = t.deadline ?? t.start_date;
+          return d ? thDateString(new Date(d)) === today : false;
+        });
+
+        const todayEvents = (events ?? []).filter((e) => {
+          const s = e.start_time ? thDateString(new Date(e.start_time)) : null;
+          const d = e.deadline ? thDateString(new Date(e.deadline)) : null;
+          return s === today || d === today;
+        });
+
+        const lines: string[] = [`🌅 Good morning! Here's your ${today} (Thai time):`, ''];
+
+        if (todayTasks.length === 0 && todayEvents.length === 0) {
+          lines.push('✨ Your day is clear — no tasks and no events. Enjoy it~ 📸');
+        } else {
+          if (todayEvents.length > 0) {
+            lines.push(`📅 Events (${todayEvents.length})`);
+            for (const e of todayEvents) {
+              const time = thTime(e.start_time) ?? thTime(e.deadline);
+              lines.push(`• ${e.title}${time ? ` — ${time}` : ''}`);
+              const desc = shorten(e.description);
+              if (desc) lines.push(`   ${desc}`);
+            }
+            lines.push('');
+          }
+          if (todayTasks.length > 0) {
+            lines.push(`📋 Tasks (${todayTasks.length})`);
+            for (const t of todayTasks) {
+              const time = thTime(t.deadline);
+              const rec = t.recurrence_unit
+                ? ` 🔁 every ${t.recurrence_interval} ${t.recurrence_unit}`
+                : '';
+              lines.push(`• ${t.title}${time ? ` — due ${time}` : ''}${rec}`);
+              const desc = shorten(t.description);
+              if (desc) lines.push(`   ${desc}`);
+            }
+          }
+        }
+
+        await pushMessage(accessToken, link.line_user_id as string, lines.join('\n').trim());
+        sent++;
+      } catch (err) {
+        console.error(`Failed for user ${link.user_id}:`, err);
+        failures.push(String(err));
+      }
+    }
+
+    return json({ message: 'Daily LINE digest processed', sent, failures });
+  } catch (error) {
+    console.error('send-line-daily error:', error);
+    return json({ error: (error as Error).message }, 500);
+  }
+});
