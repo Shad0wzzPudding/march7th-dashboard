@@ -24,10 +24,7 @@ export function CollapsiblePreview<T>({ items, previewCount, renderList, label =
       {renderList(items.slice(0, previewCount))}
 
       <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 isolate flex h-[clamp(6rem,22vh,16rem)] w-full flex-col overflow-hidden rounded-b-2xl sm:h-[clamp(8rem,26vh,20rem)]">
-        <div className="w-full flex-1 bg-primary/1 backdrop-blur-[0.5px]" />
-        <div className="w-full flex-1 bg-primary/5 backdrop-blur-[1px]" />
-        <div className="w-full flex-1 bg-primary/25 backdrop-blur-[2px]" />
-        <div className="w-full flex-1 bg-primary/50 backdrop-blur-[4px]" />
+        <div className="absolute inset-0 bg-gradient-to-t from-primary/50 via-primary/25 via-primary/5 to-primary/1 backdrop-blur-[4px]" />
         <div className="pointer-events-auto absolute inset-x-0 bottom-0 z-20 flex items-end justify-center pb-[max(0.25rem,1vh)]">
           <button
             type="button"
