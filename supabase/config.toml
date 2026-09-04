@@ -11,3 +11,9 @@ verify_jwt = false
 
 [functions.save-push-subscription]
 verify_jwt = true
+
+[functions.line-webhook]
+verify_jwt = false
+
+[functions.send-line-daily]
+verify_jwt = false
