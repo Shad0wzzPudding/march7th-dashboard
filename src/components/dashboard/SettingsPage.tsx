@@ -16,6 +16,7 @@ export const SettingsPage = () => {
         </div>
       </div>
       <NotificationSettings detailed />
+      <LineSettings />
       <TagManager />
     </div>
   );
