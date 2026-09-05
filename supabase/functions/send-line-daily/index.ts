@@ -140,11 +140,13 @@ Deno.serve(async (req) => {
           if (todayTasks.length > 0) {
             lines.push(`📋 Tasks (${todayTasks.length})`);
             for (const t of todayTasks) {
-              const time = thTime(t.deadline);
+              const start = thTime(t.start_date);
+              const due = thTime(t.deadline);
+              const time = start && due ? `${start} → due ${due}` : start ? `${start}` : due ? `due ${due}` : null;
               const rec = t.recurrence_unit
                 ? ` 🔁 every ${t.recurrence_interval} ${t.recurrence_unit}`
                 : '';
-              lines.push(`• ${t.title}${time ? ` — due ${time}` : ''}${rec}`);
+              lines.push(`• ${t.title}${time ? ` — ${time}` : ''}${rec}`);
               const desc = shorten(t.description);
               if (desc) lines.push(`   ${desc}`);
             }
