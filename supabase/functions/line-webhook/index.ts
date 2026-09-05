@@ -66,6 +66,21 @@ Deno.serve(async (req) => {
       const lineUserId: string | undefined = event?.source?.userId;
       const replyToken: string | undefined = event.replyToken;
 
+      if (event.type === 'follow' && replyToken) {
+        await fetch(`${LINE_API}/message/reply`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
+          body: JSON.stringify({
+            replyToken,
+            messages: [{
+              type: 'text',
+              text: 'Hi! 📸 To connect me with your account, open the app\'s Settings page and tap the "Open LINE to link" button — or type your link code here.\nCommands: status / stop / start',
+            }],
+          }),
+        });
+        continue;
+      }
+
       if (event.type === 'message' && event.message?.type === 'text' && lineUserId && replyToken) {
         const text = String(event.message.text ?? '').trim();
         const code = text.toUpperCase().replace(/[^A-Z0-9]/g, '');

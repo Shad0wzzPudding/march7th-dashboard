@@ -23,6 +23,7 @@ export const LineSettings = () => {
   const [link, setLink] = useState<LineLink | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [botId, setBotId] = useState<string | null>(null);
 
   const load = async () => {
     const { data: userData } = await supabase.auth.getUser();
@@ -53,6 +54,13 @@ export const LineSettings = () => {
 
   useEffect(() => {
     load();
+    supabase.functions
+      .invoke('line-bot-info')
+      .then(({ data }) => {
+        const id = (data as { basicId?: string | null })?.basicId;
+        if (id) setBotId(id);
+      })
+      .catch(() => { /* bot info unavailable — hide shortcut button */ });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -129,6 +137,21 @@ export const LineSettings = () => {
               <p className="text-xs text-muted-foreground">
                 Add the LINE bot as a friend, then send it this code in the chat:
               </p>
+              {botId && (
+                <Button
+                  className="w-full bg-[#06C755] hover:bg-[#05b04c] text-white"
+                  onClick={() =>
+                    window.open(
+                      `https://line.me/R/oaMessage/${encodeURIComponent(botId)}/?${encodeURIComponent(link.link_code)}`,
+                      '_blank',
+                      'noopener',
+                    )
+                  }
+                >
+                  <MessageCircle size={16} className="mr-2" />
+                  Open LINE to link (code pre-filled)
+                </Button>
+              )}
               <div className="flex items-center gap-2">
                 <code className="flex-1 rounded-md bg-muted px-3 py-2 text-lg font-mono tracking-widest">
                   {link.link_code}
