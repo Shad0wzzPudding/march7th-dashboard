@@ -23,6 +23,7 @@ export const LineSettings = () => {
   const [link, setLink] = useState<LineLink | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [botId, setBotId] = useState<string | null>(null);
 
   const load = async () => {
     const { data: userData } = await supabase.auth.getUser();
@@ -53,6 +54,13 @@ export const LineSettings = () => {
 
   useEffect(() => {
     load();
+    supabase.functions
+      .invoke('line-bot-info')
+      .then(({ data }) => {
+        const id = (data as { basicId?: string | null })?.basicId;
+        if (id) setBotId(id);
+      })
+      .catch(() => { /* bot info unavailable — hide shortcut button */ });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
