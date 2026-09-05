@@ -137,6 +137,21 @@ export const LineSettings = () => {
               <p className="text-xs text-muted-foreground">
                 Add the LINE bot as a friend, then send it this code in the chat:
               </p>
+              {botId && (
+                <Button
+                  className="w-full bg-[#06C755] hover:bg-[#05b04c] text-white"
+                  onClick={() =>
+                    window.open(
+                      `https://line.me/R/oaMessage/${encodeURIComponent(botId)}/?${encodeURIComponent(link.link_code)}`,
+                      '_blank',
+                      'noopener',
+                    )
+                  }
+                >
+                  <MessageCircle size={16} className="mr-2" />
+                  Open LINE to link (code pre-filled)
+                </Button>
+              )}
               <div className="flex items-center gap-2">
                 <code className="flex-1 rounded-md bg-muted px-3 py-2 text-lg font-mono tracking-widest">
                   {link.link_code}
