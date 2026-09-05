@@ -128,7 +128,9 @@ Deno.serve(async (req) => {
           if (todayEvents.length > 0) {
             lines.push(`📅 Events (${todayEvents.length})`);
             for (const e of todayEvents) {
-              const time = thTime(e.start_time) ?? thTime(e.deadline);
+              const start = thTime(e.start_time);
+              const due = thTime(e.deadline);
+              const time = start && due ? `${start} → ${due}` : start ? `${start}` : due ? `due ${due}` : null;
               lines.push(`• ${e.title}${time ? ` — ${time}` : ''}`);
               const desc = shorten(e.description);
               if (desc) lines.push(`   ${desc}`);
