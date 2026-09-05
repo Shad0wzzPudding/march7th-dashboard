@@ -128,7 +128,9 @@ Deno.serve(async (req) => {
           if (todayEvents.length > 0) {
             lines.push(`📅 Events (${todayEvents.length})`);
             for (const e of todayEvents) {
-              const time = thTime(e.start_time) ?? thTime(e.deadline);
+              const start = thTime(e.start_time);
+              const due = thTime(e.deadline);
+              const time = start && due ? `${start} → ${due}` : start ? `${start}` : due ? `due ${due}` : null;
               lines.push(`• ${e.title}${time ? ` — ${time}` : ''}`);
               const desc = shorten(e.description);
               if (desc) lines.push(`   ${desc}`);
@@ -138,11 +140,13 @@ Deno.serve(async (req) => {
           if (todayTasks.length > 0) {
             lines.push(`📋 Tasks (${todayTasks.length})`);
             for (const t of todayTasks) {
-              const time = thTime(t.deadline);
+              const start = thTime(t.start_date);
+              const due = thTime(t.deadline);
+              const time = start && due ? `${start} → due ${due}` : start ? `${start}` : due ? `due ${due}` : null;
               const rec = t.recurrence_unit
                 ? ` 🔁 every ${t.recurrence_interval} ${t.recurrence_unit}`
                 : '';
-              lines.push(`• ${t.title}${time ? ` — due ${time}` : ''}${rec}`);
+              lines.push(`• ${t.title}${time ? ` — ${time}` : ''}${rec}`);
               const desc = shorten(t.description);
               if (desc) lines.push(`   ${desc}`);
             }
