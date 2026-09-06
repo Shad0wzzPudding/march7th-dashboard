@@ -110,20 +110,23 @@ Deno.serve(async (req) => {
           .select('title, description, start_time, deadline')
           .eq('user_id', link.user_id);
 
-        const spansToday = (from: string | null, to: string | null) => {
+        // Only include items that actually start today OR are due today.
+        // Ongoing items (started before today and due after today) are excluded.
+        const matchesToday = (from: string | null, to: string | null) => {
           const s = from ? thDateString(new Date(from)) : null;
           const e = to ? thDateString(new Date(to)) : null;
-          if (s && e) return s <= today && today <= e;
           return s === today || e === today;
         };
 
-        // A recurring task recurs on today if today lands on one of its occurrences
-        const recursToday = (t: { start_date: string | null; deadline: string | null; recurrence_unit: string | null; recurrence_interval: number | null }) => {
-          const unit = t.recurrence_unit;
-          if (!unit) return false;
-          const anchorIso = t.start_date ?? t.deadline;
-          if (!anchorIso) return false;
-          const interval = Math.max(1, t.recurrence_interval ?? 1);
+        // For recurring tasks, check whether a specific anchor date (start or deadline)
+        // recurs on today's date.
+        const recurrenceHitsToday = (
+          anchorIso: string | null,
+          unit: string | null,
+          intervalRaw: number | null,
+        ) => {
+          if (!anchorIso || !unit) return false;
+          const interval = Math.max(1, intervalRaw ?? 1);
           const anchor = new Date(new Date(anchorIso).getTime() + TH_OFFSET_MS);
           const now = new Date(new Date().getTime() + TH_OFFSET_MS);
           const anchorDay = Date.UTC(anchor.getUTCFullYear(), anchor.getUTCMonth(), anchor.getUTCDate());
@@ -158,11 +161,17 @@ Deno.serve(async (req) => {
           }
         };
 
-        const todayTasks = (tasks ?? []).filter(
-          (t) => spansToday(t.start_date, t.deadline) || recursToday(t as never),
-        );
+        const todayTasks = (tasks ?? []).filter((t) => {
+          if (t.recurrence_unit) {
+            return (
+              recurrenceHitsToday(t.start_date, t.recurrence_unit, t.recurrence_interval) ||
+              recurrenceHitsToday(t.deadline, t.recurrence_unit, t.recurrence_interval)
+            );
+          }
+          return matchesToday(t.start_date, t.deadline);
+        });
 
-        const todayEvents = (events ?? []).filter((e) => spansToday(e.start_time, e.deadline));
+        const todayEvents = (events ?? []).filter((e) => matchesToday(e.start_time, e.deadline));
 
 
         const lines: string[] = [`🌅 Good morning! Here's your ${today} (Thai time):`, ''];
