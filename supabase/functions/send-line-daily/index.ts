@@ -101,13 +101,18 @@ Deno.serve(async (req) => {
       try {
         const { data: tasks } = await supabase
           .from('tasks')
-          .select('title, description, deadline, start_date, recurrence_unit, recurrence_interval')
+          .select('title, description, deadline, start_date, recurrence_unit, recurrence_interval, tag_ids')
           .eq('user_id', link.user_id)
           .eq('is_completed', false);
 
         const { data: events } = await supabase
           .from('events')
-          .select('title, description, start_time, deadline')
+          .select('title, description, start_time, deadline, tag_ids')
+          .eq('user_id', link.user_id);
+
+        const { data: tags } = await supabase
+          .from('tags')
+          .select('id, name')
           .eq('user_id', link.user_id);
 
         // Only include items that actually start today OR are due today.
