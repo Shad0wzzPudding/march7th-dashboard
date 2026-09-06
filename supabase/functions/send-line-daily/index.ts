@@ -166,6 +166,13 @@ Deno.serve(async (req) => {
           }
         };
 
+        const tagMap = new Map((tags ?? []).map((tag) => [tag.id, tag.name]));
+        const formatTags = (tagIds: string[] | null) => {
+          if (!tagIds || tagIds.length === 0) return '';
+          const names = tagIds.map((id) => tagMap.get(id)).filter(Boolean) as string[];
+          return names.length > 0 ? ` 🏷 ${names.join(', ')}` : '';
+        };
+
         const todayTasks = (tasks ?? []).filter((t) => {
           if (t.recurrence_unit) {
             return (
