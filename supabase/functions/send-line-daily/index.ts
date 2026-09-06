@@ -70,7 +70,8 @@ Deno.serve(async (req) => {
 
     // Auth: either the cron secret, or a signed-in user asking for a test message
     const cronSecret = req.headers.get('x-cron-secret');
-    const isCron = !!cronSecret && cronSecret === Deno.env.get('CRON_SECRET');
+    const validSecrets = [Deno.env.get('CRON_SECRET'), Deno.env.get('LINE_CRON_SECRET')].filter(Boolean);
+    const isCron = !!cronSecret && validSecrets.includes(cronSecret);
 
     let targetUserId: string | null = null;
     if (!isCron) {
