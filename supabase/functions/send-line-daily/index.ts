@@ -110,16 +110,60 @@ Deno.serve(async (req) => {
           .select('title, description, start_time, deadline')
           .eq('user_id', link.user_id);
 
-        const todayTasks = (tasks ?? []).filter((t) => {
-          const d = t.deadline ?? t.start_date;
-          return d ? thDateString(new Date(d)) === today : false;
-        });
+        const spansToday = (from: string | null, to: string | null) => {
+          const s = from ? thDateString(new Date(from)) : null;
+          const e = to ? thDateString(new Date(to)) : null;
+          if (s && e) return s <= today && today <= e;
+          return s === today || e === today;
+        };
 
-        const todayEvents = (events ?? []).filter((e) => {
-          const s = e.start_time ? thDateString(new Date(e.start_time)) : null;
-          const d = e.deadline ? thDateString(new Date(e.deadline)) : null;
-          return s === today || d === today;
-        });
+        // A recurring task recurs on today if today lands on one of its occurrences
+        const recursToday = (t: { start_date: string | null; deadline: string | null; recurrence_unit: string | null; recurrence_interval: number | null }) => {
+          const unit = t.recurrence_unit;
+          if (!unit) return false;
+          const anchorIso = t.start_date ?? t.deadline;
+          if (!anchorIso) return false;
+          const interval = Math.max(1, t.recurrence_interval ?? 1);
+          const anchor = new Date(new Date(anchorIso).getTime() + TH_OFFSET_MS);
+          const now = new Date(new Date().getTime() + TH_OFFSET_MS);
+          const anchorDay = Date.UTC(anchor.getUTCFullYear(), anchor.getUTCMonth(), anchor.getUTCDate());
+          const todayDay = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+          if (todayDay < anchorDay) return false;
+          const dayDiff = Math.round((todayDay - anchorDay) / 86400000);
+          switch (unit) {
+            case 'day':
+            case 'days':
+              return dayDiff % interval === 0;
+            case 'week':
+            case 'weeks':
+              return dayDiff % (7 * interval) === 0;
+            case 'month':
+            case 'months': {
+              const months =
+                (now.getUTCFullYear() - anchor.getUTCFullYear()) * 12 + (now.getUTCMonth() - anchor.getUTCMonth());
+              return months >= 0 && months % interval === 0 && now.getUTCDate() === anchor.getUTCDate();
+            }
+            case 'year':
+            case 'years': {
+              const years = now.getUTCFullYear() - anchor.getUTCFullYear();
+              return (
+                years >= 0 &&
+                years % interval === 0 &&
+                now.getUTCMonth() === anchor.getUTCMonth() &&
+                now.getUTCDate() === anchor.getUTCDate()
+              );
+            }
+            default:
+              return false;
+          }
+        };
+
+        const todayTasks = (tasks ?? []).filter(
+          (t) => spansToday(t.start_date, t.deadline) || recursToday(t as never),
+        );
+
+        const todayEvents = (events ?? []).filter((e) => spansToday(e.start_time, e.deadline));
+
 
         const lines: string[] = [`🌅 Good morning! Here's your ${today} (Thai time):`, ''];
 
