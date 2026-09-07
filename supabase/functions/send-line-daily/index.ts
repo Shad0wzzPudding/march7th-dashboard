@@ -197,7 +197,8 @@ Deno.serve(async (req) => {
               const start = thTime(e.start_time);
               const due = thTime(e.deadline);
               const time = start && due ? `${start} → ${due}` : start ? `${start}` : due ? `due ${due}` : null;
-              lines.push(`• ${e.title}${time ? ` — ${time}` : ''}`);
+              const tagStr = formatTags(e.tag_ids);
+              lines.push(`• ${e.title}${time ? ` — ${time}` : ''}${tagStr}`);
               const desc = shorten(e.description);
               if (desc) lines.push(`   ${desc}`);
             }
@@ -212,7 +213,8 @@ Deno.serve(async (req) => {
               const rec = t.recurrence_unit
                 ? ` 🔁 every ${t.recurrence_interval} ${t.recurrence_unit}`
                 : '';
-              lines.push(`• ${t.title}${time ? ` — ${time}` : ''}${rec}`);
+              const tagStr = formatTags(t.tag_ids);
+              lines.push(`• ${t.title}${time ? ` — ${time}` : ''}${rec}${tagStr}`);
               const desc = shorten(t.description);
               if (desc) lines.push(`   ${desc}`);
             }
