@@ -31,11 +31,14 @@ function stripMarkdown(text: string): string {
     .trim();
 }
 
-function shorten(text: string | null, max = 160): string | null {
+function formatDetail(text: string | null): string | null {
   if (!text) return null;
-  const clean = stripMarkdown(text).replace(/\s*\n\s*/g, ' ');
+  const clean = stripMarkdown(text).trim();
   if (!clean) return null;
-  return clean.length > max ? `${clean.slice(0, max - 1)}…` : clean;
+  const lines = clean.split('\n').map((l) => l.trim()).filter(Boolean);
+  if (lines.length === 0) return null;
+  if (lines.length <= 5) return lines.join('\n');
+  return [...lines.slice(0, 5), '...'].join('\n');
 }
 
 async function pushMessage(token: string, to: string, text: string) {
