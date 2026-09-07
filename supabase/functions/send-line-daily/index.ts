@@ -188,8 +188,18 @@ Deno.serve(async (req) => {
 
         const todayEvents = (events ?? []).filter((e) => matchesToday(e.start_time, e.deadline));
 
+        const toasts = [
+          'Have a wonderful day!',
+          "You've got this!",
+          'Take it one step at a time.',
+          'Make today count!',
+          'Stay positive and keep going!',
+          'March 7th believes in you!',
+          "Let's get things done today!",
+        ];
+        const toast = toasts[Math.floor(Math.random() * toasts.length)];
 
-        const lines: string[] = [`🌅 Good morning! Here's your ${today} (Thai time):`, ''];
+        const lines: string[] = [`🌅 Good morning! ${today} (Thai time)`, ''];
 
         if (todayTasks.length === 0 && todayEvents.length === 0) {
           lines.push('✨ Your day is clear — no tasks and no events. Enjoy it~ 📸');
@@ -199,30 +209,32 @@ Deno.serve(async (req) => {
             for (const e of todayEvents) {
               const start = thTime(e.start_time);
               const due = thTime(e.deadline);
-              const time = start && due ? `${start} → ${due}` : start ? `${start}` : due ? `due ${due}` : null;
               const tagStr = formatTags(e.tag_ids);
-              lines.push(`• ${e.title}${time ? ` — ${time}` : ''}${tagStr}`);
-              const desc = shorten(e.description);
-              if (desc) lines.push(`   ${desc}`);
+              const detail = formatDetail(e.description);
+              lines.push(`Name : ${e.title}`);
+              lines.push(`Detail : ${detail ?? '-'}`);
+              lines.push(`Start time - deadline: ${start ?? '-'} - ${due ?? '-'}`);
+              lines.push(`Tag : ${tagStr || '-'}`);
+              lines.push('');
             }
-            lines.push('');
           }
           if (todayTasks.length > 0) {
             lines.push(`📋 Tasks (${todayTasks.length})`);
             for (const t of todayTasks) {
               const start = thTime(t.start_date);
               const due = thTime(t.deadline);
-              const time = start && due ? `${start} → due ${due}` : start ? `${start}` : due ? `due ${due}` : null;
-              const rec = t.recurrence_unit
-                ? ` 🔁 every ${t.recurrence_interval} ${t.recurrence_unit}`
-                : '';
               const tagStr = formatTags(t.tag_ids);
-              lines.push(`• ${t.title}${time ? ` — ${time}` : ''}${rec}${tagStr}`);
-              const desc = shorten(t.description);
-              if (desc) lines.push(`   ${desc}`);
+              const detail = formatDetail(t.description);
+              lines.push(`Name : ${t.title}`);
+              lines.push(`Detail : ${detail ?? '-'}`);
+              lines.push(`Start time - deadline: ${start ?? '-'} - ${due ?? '-'}`);
+              lines.push(`Tag : ${tagStr || '-'}`);
+              lines.push('');
             }
           }
         }
+
+        lines.push(`"${toast}"`);
 
         await pushMessage(accessToken, link.line_user_id as string, lines.join('\n').trim());
         sent++;
