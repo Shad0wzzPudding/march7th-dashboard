@@ -179,7 +179,8 @@ export const LineSettings = () => {
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground">
-                In the chat you can also send <b>status</b>, <b>stop</b>, or <b>start</b>.
+                In the chat you can also send <b>status</b>, <b>stop</b>, <b>start</b>,{' '}
+                <b>remind on</b>, or <b>remind off</b>.
               </p>
             </div>
 
