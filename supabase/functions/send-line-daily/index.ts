@@ -41,16 +41,46 @@ function formatDetail(text: string | null): string | null {
   return [...lines.slice(0, 5), '...'].join('\n');
 }
 
-async function pushMessage(token: string, to: string, text: string) {
+type LineMessage =
+  | { type: 'text'; text: string }
+  | { type: 'image'; originalContentUrl: string; previewImageUrl: string };
+
+async function pushMessages(token: string, to: string, messages: LineMessage[]) {
   const res = await fetch(`${LINE_API}/message/push`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-    body: JSON.stringify({ to, messages: [{ type: 'text', text: text.slice(0, 4900) }] }),
+    body: JSON.stringify({ to, messages: messages.slice(0, 5) }),
   });
   if (!res.ok) {
     const body = await res.text();
     throw new Error(`LINE push failed ${res.status}: ${body}`);
   }
+}
+
+async function pushMessage(token: string, to: string, text: string) {
+  await pushMessages(token, to, [{ type: 'text', text: text.slice(0, 4900) }]);
+}
+
+// Signed https URLs for image attachments LINE can fetch (JPEG/PNG only).
+async function imageMessages(
+  supabase: ReturnType<typeof createClient>,
+  attachments: unknown,
+): Promise<LineMessage[]> {
+  const list = Array.isArray(attachments) ? attachments : [];
+  const images = list.filter(
+    (a: Record<string, unknown>) =>
+      typeof a?.type === 'string' && /^image\/(jpeg|jpg|png)$/i.test(a.type as string) && typeof a?.path === 'string',
+  );
+  const out: LineMessage[] = [];
+  for (const img of images) {
+    const { data } = await supabase.storage
+      .from('attachments')
+      .createSignedUrl(img.path as string, 60 * 60 * 24);
+    if (data?.signedUrl) {
+      out.push({ type: 'image', originalContentUrl: data.signedUrl, previewImageUrl: data.signedUrl });
+    }
+  }
+  return out;
 }
 
 Deno.serve(async (req) => {
