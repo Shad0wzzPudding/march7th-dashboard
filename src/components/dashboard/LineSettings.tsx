@@ -192,6 +192,20 @@ export const LineSettings = () => {
               <Switch checked={link.is_enabled} onCheckedChange={toggleEnabled} disabled={!link.line_user_id} />
             </div>
 
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-medium">Start reminders</p>
+                <p className="text-xs text-muted-foreground">
+                  Sent 10-15 minutes before a task or event starts
+                </p>
+              </div>
+              <Switch
+                checked={link.reminders_enabled}
+                onCheckedChange={toggleReminders}
+                disabled={!link.line_user_id}
+              />
+            </div>
+
             <Button
               variant="outline"
               className="w-full"
