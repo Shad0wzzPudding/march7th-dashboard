@@ -74,7 +74,7 @@ Deno.serve(async (req) => {
             replyToken,
             messages: [{
               type: 'text',
-              text: 'Hi! 📸 To connect me with your account, open the app\'s Settings page and tap the "Open LINE to link" button — or type your link code here.\nCommands: status / stop / start',
+              text: 'Hi! 📸 To connect me with your account, open the app\'s Settings page and tap the "Open LINE to link" button — or type your link code here.\nCommands: status / stop / start / remind on / remind off',
             }],
           }),
         });
@@ -88,14 +88,32 @@ Deno.serve(async (req) => {
         if (/^(STATUS)$/i.test(text)) {
           const { data } = await supabase
             .from('line_links')
-            .select('is_enabled')
+            .select('is_enabled, reminders_enabled')
             .eq('line_user_id', lineUserId)
             .maybeSingle();
           await reply(
             accessToken,
             replyToken,
             data
-              ? `You're linked! Daily digest is ${data.is_enabled ? 'ON' : 'OFF'} (08:00 Thai time).`
+              ? `You're linked!\nDaily digest: ${data.is_enabled ? 'ON' : 'OFF'} (08:00 Thai time)\nStart reminders: ${data.reminders_enabled ? 'ON' : 'OFF'} (10-15 min before)`
+              : "You're not linked yet. Send me the link code from the app's Settings page.",
+          );
+          continue;
+        }
+
+        if (/^(REMIND(ER)?S?)\s*(ON|OFF|START|STOP)$/i.test(text)) {
+          const enable = /(ON|START)$/i.test(text);
+          const { data } = await supabase
+            .from('line_links')
+            .update({ reminders_enabled: enable })
+            .eq('line_user_id', lineUserId)
+            .select('id')
+            .maybeSingle();
+          await reply(
+            accessToken,
+            replyToken,
+            data
+              ? `Start reminders turned ${enable ? 'ON' : 'OFF'}~ (sent 10-15 min before something starts)`
               : "You're not linked yet. Send me the link code from the app's Settings page.",
           );
           continue;
@@ -164,7 +182,7 @@ Deno.serve(async (req) => {
         await reply(
           accessToken,
           replyToken,
-          'Hi! Send me the link code shown in the app\'s Settings page to connect your account.\nCommands: status / stop / start',
+          'Hi! Send me the link code shown in the app\'s Settings page to connect your account.\nCommands: status / stop / start / remind on / remind off',
         );
       }
     } catch (err) {

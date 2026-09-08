@@ -13,7 +13,10 @@ interface LineLink {
   line_user_id: string | null;
   display_name: string | null;
   is_enabled: boolean;
+  reminders_enabled: boolean;
 }
+
+const LINK_FIELDS = 'id, link_code, line_user_id, display_name, is_enabled, reminders_enabled';
 
 const generateCode = () =>
   Array.from({ length: 8 }, () => 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.floor(Math.random() * 32)]).join('');
@@ -35,7 +38,7 @@ export const LineSettings = () => {
 
     const { data } = await supabase
       .from('line_links')
-      .select('id, link_code, line_user_id, display_name, is_enabled')
+      .select(LINK_FIELDS)
       .eq('user_id', userId)
       .maybeSingle();
 
@@ -45,7 +48,7 @@ export const LineSettings = () => {
       const { data: created } = await supabase
         .from('line_links')
         .insert({ user_id: userId, link_code: generateCode() })
-        .select('id, link_code, line_user_id, display_name, is_enabled')
+        .select(LINK_FIELDS)
         .maybeSingle();
       if (created) setLink(created as LineLink);
     }
@@ -71,7 +74,7 @@ export const LineSettings = () => {
       .from('line_links')
       .update({ link_code: generateCode(), line_user_id: null, display_name: null, linked_at: null })
       .eq('id', link.id)
-      .select('id, link_code, line_user_id, display_name, is_enabled')
+      .select(LINK_FIELDS)
       .maybeSingle();
     if (data) setLink(data as LineLink);
     setBusy(false);
@@ -82,6 +85,12 @@ export const LineSettings = () => {
     if (!link) return;
     setLink({ ...link, is_enabled: value });
     await supabase.from('line_links').update({ is_enabled: value }).eq('id', link.id);
+  };
+
+  const toggleReminders = async (value: boolean) => {
+    if (!link) return;
+    setLink({ ...link, reminders_enabled: value });
+    await supabase.from('line_links').update({ reminders_enabled: value }).eq('id', link.id);
   };
 
   const sendTest = async () => {
@@ -170,7 +179,8 @@ export const LineSettings = () => {
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground">
-                In the chat you can also send <b>status</b>, <b>stop</b>, or <b>start</b>.
+                In the chat you can also send <b>status</b>, <b>stop</b>, <b>start</b>,{' '}
+                <b>remind on</b>, or <b>remind off</b>.
               </p>
             </div>
 
@@ -180,6 +190,20 @@ export const LineSettings = () => {
                 <p className="text-xs text-muted-foreground">Sent at 08:00 Thai time</p>
               </div>
               <Switch checked={link.is_enabled} onCheckedChange={toggleEnabled} disabled={!link.line_user_id} />
+            </div>
+
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-medium">Start reminders</p>
+                <p className="text-xs text-muted-foreground">
+                  Sent 10-15 minutes before a task or event starts
+                </p>
+              </div>
+              <Switch
+                checked={link.reminders_enabled}
+                onCheckedChange={toggleReminders}
+                disabled={!link.line_user_id}
+              />
             </div>
 
             <Button
