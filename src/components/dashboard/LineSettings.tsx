@@ -13,7 +13,10 @@ interface LineLink {
   line_user_id: string | null;
   display_name: string | null;
   is_enabled: boolean;
+  reminders_enabled: boolean;
 }
+
+const LINK_FIELDS = 'id, link_code, line_user_id, display_name, is_enabled, reminders_enabled';
 
 const generateCode = () =>
   Array.from({ length: 8 }, () => 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.floor(Math.random() * 32)]).join('');
