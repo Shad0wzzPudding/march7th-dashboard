@@ -176,6 +176,7 @@ export type Database = {
           line_user_id: string | null
           link_code: string
           linked_at: string | null
+          reminders_enabled: boolean
           updated_at: string
           user_id: string
         }
@@ -187,6 +188,7 @@ export type Database = {
           line_user_id?: string | null
           link_code: string
           linked_at?: string | null
+          reminders_enabled?: boolean
           updated_at?: string
           user_id: string
         }
@@ -198,7 +200,35 @@ export type Database = {
           line_user_id?: string | null
           link_code?: string
           linked_at?: string | null
+          reminders_enabled?: boolean
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      line_reminders_sent: {
+        Row: {
+          created_at: string
+          id: string
+          item_id: string
+          item_type: string
+          occurrence_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          item_id: string
+          item_type: string
+          occurrence_at: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          item_id?: string
+          item_type?: string
+          occurrence_at?: string
           user_id?: string
         }
         Relationships: []
