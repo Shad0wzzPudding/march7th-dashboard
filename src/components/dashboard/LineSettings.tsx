@@ -38,7 +38,7 @@ export const LineSettings = () => {
 
     const { data } = await supabase
       .from('line_links')
-      .select('id, link_code, line_user_id, display_name, is_enabled')
+      .select(LINK_FIELDS)
       .eq('user_id', userId)
       .maybeSingle();
 
@@ -48,7 +48,7 @@ export const LineSettings = () => {
       const { data: created } = await supabase
         .from('line_links')
         .insert({ user_id: userId, link_code: generateCode() })
-        .select('id, link_code, line_user_id, display_name, is_enabled')
+        .select(LINK_FIELDS)
         .maybeSingle();
       if (created) setLink(created as LineLink);
     }
@@ -74,7 +74,7 @@ export const LineSettings = () => {
       .from('line_links')
       .update({ link_code: generateCode(), line_user_id: null, display_name: null, linked_at: null })
       .eq('id', link.id)
-      .select('id, link_code, line_user_id, display_name, is_enabled')
+      .select(LINK_FIELDS)
       .maybeSingle();
     if (data) setLink(data as LineLink);
     setBusy(false);
