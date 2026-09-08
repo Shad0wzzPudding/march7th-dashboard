@@ -87,6 +87,12 @@ export const LineSettings = () => {
     await supabase.from('line_links').update({ is_enabled: value }).eq('id', link.id);
   };
 
+  const toggleReminders = async (value: boolean) => {
+    if (!link) return;
+    setLink({ ...link, reminders_enabled: value });
+    await supabase.from('line_links').update({ reminders_enabled: value }).eq('id', link.id);
+  };
+
   const sendTest = async () => {
     setBusy(true);
     const { data, error } = await supabase.functions.invoke('send-line-daily');
