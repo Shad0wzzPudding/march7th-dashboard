@@ -212,7 +212,8 @@ Deno.serve(async (req) => {
               const tagStr = formatTags(e.tag_ids);
               const detail = formatDetail(e.description);
               lines.push(`Name : ${e.title}`);
-              lines.push(`Detail : ${detail ?? '-'}`);
+              lines.push(`Detail :`);
+              lines.push(detail ?? '-');
               lines.push(`Start time - deadline: ${start ?? '-'} - ${due ?? '-'}`);
               lines.push(`Tag : ${tagStr || '-'}`);
               lines.push('');
