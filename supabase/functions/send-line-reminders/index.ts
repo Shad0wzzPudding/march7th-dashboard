@@ -35,13 +35,39 @@ function formatDetail(text: string | null): string | null {
   return [...lines.slice(0, 5), '...'].join('\n');
 }
 
-async function pushMessage(token: string, to: string, text: string) {
+type LineMessage =
+  | { type: 'text'; text: string }
+  | { type: 'image'; originalContentUrl: string; previewImageUrl: string };
+
+async function pushMessages(token: string, to: string, messages: LineMessage[]) {
   const res = await fetch(`${LINE_API}/message/push`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-    body: JSON.stringify({ to, messages: [{ type: 'text', text: text.slice(0, 4900) }] }),
+    body: JSON.stringify({ to, messages: messages.slice(0, 5) }),
   });
   if (!res.ok) throw new Error(`LINE push failed ${res.status}: ${await res.text()}`);
+}
+
+// Signed https URLs for image attachments LINE can fetch (JPEG/PNG only).
+async function imageMessages(
+  supabase: ReturnType<typeof createClient>,
+  attachments: unknown,
+): Promise<LineMessage[]> {
+  const list = Array.isArray(attachments) ? attachments : [];
+  const images = list.filter(
+    (a: Record<string, unknown>) =>
+      typeof a?.type === 'string' && /^image\/(jpeg|jpg|png)$/i.test(a.type as string) && typeof a?.path === 'string',
+  );
+  const out: LineMessage[] = [];
+  for (const img of images) {
+    const { data } = await supabase.storage
+      .from('attachments')
+      .createSignedUrl(img.path as string, 60 * 60 * 24);
+    if (data?.signedUrl) {
+      out.push({ type: 'image', originalContentUrl: data.signedUrl, previewImageUrl: data.signedUrl });
+    }
+  }
+  return out;
 }
 
 // Does a recurring anchor fall on the given TH day, and if so at what UTC instant?
@@ -148,13 +174,13 @@ Deno.serve(async (req) => {
       try {
         const { data: tasks } = await supabase
           .from('tasks')
-          .select('id, title, description, start_date, deadline, recurrence_unit, recurrence_interval, tag_ids')
+          .select('id, title, description, start_date, deadline, recurrence_unit, recurrence_interval, tag_ids, attachments')
           .eq('user_id', link.user_id)
           .eq('is_completed', false);
 
         const { data: events } = await supabase
           .from('events')
-          .select('id, title, description, start_time, deadline, tag_ids')
+          .select('id, title, description, start_time, deadline, tag_ids, attachments')
           .eq('user_id', link.user_id);
 
         const { data: tags } = await supabase.from('tags').select('id, name').eq('user_id', link.user_id);
@@ -172,6 +198,7 @@ Deno.serve(async (req) => {
           occurrence: Date;
           deadline: string | null;
           tag_ids: string[] | null;
+          attachments?: unknown;
         };
         const due: Due[] = [];
 
@@ -191,6 +218,7 @@ Deno.serve(async (req) => {
               occurrence: occ as Date,
               deadline: t.deadline,
               tag_ids: t.tag_ids,
+              attachments: (t as Record<string, unknown>).attachments,
             });
           }
         }
@@ -206,6 +234,7 @@ Deno.serve(async (req) => {
               occurrence: occ as Date,
               deadline: e.deadline,
               tag_ids: e.tag_ids,
+              attachments: (e as Record<string, unknown>).attachments,
             });
           }
         }
@@ -232,7 +261,11 @@ Deno.serve(async (req) => {
             `Tag : ${formatTags(item.tag_ids)}`,
           ];
 
-          await pushMessage(accessToken, link.line_user_id as string, lines.join('\n').trim());
+          const images = await imageMessages(supabase, item.attachments);
+          await pushMessages(accessToken, link.line_user_id as string, [
+            { type: 'text', text: lines.join('\n').trim().slice(0, 4900) },
+            ...images.slice(0, 4),
+          ]);
           sent++;
         }
       } catch (err) {
