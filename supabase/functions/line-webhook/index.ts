@@ -74,7 +74,7 @@ Deno.serve(async (req) => {
             replyToken,
             messages: [{
               type: 'text',
-              text: 'Hi! 📸 To connect me with your account, open the app\'s Settings page and tap the "Open LINE to link" button — or type your link code here.\nCommands: status / stop / start / remind on / remind off',
+              text: 'Hi! 📸 To connect me with your account, open the app\'s Settings page and tap the "Open LINE to link" button — or type your link code here.\nCommands: today / status / stop / start / remind on / remind off',
             }],
           }),
         });
@@ -204,7 +204,7 @@ Deno.serve(async (req) => {
         await reply(
           accessToken,
           replyToken,
-          'Hi! Send me the link code shown in the app\'s Settings page to connect your account.\nCommands: status / stop / start / remind on / remind off',
+          'Hi! Send me the link code shown in the app\'s Settings page to connect your account.\nCommands: today / status / stop / start / remind on / remind off',
         );
       }
     } catch (err) {
