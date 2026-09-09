@@ -134,13 +134,13 @@ Deno.serve(async (req) => {
       try {
         const { data: tasks } = await supabase
           .from('tasks')
-          .select('title, description, deadline, start_date, recurrence_unit, recurrence_interval, tag_ids')
+          .select('title, description, deadline, start_date, recurrence_unit, recurrence_interval, tag_ids, attachments')
           .eq('user_id', link.user_id)
           .eq('is_completed', false);
 
         const { data: events } = await supabase
           .from('events')
-          .select('title, description, start_time, deadline, tag_ids')
+          .select('title, description, start_time, deadline, tag_ids, attachments')
           .eq('user_id', link.user_id);
 
         const { data: tags } = await supabase
@@ -268,7 +268,16 @@ Deno.serve(async (req) => {
 
         lines.push(`"${toast}"`);
 
-        await pushMessage(accessToken, link.line_user_id as string, lines.join('\n').trim());
+        const images: LineMessage[] = [];
+        for (const item of [...todayEvents, ...todayTasks]) {
+          if (images.length >= 4) break;
+          images.push(...(await imageMessages(supabase, (item as Record<string, unknown>).attachments)));
+        }
+
+        await pushMessages(accessToken, link.line_user_id as string, [
+          { type: 'text', text: lines.join('\n').trim().slice(0, 4900) },
+          ...images.slice(0, 4),
+        ]);
         sent++;
       } catch (err) {
         console.error(`Failed for user ${link.user_id}:`, err);
