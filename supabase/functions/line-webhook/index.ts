@@ -81,9 +81,31 @@ Deno.serve(async (req) => {
         continue;
       }
 
-      if (event.type === 'message' && event.message?.type === 'text' && lineUserId && replyToken) {
-        const text = String(event.message.text ?? '').trim();
+      const isPostback = event.type === 'postback' && !!event.postback?.data;
+      if ((isPostback || (event.type === 'message' && event.message?.type === 'text')) && lineUserId && replyToken) {
+        const text = String((isPostback ? event.postback.data : event.message.text) ?? '').trim();
         const code = text.toUpperCase().replace(/[^A-Z0-9]/g, '');
+
+        if (/^(TODAY|DIGEST NOW|TODAY'?S LIST)$/i.test(text)) {
+          const { data } = await supabase
+            .from('line_links')
+            .select('user_id')
+            .eq('line_user_id', lineUserId)
+            .maybeSingle();
+          if (!data) {
+            await reply(accessToken, replyToken, "You're not linked yet. Send me the link code from the app's Settings page.");
+            continue;
+          }
+          await reply(accessToken, replyToken, "Getting today's list for you~ 📸");
+          const cronSecret = Deno.env.get('LINE_CRON_SECRET') ?? Deno.env.get('CRON_SECRET') ?? '';
+          fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/send-line-daily`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-cron-secret': cronSecret },
+            body: JSON.stringify({ user_id: data.user_id }),
+          }).catch((e) => console.error('digest trigger failed', e));
+          continue;
+        }
+
 
         if (/^(STATUS)$/i.test(text)) {
           const { data } = await supabase
