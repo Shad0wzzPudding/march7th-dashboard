@@ -113,7 +113,14 @@ Deno.serve(async (req) => {
       const { data: userData } = await supabase.auth.getUser(token);
       if (!userData?.user) return json({ error: 'Unauthorized' }, 401);
       targetUserId = userData.user.id;
+    } else {
+      // Cron may target a single user (e.g. the "Today" button in the LINE menu)
+      try {
+        const body = await req.json();
+        if (body && typeof body.user_id === 'string') targetUserId = body.user_id;
+      } catch (_) { /* no body */ }
     }
+
 
     let query = supabase
       .from('line_links')
