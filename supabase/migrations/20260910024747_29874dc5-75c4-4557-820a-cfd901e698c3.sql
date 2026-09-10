@@ -1,0 +1,1 @@
+ALTER TABLE public.line_links ADD COLUMN IF NOT EXISTS overdue_enabled boolean NOT NULL DEFAULT true;

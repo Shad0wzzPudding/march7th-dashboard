@@ -176,6 +176,7 @@ export type Database = {
           line_user_id: string | null
           link_code: string
           linked_at: string | null
+          overdue_enabled: boolean
           reminders_enabled: boolean
           updated_at: string
           user_id: string
@@ -188,6 +189,7 @@ export type Database = {
           line_user_id?: string | null
           link_code: string
           linked_at?: string | null
+          overdue_enabled?: boolean
           reminders_enabled?: boolean
           updated_at?: string
           user_id: string
@@ -200,6 +202,7 @@ export type Database = {
           line_user_id?: string | null
           link_code?: string
           linked_at?: string | null
+          overdue_enabled?: boolean
           reminders_enabled?: boolean
           updated_at?: string
           user_id?: string
