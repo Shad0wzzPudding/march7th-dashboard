@@ -124,7 +124,7 @@ Deno.serve(async (req) => {
 
     let query = supabase
       .from('line_links')
-      .select('user_id, line_user_id, display_name')
+      .select('user_id, line_user_id, display_name, reminders_enabled')
       .not('line_user_id', 'is', null)
       .eq('is_enabled', true);
     if (targetUserId) query = query.eq('user_id', targetUserId);
@@ -285,6 +285,39 @@ Deno.serve(async (req) => {
           { type: 'text', text: lines.join('\n').trim().slice(0, 4900) },
           ...images.slice(0, 4),
         ]);
+
+        // Follow-up message: today's items that will also get a 10-15 min pre-start notice.
+        if (link.reminders_enabled) {
+          const nowMs = Date.now();
+          const upcoming: { icon: string; title: string; start: string }[] = [];
+          for (const e of todayEvents) {
+            const startIso = e.start_time;
+            if (startIso && thDateString(new Date(startIso)) === today && new Date(startIso).getTime() > nowMs) {
+              upcoming.push({ icon: '📅', title: e.title, start: thTime(startIso) ?? '-' });
+            }
+          }
+          for (const t of todayTasks) {
+            const startIso = t.start_date;
+            if (startIso && new Date(startIso).getTime() > nowMs) {
+              upcoming.push({ icon: '📋', title: t.title, start: thTime(startIso) ?? '-' });
+            } else if (startIso && t.recurrence_unit) {
+              const s = thTime(startIso);
+              if (s) upcoming.push({ icon: '📋', title: t.title, start: s });
+            }
+          }
+          upcoming.sort((a, b) => a.start.localeCompare(b.start));
+
+          if (upcoming.length > 0) {
+            const noticeLines = [
+              `⏰ I'll ping you again 10-15 min before these start (${upcoming.length})`,
+              '',
+              ...upcoming.map((u) => `${u.icon} ${u.start} — ${u.title}`),
+            ];
+            await pushMessages(accessToken, link.line_user_id as string, [
+              { type: 'text', text: noticeLines.join('\n').slice(0, 4900) },
+            ]);
+          }
+        }
         sent++;
       } catch (err) {
         console.error(`Failed for user ${link.user_id}:`, err);
