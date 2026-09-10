@@ -14,9 +14,10 @@ interface LineLink {
   display_name: string | null;
   is_enabled: boolean;
   reminders_enabled: boolean;
+  overdue_enabled: boolean;
 }
 
-const LINK_FIELDS = 'id, link_code, line_user_id, display_name, is_enabled, reminders_enabled';
+const LINK_FIELDS = 'id, link_code, line_user_id, display_name, is_enabled, reminders_enabled, overdue_enabled';
 
 const generateCode = () =>
   Array.from({ length: 8 }, () => 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.floor(Math.random() * 32)]).join('');
@@ -91,6 +92,12 @@ export const LineSettings = () => {
     if (!link) return;
     setLink({ ...link, reminders_enabled: value });
     await supabase.from('line_links').update({ reminders_enabled: value }).eq('id', link.id);
+  };
+
+  const toggleOverdue = async (value: boolean) => {
+    if (!link) return;
+    setLink({ ...link, overdue_enabled: value });
+    await supabase.from('line_links').update({ overdue_enabled: value }).eq('id', link.id);
   };
 
   const sendTest = async () => {
@@ -180,7 +187,7 @@ export const LineSettings = () => {
               </div>
               <p className="text-xs text-muted-foreground">
                 In the chat you can also send <b>status</b>, <b>stop</b>, <b>start</b>,{' '}
-                <b>remind on</b>, or <b>remind off</b>.
+                <b>remind on</b>, <b>remind off</b>, <b>overdue on</b>, or <b>overdue off</b>.
               </p>
             </div>
 
@@ -202,6 +209,20 @@ export const LineSettings = () => {
               <Switch
                 checked={link.reminders_enabled}
                 onCheckedChange={toggleReminders}
+                disabled={!link.line_user_id}
+              />
+            </div>
+
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-medium">Missed deadline nudges</p>
+                <p className="text-xs text-muted-foreground">
+                  Sent once when a task or event deadline passes unfinished
+                </p>
+              </div>
+              <Switch
+                checked={link.overdue_enabled}
+                onCheckedChange={toggleOverdue}
                 disabled={!link.line_user_id}
               />
             </div>
